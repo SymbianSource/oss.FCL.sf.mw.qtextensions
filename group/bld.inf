@@ -1,0 +1,54 @@
+/*
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation, version 2.1 of the License.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, 
+* see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
+*
+* Description:   Build information file for Qt Extensions configuration
+*
+*/
+
+#include <platform_paths.hrh>
+
+PRJ_PLATFORMS
+TOOLS2
+
+PRJ_EXPORTS
+qtextensionsconfig.xml                         /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
+qtextensionsconfig.flm                         /epoc32/tools/makefile_templates/qt/qtextensionsconfig.flm
+qtextensionsconfig.mk                          /epoc32/tools/makefile_templates/qt/qtextensionsconfig.mk
+qtextensionsconfig.meta                        /epoc32/tools/makefile_templates/qt/qtextensionsconfig.meta
+
+../qtmobility/features/mobility.prf              /epoc32/tools/qt/mkspecs/features/mobility.prf
+
+//For UDA image
+../qtmobility/confml/qtmobility.confml         CONFML_EXPORT_PATH(qtmobility.confml,uda_content)
+../qtmobility/implml/qtmobility_copy.implml    CRML_EXPORT_PATH(qtmobility_copy.implml,uda_content)
+../qtmobility/data/qtmobility.sisx             CRML_EXPORT_PATH(../content/sis/,uda_content)
+../qtmobility/data/qtmobility_stub.sis         /epoc32/data/z/system/install/qtmobility_stub.sis
+
+PRJ_MMPFILES
+
+
+PRJ_TESTMMPFILES
+
+
+PRJ_EXTENSIONS
+START EXTENSION qt/qtextensionsconfig
+OPTION MODULES bearer
+OPTION TESTS -tests
+OPTION EXAMPLES -examples
+OPTION DOCS -no-docs
+END
+

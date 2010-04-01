@@ -1,0 +1,63 @@
+TEMPLATE = subdirs
+
+symbian: {
+    include(../../staticconfig.pri)
+    load(data_caging_paths)
+    include($$QT_MOBILITY_BUILD_TREE/config.pri)
+
+    SUBDIRS =
+    TARGET = "QtMobility"
+    TARGET.UID3 = 0x2002AC89
+    # TP preview 0.1.0
+    # Beta 0.2.0
+    # Final 1.0.0
+
+    VERSION = 1.0.0
+
+    vendorinfo = \
+        "; Localised Vendor name" \
+        "%{\"Nokia\"}" \
+        " " \
+        "; Unique Vendor name" \
+        ":\"Nokia\"" \
+        " "
+    qtmobilitydeployment.pkg_prerules += vendorinfo
+
+    epoc31 = $$(EPOCROOT31)
+    epoc32 = $$(EPOCROOT32)    
+    epoc50 = $$(EPOCROOT50)
+    
+    # default to EPOCROOT if EPOCROOTxy not defined
+    isEmpty(epoc31) {
+        EPOCROOT31 = $${EPOCROOT}
+    } else {
+    EPOCROOT31 = $$(EPOCROOT31)
+    }
+    isEmpty(epoc32) {
+        EPOCROOT32 = $${EPOCROOT}
+    }else {
+    EPOCROOT32 = $$(EPOCROOT32)
+    }
+    isEmpty(epoc50) {
+        EPOCROOT50 = $${EPOCROOT}
+    } else {
+    EPOCROOT50 = $$(EPOCROOT50)
+    }
+    
+    bearer = \
+        "IF package(0x1028315F)" \
+        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+        "ELSEIF package(0x102752AE)" \
+        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+        "ELSEIF package(0x102032BE)" \
+        "   \"$$EPOCROOT31\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+        "ELSE" \
+        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+        "ENDIF"
+
+    qtmobilitydeployment.pkg_postrules += bearer
+    
+    qtmobilitydeployment.path = /sys/bin
+    
+    DEPLOYMENT += qtmobilitydeployment 
+}

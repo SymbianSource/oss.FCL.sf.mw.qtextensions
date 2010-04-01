@@ -1,0 +1,8 @@
+# Meta information for Python Py2exe
+#
+# Copyright (c) 2007 Symbian Software Ltd.  All rights reserved.
+#
+
+platform	tools2
+makefile 	gnumake
+techstream	qt
