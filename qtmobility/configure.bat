@@ -66,33 +66,30 @@ if exist "%QMAKE_CACHE%" del %QMAKE_CACHE%
 if exist "%PROJECT_LOG%" del %PROJECT_LOG%
 if exist "%PROJECT_CONFIG%" del %PROJECT_CONFIG%
 
-set MOD_SOURCE_PATH=%SOURCE_PATH:\=/%
-set MOD_BUILD_PATH=%BUILD_PATH:\=/%
-echo QT_MOBILITY_SOURCE_TREE = $${EPOCROOT}%MOD_SOURCE_PATH:~3%
-REM echo QT_MOBILITY_SOURCE_TREE = $${EPOCROOT}%MOD_SOURCE_PATH:~3% > %QMAKE_CACHE%
-echo QT_MOBILITY_BUILD_TREE = $${EPOCROOT}%MOD_BUILD_PATH:~3%
-REM echo QT_MOBILITY_BUILD_TREE = $${EPOCROOT}%MOD_BUILD_PATH:~3% >> %QMAKE_CACHE%
+echo QT_MOBILITY_SOURCE_TREE = %SOURCE_PATH% > %QMAKE_CACHE%
+echo QT_MOBILITY_BUILD_TREE = %BUILD_PATH% >> %QMAKE_CACHE%
 set QMAKE_CACHE=
 
 :cmdline_parsing
-if "%1" == ""               goto startProcessing
-if "%1" == "-debug"         goto debugTag
-if "%1" == "-release"       goto releaseTag
-if "%1" == "-silent"        goto silentTag
-if "%1" == "-prefix"        goto prefixTag
-if "%1" == "-libdir"        goto libTag
-if "%1" == "-bindir"        goto binTag
-if "%1" == "-headerdir"     goto headerTag
-if "%1" == "-tests"         goto testTag
-if "%1" == "-examples"      goto exampleTag
-if "%1" == "-qt"            goto qtTag
-if "%1" == "-vc"            goto vcTag
-if "%1" == "-no-docs"       goto nodocsTag
-if "%1" == "-modules"       goto modulesTag
-if "%1" == "/?"             goto usage
-if "%1" == "-h"             goto usage
-if "%1" == "-help"          goto usage
-if "%1" == "--help"         goto usage
+if "%1" == ""                   goto startProcessing
+if "%1" == "-debug"             goto debugTag
+if "%1" == "-release"           goto releaseTag
+if "%1" == "-silent"            goto silentTag
+if "%1" == "-prefix"            goto prefixTag
+if "%1" == "-libdir"            goto libTag
+if "%1" == "-bindir"            goto binTag
+if "%1" == "-headerdir"         goto headerTag
+if "%1" == "-tests"             goto testTag
+if "%1" == "-examples"          goto exampleTag
+if "%1" == "-qt"                goto qtTag
+if "%1" == "-vc"                goto vcTag
+if "%1" == "-no-docs"           goto nodocsTag
+if "%1" == "-modules"           goto modulesTag
+if "%1" == "/?"                 goto usage
+if "%1" == "-h"                 goto usage
+if "%1" == "-help"              goto usage
+if "%1" == "--help"             goto usage
+if "%1" == "-symbian-unfrozen"  goto unfrozenTag
 
 
 echo Unknown option: "%1"
@@ -124,6 +121,7 @@ echo Usage: configure.bat [-prefix (dir)] [headerdir (dir)] [libdir (dir)]
     echo -modules ^<list^> ... Build only the specified modules (default all)
     echo                     Choose from: bearer contacts location publishsubscribe
     echo                     messaging multimedia systeminfo serviceframework versit
+    echo                     sensors
     echo                     Modules should be separated by a space and surrounded
     echo                     by double quotation. If a
     echo                     selected module depends on other modules dependencies
@@ -178,6 +176,18 @@ goto cmdline_parsing
 :headerTag
 shift
 echo QT_MOBILITY_INCLUDE = %1 >> %PROJECT_CONFIG%
+shift
+goto cmdline_parsing
+
+:unfrozenTag
+REM Should never be used in release builds
+REM Some SDK's seem to exclude Q_AUTOTEST_EXPORT symbols if the 
+REM libraries are frozen. This breaks unit tests relying on the auto test exports
+REM This flag unfreezes the SYMBIAN libraries for the purpose of unit test building.
+REM Ideally this should be connected to '-tests' option but that would prevent 
+REM integration testing for frozen symbols as the CI system should test unit tests
+REM and frozen symbol compliance.
+echo symbian_symbols_unfrozen = 1 >> %PROJECT_CONFIG%
 shift
 goto cmdline_parsing
 
@@ -290,17 +300,12 @@ echo "%QT_MOBILITY_PREFIX%" is not a valid directory path.
 goto :exitTag
 
 :prefixExists
-set MOD_QT_MOBILITY_PREFIX=%QT_MOBILITY_PREFIX:/=\%
-cd /D %MOD_QT_MOBILITY_PREFIX%
+cd /D %QT_MOBILITY_PREFIX%
 set QT_MOBILITY_PREFIX=%CD%
 cd /D %CURRENTDIR%
 
 :endprefixProcessing
-echo QT_MOBILITY_SOURCE_TREE = $${EPOCROOT}%MOD_SOURCE_PATH:~3% > %PROJECT_CONFIG%
-echo QT_MOBILITY_BUILD_TREE = $${EPOCROOT}%MOD_BUILD_PATH:~3% >> %PROJECT_CONFIG%
-set MOD_QT_MOBILITY_PREFIX=%QT_MOBILITY_PREFIX:\=/%
-echo QT_MOBILITY_PREFIX = $${EPOCROOT}%MOD_QT_MOBILITY_PREFIX:~3%
-echo QT_MOBILITY_PREFIX = $${EPOCROOT}%MOD_QT_MOBILITY_PREFIX:~3% >> %PROJECT_CONFIG%
+echo QT_MOBILITY_PREFIX = %QT_MOBILITY_PREFIX% >> %PROJECT_CONFIG%
 
 echo build_unit_tests = %BUILD_UNITTESTS% >> %PROJECT_CONFIG%
 set BUILD_UNITTESTS=
@@ -322,9 +327,9 @@ REM no Sysinfo support on Maemo yet
 echo maemo5^|maemo6:mobility_modules -= systeminfo >> %PROJECT_CONFIG%
 echo contains(mobility_modules,versit): mobility_modules *= contacts  >> %PROJECT_CONFIG%
 
-REM echo Checking available Qt
-REM call %QT_PATH%qmake -v >> %PROJECT_LOG% 2>&1
-REM if errorlevel 1 goto qmakeNotFound
+echo Checking available Qt
+call %QT_PATH%qmake -v >> %PROJECT_LOG% 2>&1
+if errorlevel 1 goto qmakeNotFound
 goto qmakeFound
 :qmakeNotFound
 echo ... Not found  >> %PROJECT_LOG% 2>&1
@@ -338,7 +343,7 @@ echo >&2Aborting.
 goto errorTag
 
 :qmakeFound
-REM call %QT_PATH%qmake -query QT_VERSION
+call %QT_PATH%qmake -query QT_VERSION
 
 goto checkMake
 
@@ -388,10 +393,9 @@ setlocal
 call endlocal&set %1=%MAKE%&set %2=%BUILDSYSTEM%&goto :EOF
 
 :checkMake
-REM echo Checking make
-REM call :makeTest MOBILITY_MAKE MOBILITY_BUILDSYSTEM
-REM if not "%MOBILITY_MAKE%" == "" goto compileTests
-goto compileTests
+echo Checking make
+call :makeTest MOBILITY_MAKE MOBILITY_BUILDSYSTEM
+if not "%MOBILITY_MAKE%" == "" goto compileTests
 
 echo >&2Cannot find 'nmake', 'mingw32-make' or 'make' in your PATH
 echo >&2Aborting.
@@ -440,12 +444,10 @@ endlocal&goto :EOF
 echo.
 echo Start of compile tests
 REM compile tests go here.
-REM call :compileTest LBT lbt
-echo lbt_enabled = yes >> %PROJECT_CONFIG%
-REM call :compileTest SNAP snap
-echo snap_enabled = yes >> %PROJECT_CONFIG%
-REM call :compileTest SymbianContactSIM symbiancntsim
-echo symbiancntsim_enabled = yes >> %PROJECT_CONFIG%
+call :compileTest LBT lbt
+call :compileTest SNAP snap
+call :compileTest OCC occ
+call :compileTest SymbianContactSIM symbiancntsim
 echo End of compile tests
 echo.
 echo.
@@ -454,7 +456,7 @@ REM we could skip generating headers if a module is not enabled
 if not exist "%BUILD_PATH%\features" mkdir %BUILD_PATH%\features
 copy %SOURCE_PATH%\features\strict_flags.prf %BUILD_PATH%\features
 echo Generating Mobility Headers...
-if exist "%BUILD_PATH%\include" rd /s /q %BUILD_PATH%\include
+rd /s /q %BUILD_PATH%\include
 mkdir %BUILD_PATH%\include
 perl -S %SOURCE_PATH%\bin\syncheaders %BUILD_PATH%\include %SOURCE_PATH%\src\global
 
@@ -513,12 +515,11 @@ if exist config.pri del config.pri
 ren %PROJECT_CONFIG% config.pri
 
 echo.
-REM echo Running qmake...
-REM call %QT_PATH%qmake -recursive %VC_TEMPLATE_OPTION% %SOURCE_PATH%\qtmobility.pro
-REM if errorlevel 1 goto qmakeRecError
-REM echo.
-echo configure has finished. 
-REM You may run %MOBILITY_MAKE% to build the project now.
+echo Running qmake...
+call %QT_PATH%qmake -recursive %VC_TEMPLATE_OPTION% %SOURCE_PATH%\qtmobility.pro
+if errorlevel 1 goto qmakeRecError
+echo.
+echo configure has finished. You may run %MOBILITY_MAKE% to build the project now.
 goto exitTag
 
 :qmakeRecError

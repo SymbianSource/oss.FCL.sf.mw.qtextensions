@@ -24,9 +24,9 @@ symbian: {
     qtmobilitydeployment.pkg_prerules += vendorinfo
 
     epoc31 = $$(EPOCROOT31)
-    epoc32 = $$(EPOCROOT32)    
+    epoc32 = $$(EPOCROOT32)
     epoc50 = $$(EPOCROOT50)
-    
+
     # default to EPOCROOT if EPOCROOTxy not defined
     isEmpty(epoc31) {
         EPOCROOT31 = $${EPOCROOT}
@@ -44,20 +44,24 @@ symbian: {
     EPOCROOT50 = $$(EPOCROOT50)
     }
     
-    bearer = \
-        "IF package(0x1028315F)" \
-        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
-        "ELSEIF package(0x102752AE)" \
-        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
-        "ELSEIF package(0x102032BE)" \
-        "   \"$$EPOCROOT31\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
-        "ELSE" \
-        "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
-        "ENDIF"
+    contains(mobility_modules, bearer) {
+        bearer = \
+            "IF package(0x1028315F)" \
+            "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+            "ELSEIF package(0x102752AE)" \
+            "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+            "ELSEIF package(0x102032BE)" \
+            "   \"$$EPOCROOT31\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+            "ELSE" \
+            "   \"$$EPOCROOT50\epoc32/release/armv5/urel/QtBearer.dll\" - \"!:\\sys\\bin\\QtBearer.dll\"" \
+            "ENDIF"
 
-    qtmobilitydeployment.pkg_postrules += bearer
+        qtmobilitydeployment.pkg_postrules += bearer
+    }
     
     qtmobilitydeployment.path = /sys/bin
+
+    DEPLOYMENT += qtmobilitydeployment
     
-    DEPLOYMENT += qtmobilitydeployment 
+    #BLD_INF_RULES.prj_exports += "./qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
 }

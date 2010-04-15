@@ -1,12 +1,8 @@
 !symbian:error(This example is for Symbian packaging purposes only.)
 
-TEMPLATE = app
-TARGET = S60Examples
-
-include(../../staticconfig.pri)
-
 TEMPLATE = subdirs
 
+include(../../staticconfig.pri)
 load(data_caging_paths)
 
 #BearerManagement examples
@@ -41,3 +37,5 @@ mifs.path = $$APP_RESOURCE_DIR
 
 # ensure that dependency to QtMobility sis package is added
 CONFIG+=mobility
+
+#BLD_INF_RULES.prj_exports += "./qtmobilityexamples.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(qtmobilityexamples.iby)"

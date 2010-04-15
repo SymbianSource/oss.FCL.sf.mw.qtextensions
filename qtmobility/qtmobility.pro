@@ -32,13 +32,13 @@ win32:!contains(CONFIG_WIN32,build_all) {
    }
 }
 
-#lessThan(QT_MAJOR_VERSION, 4) {
-#    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
-#}
+lessThan(QT_MAJOR_VERSION, 4) {
+    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
+}
 
-#contains(QT_MAJOR_VERSION, 4):lessThan(QT_MINOR_VERSION, 6) {
-#    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
-#}
+contains(QT_MAJOR_VERSION, 4):lessThan(QT_MINOR_VERSION, 6) {
+    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
+}
 
 
 #generate prf file for Qt integration
@@ -48,16 +48,16 @@ win32:!contains(CONFIG_WIN32,build_all) {
 #system(echo MOBILITY_INCLUDE=$${QT_MOBILITY_INCLUDE} >> $$PRF_OUTPUT)
 #system(echo MOBILITY_LIB=$${QT_MOBILITY_LIB} >> $$PRF_OUTPUT)
 
-#MOD_QT_MOBILITY_SOURCE_TREE=$$replace(QT_MOBILITY_SOURCE_TREE, /, \\)
 #unix:!symbian:system(cat $${QT_MOBILITY_SOURCE_TREE}/features/mobility.prf.template >> $$PRF_OUTPUT)
 #win32:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
-#symbian:system(type $${MOD_QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
+#symbian:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
 
-#MOD_QT_MOBILITY_BUILD_TREE=$$replace(QT_MOBILITY_BUILD_TREE, /, \\)
-#INSTALL_DATA=$$[QT_INSTALL_DATA]
-#MOD_QT_INSTALL_DATA=$$replace(INSTALL_DATA, /, \\)
 #symbian does not generate make install rule. we have to copy prf manually 
-#symbian:system(copy $${MOD_QT_MOBILITY_BUILD_TREE}\features\mobility.prf $${MOD_QT_INSTALL_DATA}\mkspecs\features)
+#symbian {
+#    FORMATDIR=$$[QT_INSTALL_DATA]\mkspecs\features\
+#    FORMATDIR=$$replace(FORMATDIR,/,\\ )
+#    system(copy "$${QT_MOBILITY_BUILD_TREE}\features\mobility.prf $$FORMATDIR")
+#}
 
 # install feature file
 #feature.path = $$[QT_INSTALL_DATA]/mkspecs/features
@@ -69,15 +69,11 @@ CONFIG+=ordered
 
 SUBDIRS += src
 
-#contains(build_unit_tests, yes):SUBDIRS+=tests
-#contains(build_examples, yes):SUBDIRS+=examples
+contains(build_unit_tests, yes):SUBDIRS+=tests
+contains(build_examples, yes):SUBDIRS+=examples
 
 # install Qt style headers
 qtmheaders.path = $${QT_MOBILITY_INCLUDE}
 qtmheaders.files = $${QT_MOBILITY_BUILD_TREE}/include/*
 
 INSTALLS += qtmheaders
-
-symbian {
-#BLD_INF_RULES.prj_exports += "./rom/qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
-}
