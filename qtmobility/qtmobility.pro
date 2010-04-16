@@ -67,7 +67,14 @@ win32:!contains(CONFIG_WIN32,build_all) {
 TEMPLATE = subdirs
 CONFIG+=ordered
 
-SUBDIRS += src
+SUBDIRS += src tools plugins
+#built documentation snippets, if enabled
+contains(build_docs, yes) {
+    SUBDIRS += doc
+    include(doc/doc.pri)
+
+    OTHER_FILES += doc/src/*.qdoc doc/src/examples/*.qdoc
+}
 
 #contains(build_unit_tests, yes):SUBDIRS+=tests
 #contains(build_examples, yes):SUBDIRS+=examples
@@ -79,5 +86,7 @@ qtmheaders.files = $${QT_MOBILITY_BUILD_TREE}/include/*
 INSTALLS += qtmheaders
 
 symbian {
-#BLD_INF_RULES.prj_exports += "./rom/qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
+BLD_INF_RULES.prj_exports += "./rom/qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
+BLD_INF_RULES.prj_exports += "./rom/qtmobilityresources.iby  $$CORE_ADAPT_LAYER_IBY_EXPORT_PATH(language/mw/qtmobilityresources.iby)"
+BLD_INF_RULES.prj_exports += "./rom/qtmobility_stub.sis      /epoc32/data/z/system/install/qtmobility_stub.sis"
 }

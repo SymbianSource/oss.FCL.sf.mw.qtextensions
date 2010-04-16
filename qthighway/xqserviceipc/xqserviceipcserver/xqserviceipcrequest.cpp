@@ -1,0 +1,306 @@
+/*
+* Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation, version 2.1 of the License.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, 
+* see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
+*
+* Description:  IPC request class
+*
+*/
+
+#include "xqservicelog.h"
+
+#include <xqserviceclientinfo.h>
+#include "xqserviceipcrequest.h"
+#include "xqserviceipcserversession.h"
+#include "xqrequestutil.h"
+
+namespace QtService
+{
+/*!
+ \class ServiceIPCRequest
+ Class to encapsulate a service request
+ */
+
+/*!
+ Constructor
+ @param aSession session associated with this request
+ @param aDataLength amount of data to be received in this request
+ @param aRequestOp operaion name
+ */
+ServiceIPCRequest::ServiceIPCRequest(ServiceIPCSession* aSession,
+                                     qint64 aDataLength,
+                                     const QString& aRequestOp) :
+    iSession(aSession), 
+    iRequestOp(aRequestOp), 
+    iDatalength(aDataLength),
+    iClientInfo(NULL),
+    QObject(NULL),
+    iId(-1),
+    iAsync(false)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::ServiceIPCRequest(1)");
+    XQSERVICE_DEBUG_PRINT("aDataLength: %d", aDataLength);
+    XQSERVICE_DEBUG_PRINT("aRequestOp: %s", qPrintable(aRequestOp));
+}
+
+/*!
+ Copy Constructor
+ @param aRequest request to be copied
+ */
+ServiceIPCRequest::ServiceIPCRequest(ServiceIPCRequest& aRequest)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::ServiceIPCRequest(2)");
+    //session
+    iSession = aRequest.getSession();
+    
+    //client info
+    iClientInfo = new ClientInfo();
+    iClientInfo->setName((aRequest.clientInfo())->name());
+    iClientInfo->setProcessId(aRequest.clientInfo()->processId());
+    iClientInfo->setVendorId(aRequest.clientInfo()->vendorId());
+    
+    // request operation
+    iRequestOp = aRequest.getOperation();
+    
+    //data part
+    iRequestData = aRequest.getData();
+    iDatalength = iRequestData.length();
+
+    // Request options
+    iRequestInfo = aRequest.requestInfo();
+
+}
+
+/*!
+ Destructor
+ */
+ServiceIPCRequest::~ServiceIPCRequest()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::~ServiceIPCRequest");
+    delete iClientInfo;
+}
+
+/*!
+ Assignment operator
+ @param aRequest request to be assigned
+ @return ServiceIPCRequest assigned request
+ */
+ServiceIPCRequest& ServiceIPCRequest::operator=(ServiceIPCRequest& aRequest)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::operator=");
+    if (this != &aRequest) {
+        //session
+        iSession = aRequest.getSession();
+        
+        //client info
+        ClientInfo* info = new ClientInfo();
+        info->setName((aRequest.clientInfo())->name());
+        info->setProcessId(aRequest.clientInfo()->processId());
+        info->setVendorId(aRequest.clientInfo()->vendorId());
+        delete iClientInfo;
+        iClientInfo = info;    
+        
+        // request operation
+        iRequestOp = aRequest.getOperation();
+            
+        //data part
+        iRequestData = aRequest.getData();
+        iDatalength = iRequestData.length();
+
+        // Request options
+        iRequestInfo = aRequest.requestInfo();
+        
+    }
+    return *this;
+}
+
+/*!
+ Get the requested operation
+ @return QString operation ID
+ */
+const QString& ServiceIPCRequest::getOperation()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getOperation");
+    XQSERVICE_DEBUG_PRINT("iRequestOp: %s", qPrintable(iRequestOp));
+    return iRequestOp;
+}
+
+/*!
+ Get the requested data
+ @return QByteArray data for this operation
+ */
+const QByteArray& ServiceIPCRequest::getData()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getData");
+    XQSERVICE_DEBUG_PRINT("iRequestData: %s", iRequestData.constData());
+    return iRequestData;
+}
+
+/*!
+ Write some data to the request
+ @param aData data to write to the socket
+ */
+bool ServiceIPCRequest::write(const QByteArray& aData)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::write");
+    XQSERVICE_DEBUG_PRINT("aData: %s", aData.constData());
+    // Do we want to buffer the writes?
+    return iSession->write(aData);
+}
+
+/*!
+ Complete the request
+ @return true if request completed successfully
+ */
+bool ServiceIPCRequest::completeRequest()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::completeRequest");
+    return iSession->completeRequest();
+}
+
+/*!
+ Append more data when creating the request
+ @arg aMoreData data to be appended to the request
+ @return true if iDataLength now equals the full length
+ */
+bool ServiceIPCRequest::addRequestdata(const QByteArray& aMoreData)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::addRequestdata");
+    XQSERVICE_DEBUG_PRINT("aMoreData: %s", aMoreData.constData());
+    iRequestData.append(aMoreData);
+    return (iRequestData.length() == iDatalength);
+}
+
+/*!
+ Sets the client info.  Onwership of the object is passed in.
+ @arg aClientInfo Client information
+ */
+void ServiceIPCRequest::setClientInfo(ClientInfo *aClientInfo)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setClientInfo");
+    delete iClientInfo;
+    iClientInfo = aClientInfo;
+}
+
+/*!
+ Gets the client info.
+ @return Client Information object.  NULL if none is available
+ */
+ClientInfo* ServiceIPCRequest::clientInfo()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::clientInfo");
+    return iClientInfo;
+}
+
+/*!
+ Gets the session.
+ @return ServiceIPCSession.  NULL if none is available
+ */
+ServiceIPCSession* ServiceIPCRequest::getSession()
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getSession");
+    return iSession;
+}
+
+/*!
+ Sets id of the request.
+ @arg id Identifier of the request.
+ */
+void ServiceIPCRequest::setId(int aId)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setId");
+    XQSERVICE_DEBUG_PRINT("\t aId = %d", aId);
+    iId = aId;
+}
+
+/*!
+ Returns id of the request.
+ @return Id of the request.
+ */
+int ServiceIPCRequest::id() const
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::id");
+    XQSERVICE_DEBUG_PRINT("\t iId = %d", iId);
+    return iId;
+}
+
+/*!
+ Sets asynchcronous flag to true or false.
+ @arg A value of the async flag.
+ */
+void ServiceIPCRequest::setAsync(bool aAsync)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setAsync");
+    XQSERVICE_DEBUG_PRINT("\t iAsync = %d", aAsync);
+    iAsync = aAsync;
+}
+
+/*!
+ Returns asynch flag.
+ @return True if the request is asynchronous. False, if synchronous
+ */
+bool ServiceIPCRequest::isAsync() const
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getAsync");
+    XQSERVICE_DEBUG_PRINT("\t iAsync = %d", iAsync);
+    return iAsync;
+}
+
+
+void ServiceIPCRequest::setRequestInfo(XQRequestInfo *info)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setRequestInfo");
+    if (info)
+    {
+        iRequestInfo = *info;
+        if (iClientInfo)
+        {
+            // Fill in client security info from the client info
+            XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSecurityInfo");
+            iRequestInfo.setInfo(XQServiceUtils::InfoSID, iClientInfo->processId());
+            iRequestInfo.setInfo(XQServiceUtils::InfoVID, iClientInfo->vendorId());
+            iRequestInfo.setInfo(XQServiceUtils::InfoCap, iClientInfo->capabilities());
+        }
+    }
+}
+
+XQRequestInfo ServiceIPCRequest::requestInfo() const
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::requestInfo");
+    return iRequestInfo;
+}
+
+void ServiceIPCRequest::addSharableFile(XQSharableFile *file, int index)
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSharableFile");
+    if (file != NULL)
+        iSharableFiles.append(*file);
+}
+
+XQSharableFile ServiceIPCRequest::sharableFile(int index) const
+{
+    XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSharableFile");
+    if (index >= 0 && index < iSharableFiles.size())
+    {
+        XQSharableFile file = iSharableFiles.at(index);
+        XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSharableFile valid=%d", file.isValid());
+        return file;
+    }
+    return XQSharableFile();
+}
+
+
+}
+// END OF FILE

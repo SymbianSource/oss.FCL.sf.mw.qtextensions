@@ -19,4 +19,7 @@
 #
 
 TEMPLATE = subdirs
-SUBDIRS = qtmobility
+SUBDIRS = qtecomplugins \
+          qthighway \
+          qtmobileextensions \
+          qtmobility

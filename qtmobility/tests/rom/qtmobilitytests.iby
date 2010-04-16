@@ -30,4 +30,14 @@ S60_APP_EXE(bearerex)
 S60_APP_RESOURCE(bearerex)
 UPGRADABLE_APP_REG_RSC(bearerex)
 
+S60_APP_EXE(messagingex)
+S60_APP_RESOURCE(messagingex)
+UPGRADABLE_APP_REG_RSC(messagingex)
+
+S60_APP_EXE(publishsubscribeex)
+S60_APP_RESOURCE(publishsubscribeex)
+UPGRADABLE_APP_REG_RSC(publishsubscribeex)
+data=\epoc32\data\z\resource\qt\crml\resources.qcrml                          resource\qt\crml\resources.qcrml
+data=\epoc32\data\z\resource\qt\crml\profile.qcrml                            resource\qt\crml\profile.qcrml
+
 #endif //__QT_MOBILITYTESTS_IBY__

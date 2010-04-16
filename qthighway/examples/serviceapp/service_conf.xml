@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<service>
+  <name>com.nokia.services.serviceapp</name>
+  <filepath>No path</filepath>
+  <description>Telephony service</description>
+  <interface>
+     <name>Dialer</name>
+     <version>1.0</version>
+     <description>Interface which may do something</description>
+   </interface>
+  <interface>
+     <name>com.nokia.symbian.IUriView</name>
+     <version>1.0</version>
+     <description>Interface for showing URIs</description>
+     <customproperty key="schemes">testto</customproperty>
+   </interface>
+  <interface>
+     <name>com.nokia.symbian.IFileView</name>
+     <version>1.0</version>
+     <description>Interface for showing Files</description>
+   </interface>
+</service>

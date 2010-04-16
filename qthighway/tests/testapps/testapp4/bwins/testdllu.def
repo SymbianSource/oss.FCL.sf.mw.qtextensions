@@ -1,0 +1,16 @@
+EXPORTS
+	?staticMetaObject@TestDll@@2UQMetaObject@@B @ 1 NONAME ; struct QMetaObject const TestDll::staticMetaObject
+	?metaObject@TestDll@@UBEPBUQMetaObject@@XZ @ 2 NONAME ; struct QMetaObject const * TestDll::metaObject(void) const
+	??1TestDll@@UAE@XZ @ 3 NONAME ; TestDll::~TestDll(void)
+	?requestCompleted@TestDll@@IAEXABVQVariant@@@Z @ 4 NONAME ; void TestDll::requestCompleted(class QVariant const &)
+	??0TestDll@@QAE@PAVQObject@@@Z @ 5 NONAME ; TestDll::TestDll(class QObject *)
+	?asyncsend@TestDll@@QAEXXZ @ 6 NONAME ; void TestDll::asyncsend(void)
+	?trUtf8@TestDll@@SA?AVQString@@PBD0H@Z @ 7 NONAME ; class QString TestDll::trUtf8(char const *, char const *, int)
+	?tr@TestDll@@SA?AVQString@@PBD0@Z @ 8 NONAME ; class QString TestDll::tr(char const *, char const *)
+	??_ETestDll@@UAE@I@Z @ 9 NONAME ; TestDll::~TestDll(unsigned int)
+	?getStaticMetaObject@TestDll@@SAABUQMetaObject@@XZ @ 10 NONAME ; struct QMetaObject const & TestDll::getStaticMetaObject(void)
+	?qt_metacall@TestDll@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 11 NONAME ; int TestDll::qt_metacall(enum QMetaObject::Call, int, void * *)
+	?qt_metacast@TestDll@@UAEPAXPBD@Z @ 12 NONAME ; void * TestDll::qt_metacast(char const *)
+	?tr@TestDll@@SA?AVQString@@PBD0H@Z @ 13 NONAME ; class QString TestDll::tr(char const *, char const *, int)
+	?trUtf8@TestDll@@SA?AVQString@@PBD0@Z @ 14 NONAME ; class QString TestDll::trUtf8(char const *, char const *)
+

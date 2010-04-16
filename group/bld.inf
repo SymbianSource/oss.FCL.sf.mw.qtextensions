@@ -25,18 +25,19 @@ PRJ_PLATFORMS
 TOOLS2
 
 PRJ_EXPORTS
-qtextensionsconfig.xml                         /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
-qtextensionsconfig.flm                         /epoc32/tools/makefile_templates/qt/qtextensionsconfig.flm
-qtextensionsconfig.mk                          /epoc32/tools/makefile_templates/qt/qtextensionsconfig.mk
-qtextensionsconfig.meta                        /epoc32/tools/makefile_templates/qt/qtextensionsconfig.meta
+qtextensionsconfig.xml  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
+qtextensionsconfig.flm  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.flm
+qtextensionsconfig.mk   /epoc32/tools/makefile_templates/qt/qtextensionsconfig.mk
+qtextensionsconfig.meta /epoc32/tools/makefile_templates/qt/qtextensionsconfig.meta
+
+qtextensions_pre_targetdep.flm /epoc32/tools/makefile_templates/qt/qtextensions_pre_targetdep.flm
+
+../qtecomplugins/mkspecs/features/ecomplugin.prf /epoc32/tools/qt/mkspecs/features/symbian/ecomplugin.prf
+../qtecomplugins/supplements/xqecom/xqecom.exe   /epoc32/tools/xqecom.exe
+../qthighway/bin/service.prf                     /epoc32/tools/qt/mkspecs/features/symbian/service.prf
+../qthighway/bin/xqsreg.exe                      /epoc32/tools/xqsreg.exe
 
 ../qtmobility/features/mobility.prf              /epoc32/tools/qt/mkspecs/features/mobility.prf
-
-//For UDA image
-../qtmobility/confml/qtmobility.confml         CONFML_EXPORT_PATH(qtmobility.confml,uda_content)
-../qtmobility/implml/qtmobility_copy.implml    CRML_EXPORT_PATH(qtmobility_copy.implml,uda_content)
-../qtmobility/data/qtmobility.sisx             CRML_EXPORT_PATH(../content/sis/,uda_content)
-../qtmobility/data/qtmobility_stub.sis         /epoc32/data/z/system/install/qtmobility_stub.sis
 
 PRJ_MMPFILES
 
@@ -46,7 +47,7 @@ PRJ_TESTMMPFILES
 
 PRJ_EXTENSIONS
 START EXTENSION qt/qtextensionsconfig
-OPTION MODULES bearer
+OPTION MODULES bearer location serviceframework publishsubscribe systeminfo messaging /*multimedia*/
 OPTION TESTS -tests
 OPTION EXAMPLES -examples
 OPTION DOCS -no-docs

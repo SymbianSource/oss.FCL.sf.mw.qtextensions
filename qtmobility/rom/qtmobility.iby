@@ -24,9 +24,50 @@
 
 #include <bldvariant.hrh>
 
-#ifdef FF_QT_BEARER_MANAGEMENT
-file=ABI_DIR\BUILD_DIR\qtbearer.dll                            SHARED_LIB_DIR\qtbearer.dll PAGED
-data=ZSYSTEM\install\qtmobility_stub.sis                       \system\install\qtmobility_stub.sis
-#endif // FF_QT_BEARER_MANAGEMENT
+#define UPGRADABLE_APP_REG_RSC(NAME) data=DATAZ_\PRIVATE\10003A3F\IMPORT\APPS\ ## NAME ## _reg.rsc        Private\10003a3f\import\apps\ ## NAME ## _reg.rsc
+
+//Stub sis
+data=ZSYSTEM\install\qtmobility_stub.sis                                                  \system\install\qtmobility_stub.sis
+
+//Core
+file=ABI_DIR\BUILD_DIR\qtbearer.dll                                                       SHARED_LIB_DIR\qtbearer.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtlocation.dll                                                     SHARED_LIB_DIR\qtlocation.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtpublishsubscribe.dll                                             SHARED_LIB_DIR\qtpublishsubscribe.dll PAGED
+file=ABI_DIR\BUILD_DIR\pspathmapperserver.exe                                             PROGRAMS_DIR\pspathmapperserver.exe PAGED
+UPGRADABLE_APP_REG_RSC(pspathmapperserver)
+file=ABI_DIR\BUILD_DIR\qtserviceframework.dll                                             SHARED_LIB_DIR\qtserviceframework.dll PAGED
+file=ABI_DIR\BUILD_DIR\sfwdatabasemanagerserver.dll                                       SHARED_LIB_DIR\sfwdatabasemanagerserver.dll PAGED
+file=ABI_DIR\BUILD_DIR\sfwdatabasemanagerserver.exe                                       PROGRAMS_DIR\sfwdatabasemanagerserver.exe PAGED
+file=ABI_DIR\BUILD_DIR\qtsysteminfo.dll                                                   SHARED_LIB_DIR\qtsysteminfo.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtmessaging.dll                                                    SHARED_LIB_DIR\qtmessaging.dll PAGED
+
+/*
+file=ABI_DIR\BUILD_DIR\qtmedia.dll                                                        SHARED_LIB_DIR\qtmedia.dll PAGED
+file=ABI_DIR\BUILD_DIR\qtsensors.dll                                                      SHARED_LIB_DIR\qtsensors.dll PAGED
+*/
+
+//Plugins
+/*
+file=ABI_DIR\BUILD_DIR\m3u.dll                                                            SHARED_LIB_DIR\m3u.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\playlistformats\m3u.qtplugin                      resource\qt\plugins\playlistformats\m3u.qtplugin
+file=ABI_DIR\BUILD_DIR\qtmobilitymultimediaengine.dll                                     SHARED_LIB_DIR\qtmobilitymultimediaengine.dll PAGED
+data=\epoc32\data\z\resource\qt\plugins\mediaservice\QtMobilityMultimediaEngine.qtplugin  resource\qt\plugins\mediaservice\QtMobilityMultimediaEngine.qtplugin
+*/
+
+//Tools
+S60_APP_EXE(servicefw)
+UPGRADABLE_APP_REG_RSC(servicefw)
+
+S60_APP_EXE(servicexmlgen)
+UPGRADABLE_APP_REG_RSC(servicexmlgen)
+
+S60_APP_EXE(qcrmlgen)
+UPGRADABLE_APP_REG_RSC(qcrmlgen)
+
+S60_APP_EXE(vsexplorer)
+UPGRADABLE_APP_REG_RSC(vsexplorer)
+
+S60_APP_EXE(icheck)
+UPGRADABLE_APP_REG_RSC(icheck)
 
 #endif // __QT_MOBILITY_IBY__
