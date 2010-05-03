@@ -45,6 +45,42 @@
 #define XQI_URI_VIEW QLatin1String("com.nokia.symbian.IUriView")
 #define XQOP_URI_VIEW QLatin1String("view(QString)")
 
+/*!
+ Image fetching interface and related operations
+*/
+#define XQI_IMAGE_FETCH QLatin1String("com.nokia.symbian.IImageFetch")
+#define XQOP_IMAGE_FETCH QLatin1String("fetch(void)")
+
+/*!
+ Music fetching interface and related operations
+*/
+#define XQI_MUSIC_FETCH QLatin1String("com.nokia.symbian.IMusicFetch")
+#define XQOP_MUSIC_FETCH QLatin1String("fetch(void)")
+
+/*!
+ Video fetching interface and related operations
+*/
+#define XQI_VIDEO_FETCH QLatin1String("com.nokia.symbian.IVideoFetch")
+#define XQOP_VIDEO_FETCH QLatin1String("fetch(void)")
+
+/*!
+ Camera capture interface and related operations
+ Operation: capture(int mode, const QVariantMap &parameters)
+  mode: image = 0, video = 1
+  parameters: 
+   CameraIndex: int:  primary = 0, secondary = 1
+   Quality: int: 0 = default, 1 = lowest, 2 = highest
+   AllowModeSwitch: bool
+   AllowCamera_switch: bool
+   allow_quality_change: bool
+*/
+#define XQI_CAMERA_CAPTURE QLatin1String("com.nokia.symbian.ICameraCapture")
+#define XQOP_CAMERA_CAPTURE QLatin1String("capture(int, const QVariantMap &)")
+#define XQCAMERA_INDEX QLatin1String("CameraIndex")
+#define XQCAMERA_QUALITY QLatin1String("Quality")
+#define XQCAMERA_MODE_SWITCH QLatin1String("AllowModeSwitch")
+#define XQCAMERA_INDEX_SWITCH QLatin1String("AllowCameraSwitch")
+#define XQCAMERA_QUALITY_CHANGE QLatin1String("AllowQualityChange")
 
 // Public URI related constants
 /*!
@@ -88,5 +124,12 @@
  Service XML custom property, that contains schemes the XQI_URI_VIEW can handle
 */
 #define XQCUSTOM_PROP_SCHEMES QLatin1String("schemes")
+
+/*!
+ Service XML custom property, which contains the name of text key that
+ contains the service status
+ \see XQApplicationMgr::isEnabled()
+*/
+#define XQCUSTOM_PROP_AIW_SERVICE_STATUS QLatin1String("aiw_status")
 
 #endif

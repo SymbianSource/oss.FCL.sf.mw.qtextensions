@@ -57,7 +57,7 @@
 #include <QtCore/qset.h>
 #include <QtCore/qtimer.h>
 
-#include <qmediaobject.h>
+#include "qmediaobject.h"
 
 QTM_BEGIN_NAMESPACE
 
@@ -74,6 +74,7 @@ class QMediaObjectPrivate
 
 public:
     QMediaObjectPrivate():metaDataControl(0), notifyTimer(0) {}
+    virtual ~QMediaObjectPrivate() {}
 
     void _q_notify();
 

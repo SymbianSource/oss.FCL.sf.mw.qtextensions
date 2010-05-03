@@ -27,55 +27,7 @@
 #include <QDateTime>
 #include <QFileInfo>
 
-#define PLUGIN_WINSCW_DEF_FILE_ACTUAL "plugin_common_winscw.def"
-#define PLUGIN_EABI_DEF_FILE_ACTUAL "plugin_common_arm.def"
 #define IMPLEMENTATION_UID_LIT "KQtEcomPluginImplementationUid"
-
-void runDefFileGenerator()
-{	
-	QFile ft(QLatin1String(PLUGIN_WINSCW_DEF_FILE_ACTUAL));
-	if(!ft.exists()){
-		if(ft.open(QIODevice::WriteOnly)){
-			QTextStream t(&ft);
-			t << "EXPORTS" << endl;
-			t << "\t?ImplementationGroupProxy@@YAPBUTImplementationProxy@@AAH@Z @ 1 NONAME ; struct TImplementationProxy const * ImplementationGroupProxy(int &)" << endl;
-			t << endl;
-			printf("Generated: ");
-			printf((QFileInfo(ft).absoluteFilePath()).toLocal8Bit().data() );
-			printf("\n");
-	    }else{
-			printf("Not generated: ");
-			printf((QFileInfo(ft).absoluteFilePath()).toLocal8Bit().data() );
-			printf(" - Error %d\n",ft.error());
-		}
-	}else{
-		printf("Not generated: ");
-		printf((QFileInfo(ft).absoluteFilePath()).toLocal8Bit().data() );
-		printf(" - File exists\n");					
-	}
-	
-	QFile ftArm(QLatin1String(PLUGIN_EABI_DEF_FILE_ACTUAL));
-	if(!ftArm.exists()){
-		if(ftArm.open(QIODevice::WriteOnly)) {
-			QTextStream t(&ftArm);
-			t << "EXPORTS" << endl;
-			t << "\t_Z24ImplementationGroupProxyRi @ 1  NONAME" << endl;
-			t << endl;
-			printf("Generated: ");
-			printf((QFileInfo(ftArm).absoluteFilePath()).toLocal8Bit().data() );
-			printf("\n");
-	    }else{
-			printf("Not generated: ");
-			printf((QFileInfo(ftArm).absoluteFilePath()).toLocal8Bit().data() );
-			printf(" - Error %d\n",ftArm.error());
-		}
-	}else{
-		printf("Not generated: ");
-		printf((QFileInfo(ftArm).absoluteFilePath()).toLocal8Bit().data() );
-		printf(" - File exists\n");					
-	}
-
-}
 
 void runRSSFileGenerator(QStringList params)
 {
@@ -86,7 +38,7 @@ void runRSSFileGenerator(QStringList params)
 	QString configurationFile = params[5];
 	
 	QString rssFilename = appName;
-    rssFilename.append(".rss");
+    rssFilename.append(QString::fromLatin1(".rss"));
 
     QFile ft(rssFilename);
 	if(!ft.exists()){
@@ -105,7 +57,7 @@ void runRSSFileGenerator(QStringList params)
 			t << endl;
 
 	        if (interfacename.isEmpty()) {
-	            interfacename = QString(appName).append(".dll");
+	            interfacename = QString(appName).append(QString::fromLatin1(".dll"));
 	        }
 			
 	        QTextStream configStream;
@@ -127,7 +79,7 @@ void runRSSFileGenerator(QStringList params)
 	        }
 
 			
-	        t << "#include <RegistryInfoV2.rh>" << endl << endl;
+	        t << "#include <registryinfov2.rh>" << endl << endl;
 	        t << "#include <xqtecom.hrh>" << endl << endl;
 	        t << "#include <ecomstub_" << uid3 << ".hrh>" << endl << endl;
 	        t << "RESOURCE REGISTRY_INFO theInfo" << endl << "{" << endl;
@@ -139,14 +91,14 @@ void runRSSFileGenerator(QStringList params)
 	        t << "\t\t\tIMPLEMENTATION_INFO" << endl << "\t\t\t\t{" << endl;
 	        t << "\t\t\t\timplementation_uid = " << IMPLEMENTATION_UID_LIT << ";" << endl;
 	        t << "\t\t\t\tversion_no = 1;" << endl;
-	        t << "\t\t\t\tdisplay_name = \"" << appName+QString(".dll") << "\";" << endl;
+	        t << "\t\t\t\tdisplay_name = \"" << appName+QString(QString::fromLatin1(".dll")) << "\";" << endl;
 	        t << "\t\t\t\t// SERVICE.INTERFACE_NAME" << endl;
 	        t << "\t\t\t\tdefault_data = \"" << interfacename << "\";" << endl;
 	        t << "\t\t\t\t// SERVICE.CONFIGURATION" << endl;
 	        t << "\t\t\t\topaque_data = \""; 
 			while( !configStream.atEnd() ) {
 				configStream.skipWhiteSpace();
-				t << configStream.readLine( 255 ).replace("\"","\\\"");
+				t << configStream.readLine( 255 ).replace(QString::fromLatin1("\""), QString::fromLatin1("\\\""));
 			};
 			t << "\";" << endl;
 	        t << "\t\t\t\t}" << endl << "\t\t\t};" << endl << "\t\t}" << endl << "\t};" << endl << "}" << endl;
@@ -170,7 +122,7 @@ void runXQPkgGenerator(QStringList params)
     QString appName = params[1];
     QString uid3=params[2];
 	
-    QString outputFileName=appName+QString(".pkg");
+    QString outputFileName=appName+QString(QString::fromLatin1(".pkg"));
 
     QFile ft(outputFileName);
 	if(!ft.exists()){
@@ -222,8 +174,8 @@ void runXQIbyGenerator(QStringList params)
 {
     QString appName = params[1];
 	
-    QString outputFileName=appName+QString(".iby");
-	QString headerGuard = appName+QString("_IBY");
+    QString outputFileName=appName+QString(QString::fromLatin1(".iby"));
+	QString headerGuard = appName+QString(QString::fromLatin1("_IBY"));
 	headerGuard=headerGuard.toUpper();
 
     QFile ft(outputFileName);
@@ -261,11 +213,11 @@ void runXQIbyGenerator(QStringList params)
 void runXQStubGenerator(QStringList params)
 {
     QString appName = params[1];
-    QString uid3=params[2];	
+    QString uid3 = params[2];	
 	
-	QString outputHeaderFileName="ecomstub_"+uid3+".hrh";
-	QString outputSourceFileName="ecomstub_"+uid3+".cpp";
-	QString headerGuard = QString("ECOMSTUB_%1_HRH").arg(uid3);
+	QString outputHeaderFileName=QString::fromLatin1("ecomstub_") + uid3 + QString::fromLatin1(".hrh");
+	QString outputSourceFileName=QString::fromLatin1("ecomstub_") + uid3 + QString::fromLatin1(".cpp");
+	QString headerGuard = QString::fromLatin1("ECOMSTUB_%1_HRH").arg(uid3);
 
     QFile fth(outputHeaderFileName);
 	if(!fth.exists()){
@@ -307,12 +259,14 @@ void runXQStubGenerator(QStringList params)
 	        
 			t << "#include <xqplugin.h>" << endl;
 	        t << "#include <" << outputHeaderFileName << ">" << endl;
-	        t << "#include <ecom/ImplementationProxy.h>" << endl;
+	        t << "#include <ecom/implementationproxy.h>" << endl;
 	        t << "XQ_PLUGIN_ECOM_HEADER(" << appName << ")" << endl;
 	        //t << "const TImplementationProxy implementationTable[] = \n\t{\n\tIMPLEMENTATION_PROXY_ENTRY( " << IMPLEMENTATION_UID_LIT << ", C" 
-			t << "const TImplementationProxy implementationTable[] = \n\t{\n\tIMPLEMENTATION_PROXY_ENTRY(" + uid3 + ", C" 
+			
+			t << "const TImplementationProxy implementationTable[] = \n\t{\n\tIMPLEMENTATION_PROXY_ENTRY(" << uid3 << ", C" 
 			  << appName
 	          <<"Factory::NewL)\n\t};" << endl << endl;
+			  
 	        t << "EXPORT_C const TImplementationProxy* ImplementationGroupProxy(TInt& aTableCount)"
 	          << endl <<"\t{\n\taTableCount = sizeof( implementationTable ) / sizeof( TImplementationProxy );"
 	          << endl <<"\treturn implementationTable;"
@@ -336,7 +290,7 @@ int main(int argc, char *argv[])
 {
     QStringList params;
     for (int i=0 ; i < argc ; i++) {
-        params << argv[i];
+        params << QString::fromLatin1(argv[i]);
 //		printf(argv[i]);
 //		printf("\n");
 //		fprintf(stderr, "%s\n",argv[i]);
@@ -347,12 +301,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 	
-	if ( !params[2].startsWith("0x") ){ //fix uid if incorrect
-		params[2].insert( 0, "0x");
+	if ( !params[2].startsWith(QString::fromLatin1("0x")) ){ //fix uid if incorrect
+		params[2].insert( 0, QString::fromLatin1("0x"));
 	}
 
     printf("xqecom:\n");
-	runDefFileGenerator();
 	runRSSFileGenerator(params);
 	runXQPkgGenerator(params);
 	runXQIbyGenerator(params);

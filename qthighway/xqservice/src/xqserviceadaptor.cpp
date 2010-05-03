@@ -28,6 +28,7 @@
 #include "xqserviceipcclient.h"
 
 #include <xqserviceutil.h>
+#include <xqrequestutil.h>
 #include <qmetaobject.h>
 #include <QMap>
 #include <QDataStream>
@@ -670,48 +671,60 @@ QVariant XQServiceAdaptor::received(const QString& msg, const QByteArray& data, 
                 XQSERVICE_DEBUG_PRINT("\tDesserialize XQRequestInfo");
                 QVariant v;
                 stream >> v;
-                XQSERVICE_DEBUG_PRINT("\tQVariant type=%s", v.typeName());
+                XQSERVICE_DEBUG_PRINT("\tXQRequestInfo:QVariant type=%s", v.typeName());
                 if (QString(v.typeName()) == QString("XQRequestInfo"))
                 {
                     XQRequestInfo info = v.value<XQRequestInfo>();
                     
-                    //bring foreground or background based on RequestInfo from client side.    
-                    XQServiceUtil::toBackground(info.isBackground());
+                    //bring foreground or background based on RequestInfo from client side.
+                    bool bg = info.isBackground();
+                    bool fg = info.isForeground();
+                    if (bg && !fg)
+                    {
+                        XQSERVICE_DEBUG_PRINT("\tApply background option");
+                        XQServiceUtil::toBackground(true);
+                    }
+                    else if (fg && !bg)
+                    {
+                        XQSERVICE_DEBUG_PRINT("\tApply foreground option");
+                        XQServiceUtil::toBackground(false);
+                    }
+                    // If both off or both on, do not do anything
                     
                     XQServiceIpcClient *cl = XQService::serviceThreadData()->clientConnection(d->channelName);
                     // Attach to current request before the metacall below !
                     cl->setRequestInfo(info);
                 }
             }
-            else if (info->types[arg] != XQServiceAdaptorPrivate::QVariantId) {
-                XQServiceVariant temp;
-                temp.load(stream, info->types[arg]);
-                
-                XQSERVICE_DEBUG_PRINT("\tQVariant type=%s", temp.typeName());
-                             
-                if (QString(temp.typeName()) == QString("XQSharableFile"))
-                    {
-                    //apply the patch
-                    if ( sf.isValid())
-                        {
-                        args.append( qVariantFromValue(sf ) );
-                        }
-                                 
-                    }
-                else
-                    {
-                    args.append(temp);
-                    }
-                
-                
-                a[arg + 1] = (void *)(args[arg].data());
-            } else {
+            else if (info->types[arg] == XQServiceAdaptorPrivate::QVariantId)
+            {
                 // We need to handle QVariant specially because we actually
                 // need the type header in this case.
                 QVariant temp;
                 stream >> temp;
+
+                XQSERVICE_DEBUG_PRINT("\tQVariantId:QVariant type=%s", temp.typeName());
+
+                if (QString(temp.typeName()) == QString("XQSharableFile"))
+                {
+                    //apply the patch
+                    if ( sf.isValid())
+                    {
+                        temp = qVariantFromValue( sf );
+                    }
+                }
+
+                args.append(temp);
+                a[arg + 1] = (void *)&(args[arg]);
+            }
+            else {
+                //
+                // The default handling
+                //
+                QVariant temp;
+                stream >> temp;
                 
-                XQSERVICE_DEBUG_PRINT("\tQVariant type=%s", temp.typeName());
+                XQSERVICE_DEBUG_PRINT("\tDefault:QVariant type=%s", temp.typeName());
                 
                 if (QString(temp.typeName()) == QString("XQSharableFile"))
                     {
@@ -723,7 +736,7 @@ QVariant XQServiceAdaptor::received(const QString& msg, const QByteArray& data, 
                     }
                 
                 args.append(temp);
-                a[arg + 1] = (void *)&(args[arg]);
+                a[arg + 1] = (void *)(args[arg].data());
             }
         }
 
@@ -917,57 +930,17 @@ bool XQServiceAdaptor::send(const QString& channel,
         XQSERVICE_DEBUG_PRINT("args[%d]:type=%s,value=%s", i, args[i].typeName(), qPrintable(args[i].toString()));
     }
     if (!sync && !rc) {
-        //TODO: set error
+        // Something wrong as no callback given
+        XQService::serviceThreadData()->setLatestError(XQService::EArgumentError);
         return false;
     }
     QByteArray array;
-    {
-        QDataStream stream
-            (&array, QIODevice::WriteOnly | QIODevice::Append);
-        QList<QVariant>::ConstIterator iter;
-        if (!msg.contains(QLatin1String("QVariant"))) {
-            for (iter = args.begin(); iter != args.end(); ++iter) {
-                if (QString(iter->typeName()) == QString("XQRequestInfo"))
-                {
-                    // Handle request options specially as we need type header
-                    XQSERVICE_DEBUG_PRINT("\tSerialize XQRequestInfo to stream");
-                    stream << *iter;
-                }
-                else
-                {
-                    XQServiceVariant copy(*iter);
-                    copy.save(stream);
-                }
-            }
-        } else {
-            QByteArray name = msg.toLatin1();
-            name = QMetaObject::normalizedSignature(name.constData());
-            int numParams = 0;
-            int *params = XQServiceAdaptorPrivate::connectionTypes
-                    (name, numParams);
-            int index = 0;
-            for (iter = args.begin(); iter != args.end(); ++iter, ++index) {
-                if (QString(iter->typeName()) == QString("XQRequestInfo"))
-                {
-                    // Pass request info onward (extra internal parameter(
-                    XQSERVICE_DEBUG_PRINT("\tSerialize XQRequestInfo to stream");
-                    stream << *iter;
-                }
-                else if (index < numParams &&
-                     params[index] == XQServiceAdaptorPrivate::QVariantId) {
-                    // We need to handle QVariant specially because we actually
-                    // need the type header in this case.
-                    stream << *iter;
-                } else {
-                    XQServiceVariant copy(*iter);
-                    copy.save(stream);
-                }
-            }
-            if (params)
-                qFree(params);
-        }
-        // Stream is flushed and closed at this point.
+    QDataStream stream(&array, QIODevice::WriteOnly | QIODevice::Append);
+    QList<QVariant>::ConstIterator iter;
+    for (iter = args.begin(); iter != args.end(); ++iter) {
+        stream << *iter;
     }
+    // Stream is flushed and closed at this point.
     return XQServiceChannel::send(channel, msg, array, retValue, sync, rc, userData);
 }
 

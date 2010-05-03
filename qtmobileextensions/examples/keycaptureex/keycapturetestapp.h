@@ -55,7 +55,8 @@ private:
 
     XqKeyCapture *mKeyCapture;
     
-    QMap<QString, Qt::Key> mKeysMap;
+    QMap<QString, long> mKeysMap;
+    
     QMenu* mKeysMenu;
     
     QMap<QString, XqKeyCapture::LongFlags> mLongFlagsMap;
@@ -81,13 +82,15 @@ public:
     };
     
     bool setType(QAction* action);
-    bool setKey(QAction* action, QMap<QString, Qt::Key> *map);
+    bool setKey(QAction* action, QMap<QString, long> *map);
     bool setLongFlags(QAction* action, QMap<QString, XqKeyCapture::LongFlags> *map);
     
     QString toString();
 public:
     RequestType mRequestType;
-    Qt::Key mKey;    
+    //Qt::Key mKey;    
+    long mKey;
+    bool isQtKey;
     Qt::KeyboardModifier mModifiersMap;
     Qt::KeyboardModifier mModifier;
     XqKeyCapture::LongFlags mLongFlags;

@@ -198,7 +198,7 @@ bool CApaSymbianIPC::sendSync( const QString& aRequestType, const QByteArray& aD
         iDataSize = dataSize;
     }
     
-    XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::sendSync DONE");
+    XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::sendSync status=%s", err);
     
     return (err == KErrNone);
 }
@@ -212,7 +212,9 @@ QByteArray CApaSymbianIPC::readAll()
     // this is sync operation
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::readAll");
     QByteArray rtn;
-    TRAPD( err, rtn = doReadAllL() );
+    TInt err(KErrNone);
+    TRAP( err, rtn = doReadAllL() );
+    XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::readAll status=%d",err);
     if ( err )
         {
         emitError(err);
@@ -292,11 +294,14 @@ void CApaSymbianIPC::readAll(QByteArray& aArray)
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::readAll");
 
 	// this is async operation
-    TRAPD(err, doReadAllL(aArray ));
+    TInt err(KErrNone);
+    TRAP(err, doReadAllL(aArray ));
+    XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::readAll status=%d",err);
     if (err)
         {
         emitError(err);
         }
+    
 }
 
 /*!
@@ -450,9 +455,11 @@ void CApaSymbianIPC::StartExitMonitor()
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::StartExitMonitor");
     if (iServerExitMonitor == NULL)
         {
-        TRAPD( err, iServerExitMonitor = CApaServerAppExitMonitor::NewL(iSession,
+        TInt err(KErrNone);
+        TRAP( err, iServerExitMonitor = CApaServerAppExitMonitor::NewL(iSession,
                                                                         *this,
                                                                         CActive::EPriorityStandard ));    
+        XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::StartExitMonitor status=%d",err);
         }
 }
 

@@ -56,7 +56,7 @@ QTM_END_NAMESPACE
 QTM_USE_NAMESPACE
 
 // ![0]
-#include <qml.h>
+#include <QtDeclarative>
 
 class QMLContactManagerAsync : public QObject {
 Q_OBJECT
@@ -105,7 +105,7 @@ private:
     QString contactListToQString(const QList<QContactLocalId>& contactIds) const;
     QStringList contactListToQString(const QList<QContact>& contact) const;
 };
-QML_DECLARE_TYPE(QMLContactManagerAsync);
+QML_DECLARE_TYPE(QMLContactManagerAsync)
 // ![0]
 
 #endif // QMLCONTACTS_H

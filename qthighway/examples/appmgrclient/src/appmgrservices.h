@@ -38,6 +38,51 @@
 #define ERR_OPERATION1 QLatin1String("dial(QString,QString)")
 
 
-// QtHighway specific:
+// Few dummy metatypes
+class MetaDummy1
+{
+    public:
+        MetaDummy1() {};
+        virtual ~MetaDummy1() {};
+
+        QString mTest;
+        template <typename Stream> void serialize(Stream &stream) const;
+        template <typename Stream> void deserialize(Stream &stream);
+};
+
+template <typename Stream> inline void MetaDummy1::serialize(Stream &s) const
+{
+    s << mTest;
+}
+
+template <typename Stream> inline void MetaDummy1::deserialize(Stream &s)
+{
+    s >> mTest;
+}
+
+
+class MetaDummy2
+{
+    public:
+        MetaDummy2() {};
+        virtual ~MetaDummy2() {};
+
+        QString mTest;
+        template <typename Stream> void serialize(Stream &stream) const;
+        template <typename Stream> void deserialize(Stream &stream);
+};
+
+template <typename Stream> inline void MetaDummy2::serialize(Stream &s) const
+{
+    s << mTest;
+}
+
+template <typename Stream> inline void MetaDummy2::deserialize(Stream &s)
+{
+    s >> mTest;
+}
+
+Q_DECLARE_USER_METATYPE(MetaDummy1)
+Q_DECLARE_USER_METATYPE(MetaDummy2)
 
 #endif

@@ -41,8 +41,9 @@ namespace QtService
 */
 ServiceFwIPCServer::ServiceFwIPCServer( MServiceIPCObserver* aObserver, 
                                         QObject* aParent, 
-                                        TServiceIPCBackends aBackend ) : iObserver( aObserver ),
-                                        QObject(aParent )
+                                        TServiceIPCBackends aBackend ) :
+                                        QObject(aParent ),
+                                        iObserver( aObserver )
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCServer::ServiceFwIPCServer");
     XQSERVICE_DEBUG_PRINT("aBackend: %d", aBackend);

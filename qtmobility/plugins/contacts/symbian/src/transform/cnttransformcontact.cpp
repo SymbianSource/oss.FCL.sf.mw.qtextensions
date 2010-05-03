@@ -51,7 +51,8 @@
 #include "cnttransformonlineaccount.h"
 #include "cnttransformorganisation.h"
 #include "cnttransformavatar.h"
-#include "cnttransformavatarsimple.h"
+#include "cnttransformringtone.h"
+#include "cnttransformthumbnail.h"
 #include "cnttransformsynctarget.h"
 #include "cnttransformgender.h"
 #include "cnttransformanniversary.h"
@@ -108,10 +109,11 @@ void CntTransformContact::initializeCntTransformContactData()
 	m_transformContactData.insert(SyncTarget, new CntTransformSyncTarget);
 	m_transformContactData.insert(Note, new CntTransformNote);
 	m_transformContactData.insert(Family, new CntTransformFamily);
+    m_transformContactData.insert(Ringtone, new CntTransformRingtone);
+    m_transformContactData.insert(Avatar, new CntTransformAvatar);
 
 #ifdef SYMBIAN_BACKEND_USE_SQLITE
 	// variated transform classes
-    m_transformContactData.insert(Avatar, new CntTransformAvatar);
     m_transformContactData.insert(Anniversary, new CntTransformAnniversary);
 
     // not supported on pre-10.1
@@ -128,9 +130,10 @@ void CntTransformContact::initializeCntTransformContactData()
     // Empty transform class for removing unsupported detail definitions
     m_transformContactData.insert(Empty, new CntTransformEmpty);
 
+    m_transformContactData.insert(Thumbnail, new CntTransformThumbnail);
+
     // variated transform classes
     m_transformContactData.insert(Anniversary, new CntTransformAnniversarySimple);
-    m_transformContactData.insert(Avatar, new CntTransformAvatarSimple);
 #endif
 }
 
@@ -329,7 +332,7 @@ TUint32 CntTransformContact::GetIdForDetailL(const QContactDetailFilter& detailF
 void CntTransformContact::detailDefinitions(
         QMap<QString, QContactDetailDefinition>& defaultSchema,
         const QString& contactType,
-        QContactManager::Error& error) const
+        QContactManager::Error* error) const
 {
     Q_UNUSED(error);
 
@@ -339,6 +342,11 @@ void CntTransformContact::detailDefinitions(
         i.value()->detailDefinitions(defaultSchema, contactType);
         i++;
     }
+    
+#ifndef SYMBIAN_CNTMODEL_V2
+    // Cannot support timestamp
+    defaultSchema.remove(QContactTimestamp::DefinitionName);
+#endif
 }
 
 QList<CContactItemField *> CntTransformContact::transformDetailL(const QContactDetail &detail) const
@@ -392,12 +400,8 @@ QContactDetail* CntTransformContact::transformGuidItemFieldL(const CContactItem 
 
 QContactDetail* CntTransformContact::transformTimestampItemFieldL(const CContactItem &contactItem, const CContactDatabase &contactDatabase) const
 {
-    QContactTimestamp *timestampDetail = 0;
-
-    // NOTE: In S60 3.1 we cannot use ContactGuid::GetCreationDate() because
-    // it is not exported.
-    // TODO: Make sure SYMBIAN_CNTMODEL_V2 is the right flag for this.
 #ifdef SYMBIAN_CNTMODEL_V2
+    QContactTimestamp *timestampDetail = 0;
     HBufC* guidBuf = contactItem.UidStringL(contactDatabase.MachineId()).AllocLC();
     TPtr ptr = guidBuf->Des();
     if (ContactGuid::GetCreationDate(ptr, contactDatabase.MachineId()))
@@ -429,8 +433,15 @@ QContactDetail* CntTransformContact::transformTimestampItemFieldL(const CContact
         }
     }
     CleanupStack::PopAndDestroy(guidBuf);
-#endif
     return timestampDetail;
+#else
+    // NOTE: In S60 3.1 we cannot use ContactGuid::GetCreationDate() because
+    // it is not exported.
+    // TODO: Make sure SYMBIAN_CNTMODEL_V2 is the right flag for this.
+    Q_UNUSED(contactItem);
+    Q_UNUSED(contactDatabase)
+    return 0;
+#endif
 }
 
 void CntTransformContact::transformPreferredDetailL(const QContact& contact,

@@ -13,6 +13,11 @@ CONFIG(debug, debug|release) {
 
 include(staticconfig.pri)
 
+symbian:contains(symbian_symbols_unfrozen,1) {
+    #see configure.bat for details
+    MMP_RULES+="EXPORTUNFROZEN"
+}
+
 mac {
     contains(QT_CONFIG, qt_framework):contains(TEMPLATE, lib) {
         #MacOSX always builds debug and release libs when using mac framework
@@ -74,7 +79,7 @@ CONFIG(debug, debug|release) {
 contains(QT_CONFIG, reduce_exports):CONFIG+=hide_symbols
 
 #export more symbols if we build the unit tests
-#contains(build_unit_tests, yes):DEFINES+=QTM_BUILD_UNITTESTS
+contains(build_unit_tests, yes):DEFINES+=QTM_BUILD_UNITTESTS
 
 #test whether we have a unit test
 !testcase {
@@ -108,11 +113,6 @@ contains(QT_CONFIG, reduce_exports):CONFIG+=hide_symbols
     QMAKE_RPATHDIR += $$OUTPUT_DIR/lib
 }
 
-# On Symbian, we are freezing libraryies only
-#symbian:!isEmpty(defFilePath) {
-#    MMP_RULES += "EXPORTUNFROZEN"
-#}
-
 contains(TEMPLATE,.*lib):DEFINES += QT_SHARED
 
 maemo6 {
@@ -123,10 +123,6 @@ maemo6 {
 }
 maemo5 {
     DEFINES+= Q_WS_MAEMO_5
-}
-maemo* {
-    LIBS += -L/opt/qt4-maemo5/lib
-    QMAKE_LFLAGS += -Wl,-rpath,/opt/qt4-maemo5/lib
 }
 
 wince* {

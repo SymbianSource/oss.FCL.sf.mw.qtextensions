@@ -57,6 +57,18 @@ bool XQRequestInfo::isBackground() const
     return info(XQServiceUtils::OptBackground).toBool();
 }
 
+void XQRequestInfo::setForeground(bool on)
+{
+    XQSERVICE_DEBUG_PRINT("XQRequestInfo::setForeground %d", on);
+    setInfo(XQServiceUtils::OptForeground, on);
+}
+
+bool XQRequestInfo::isForeground() const
+{
+    XQSERVICE_DEBUG_PRINT("XQRequestInfo::isForeground");
+    return info(XQServiceUtils::OptForeground).toBool();
+}
+
 
 bool XQRequestInfo::isSynchronous() const
 {
@@ -126,6 +138,19 @@ QStringList XQRequestInfo::infoKeys() const
 {
     XQSERVICE_DEBUG_PRINT("XQRequestInfo::infoKeys");
     return mInfo.keys();
+}
+
+int XQRequestInfo::id() const
+{
+    XQSERVICE_DEBUG_PRINT("XQRequestInfo::id");
+    bool b=false;
+    int id = info(XQServiceUtils::InfoId).toInt(&b);
+    XQSERVICE_DEBUG_PRINT("\tId status=%d", b);
+    if (!b)
+    {
+        return -1;
+    }
+    return id;
 }
 
 bool XQRequestInfo::isValid() const

@@ -192,4 +192,8 @@ EXPORTS
 	_ZN20XQApplicationManager4listERK14XQSharableFile @ 191 NONAME
 	_ZN20XQApplicationManager6createERK14XQSharableFileRK24XQAiwInterfaceDescriptorb @ 192 NONAME
 	_ZN20XQApplicationManager6createERK14XQSharableFileb @ 193 NONAME
+	_ZNK20XQApplicationManager9isRunningERK24XQAiwInterfaceDescriptor @ 194 NONAME
+	_ZN20XQApplicationManager16getDrmAttributesERK14XQSharableFileRK5QListIiERS3_I8QVariantE @ 195 NONAME
+	_ZN20XQApplicationManager16getDrmAttributesERK5QFileRK5QListIiERS3_I8QVariantE @ 196 NONAME
+	_ZN20XQApplicationManager6statusERK24XQAiwInterfaceDescriptor @ 197 NONAME
 

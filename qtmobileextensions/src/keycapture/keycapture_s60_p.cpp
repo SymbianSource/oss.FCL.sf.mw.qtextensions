@@ -55,33 +55,67 @@ KeyCapturePrivate::~KeyCapturePrivate()
     }
     delete mRequestsList;
     delete mMapper;
-
 }
 
-bool KeyCapturePrivate::captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier)
+bool KeyCapturePrivate::captureKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
 {
-    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier, CaptureRequest::CaptureRequestTypeNormal);
+    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeNormal);
 }
 
-bool KeyCapturePrivate::captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType)
+bool KeyCapturePrivate::captureKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
 {
-    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier, CaptureRequest::CaptureRequestTypeLong, aLongType);
+    return doCapture(aKey, aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeNormal);
 }
 
-bool KeyCapturePrivate::captureKeyUpAndDowns(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier)
+bool KeyCapturePrivate::captureLongKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType)
 {
-    return doCapture(mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask, aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
+    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
-bool KeyCapturePrivate::doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier, CaptureRequest::CaptureRequestType aType, 
-    XqKeyCapture::LongFlags aLongType)
+bool KeyCapturePrivate::captureLongKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType)
+{
+    return doCapture(aKey, aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeLong, aLongType);
+}
+
+bool KeyCapturePrivate::captureKeyUpAndDowns(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
+{
+    return doCapture(mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask,
+            aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
+}
+
+bool KeyCapturePrivate::captureKeyUpAndDowns(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
+{
+    return doCapture(aKey, aModifiersMask,
+            aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
+}
+
+bool KeyCapturePrivate::doCapture(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier,
+        CaptureRequest::CaptureRequestType aType,
+        XqKeyCapture::LongFlags aLongType)
 {
     int err = mLastError;
-    CaptureRequest *req = new CaptureRequest(aKey, aModifiersMask, aModifier, aType, aLongType, mWindowGroup);
+    CaptureRequest *req = new CaptureRequest(aKey, aModifiersMask, aModifier,
+            aType, aLongType, mWindowGroup);
     mLastError = req->request();
     mRequestsList->append(req);
     if (err != mLastError)
@@ -90,35 +124,68 @@ bool KeyCapturePrivate::doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMa
     return errorId() == KErrNone;
 }
 
-bool KeyCapturePrivate::cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier)
+bool KeyCapturePrivate::cancelCaptureKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
 {
-    return doCancelCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeNormal);
+    return doCancelCapture(mMapper->mapQtToS60Key(aKey),
+            aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeNormal);
 }
 
-bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType)
+bool KeyCapturePrivate::cancelCaptureKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier)
 {
-    return doCancelCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier, CaptureRequest::CaptureRequestTypeLong, aLongType);
+    return doCancelCapture(aKey, aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeNormal);
+}
+
+bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType)
+{
+    return doCancelCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask,
+            aModifier, CaptureRequest::CaptureRequestTypeLong, aLongType);
+}
+
+bool KeyCapturePrivate::cancelCaptureLongKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType)
+{
+    return doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
 bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return doCancelCapture(mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeUpAndDown);
+    return doCancelCapture(mMapper->mapQtToS60ScanCodes(aKey),
+            aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
-bool KeyCapturePrivate::doCancelCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier, CaptureRequest::CaptureRequestType aType, 
-    XqKeyCapture::LongFlags aLongType)
+bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(TUint aKey,
+    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
+{
+    return doCancelCapture(aKey, aModifiersMask, aModifier,
+            CaptureRequest::CaptureRequestTypeUpAndDown);
+}
+
+bool KeyCapturePrivate::doCancelCapture(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier, 
+        CaptureRequest::CaptureRequestType aType,
+        XqKeyCapture::LongFlags aLongType)
 {
     int err = mLastError;
 
     for (int i(0), size(mRequestsList->count()); i < size; i++) {
         CaptureRequest *r = mRequestsList->at(i);
-        if (r && r->matches(aKey, aModifiersMask, aModifier, aType, aLongType)) {
+        if (r && r->matches(aKey, aModifiersMask, aModifier, aType,
+                aLongType)) {
             mLastError = r->cancel();
             mRequestsList->removeAt(i);
             delete r;

@@ -44,6 +44,8 @@ protected slots:
     void callContactEmbedded();
     void showAddresses();
     void requestCompleted(const QVariant& value);
+    void launchContactSelecting();
+    void addSelectedRecipients(const QVariant &value);
     
 private:
     void doCallContact(bool isEmbedded);
@@ -57,6 +59,7 @@ private:
     HbLineEdit* mServiceMapEdit;
     HbLineEdit* mRetMapValue;
     XQServiceRequest* sndAsync;
+    XQServiceRequest* mSnd;
 };
 
 #endif // HBSERVICECLIENTVIEW_H

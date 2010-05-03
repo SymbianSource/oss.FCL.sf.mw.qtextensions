@@ -108,6 +108,7 @@ private slots:
 
     /* Test cases that take no data */
     void signalEmission();
+    void sdnContacts();
 
 private:
     void initManager(QString simStore);
@@ -119,8 +120,13 @@ private:
 
 private:
     QContactManager* m_cm;
+#ifdef SYMBIANSIM_BACKEND_PHONEBOOKINFOV1
+    RMobilePhoneBookStore::TMobilePhoneBookInfoV1 m_etelStoreInfo;
+    RMobilePhoneBookStore::TMobilePhoneBookInfoV1Pckg m_etelStoreInfoPckg;
+#else
     RMobilePhoneBookStore::TMobilePhoneBookInfoV5 m_etelStoreInfo;
     RMobilePhoneBookStore::TMobilePhoneBookInfoV5Pckg m_etelStoreInfoPckg;
+#endif
 };
 
 tst_SimCM::tst_SimCM() :
@@ -137,14 +143,14 @@ void tst_SimCM::init()
 {
     // remove all contacts
     QList<QContactLocalId> ids = m_cm->contactIds();
-    m_cm->removeContacts(&ids, 0);   
+    m_cm->removeContacts(ids, 0);   
 }
 
 void tst_SimCM::cleanup()
 {
     // remove all contacts
     QList<QContactLocalId> ids = m_cm->contactIds();
-    m_cm->removeContacts(&ids, 0);   
+    m_cm->removeContacts(ids, 0);   
 }
 
 void tst_SimCM::initTestCase()
@@ -166,7 +172,7 @@ void tst_SimCM::initManager_data()
 {
     QTest::addColumn<QString>("simStore"); // empty (defaults to ADN), "ADN", "SDN" or "FDN"
 
-    QString es = QString();
+    QString es;
 
     QTest::newRow("Empty store string (defaults to ADN store)") << es;
     QTest::newRow("Initialize SDN store") << "SDN";
@@ -220,14 +226,13 @@ void tst_SimCM::hasFeature_data()
     QTest::addColumn<QString>("simStore");      // empty (defaults to ADN), "ADN", "SDN" or "FDN"
     QTest::addColumn<int>("managerFeature");              // one of QContactManager::ManagerFeature
     QTest::addColumn<bool>("expectedResult");   // true = has feature, false = does not have feature
-    QString es = QString();
+    QString es;
 
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::Groups << false;
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::ActionPreferences << false;
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::MutableDefinitions << false;
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::Relationships << false;
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::ArbitraryRelationshipTypes << false;
-    QTest::newRow("ADN store (default)") << es << (int) QContactManager::RelationshipOrdering << false;
     // TODO: self contact may be supported on ADN? (so called "own number store")
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::SelfContact << false;
     QTest::newRow("ADN store (default)") << es << (int) QContactManager::Anonymous << false;
@@ -238,7 +243,6 @@ void tst_SimCM::hasFeature_data()
     QTest::newRow("ADN store") << "ADN" << (int) QContactManager::MutableDefinitions << false;
     QTest::newRow("ADN store") << "ADN" << (int) QContactManager::Relationships << false;
     QTest::newRow("ADN store") << "ADN" << (int) QContactManager::ArbitraryRelationshipTypes << false;
-    QTest::newRow("ADN store") << "ADN" << (int) QContactManager::RelationshipOrdering << false;
     // TODO: self contact may be supported on ADN? (so called "own number store")
     QTest::newRow("ADN store") << "ADN" << (int) QContactManager::SelfContact << false;
     QTest::newRow("ADN store") << "ADN" << (int) QContactManager::Anonymous << false;
@@ -249,7 +253,6 @@ void tst_SimCM::hasFeature_data()
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::MutableDefinitions << false;
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::Relationships << false;
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::ArbitraryRelationshipTypes << false;
-    QTest::newRow("SDN store") << "SDN" << (int) QContactManager::RelationshipOrdering << false;
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::SelfContact << false;
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::Anonymous << false;
     QTest::newRow("SDN store") << "SDN" << (int) QContactManager::ChangeLogs << false;
@@ -259,7 +262,6 @@ void tst_SimCM::hasFeature_data()
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::MutableDefinitions << false;
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::Relationships << false;
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::ArbitraryRelationshipTypes << false;
-    QTest::newRow("FDN store") << "FDN" << (int) QContactManager::RelationshipOrdering << false;
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::SelfContact << false;
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::Anonymous << false;
     QTest::newRow("FDN store") << "FDN" << (int) QContactManager::ChangeLogs << false;
@@ -353,7 +355,7 @@ void tst_SimCM::addContact_data()
     QTest::addColumn<QString>("expectedDisplayLabel");
     QTest::addColumn<QStringList>("details"); // format is <detail definition name>:<field name>:<value>
     QString unnamedLabel("Unnamed");
-    QString es = QString();
+    QString es;
     QString tooLongText("James Hunt the 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890th");
 
     // TODO: what name field to use for a sim contact name?
@@ -546,7 +548,18 @@ void tst_SimCM::addContact_data()
         << (QStringList()
             << "Name:CustomLabel:James");
 
-    // TODO: Test saving FDN contacts?
+    // Note: Executing FDN test cases has a pre-condition that the user must
+    // have been entered the PIN2 code successfully. On pre-10.1 platforms this
+    // can be done by opening S60 platform Phonebook and making some
+    // modifications that require PIN2 code; for example activate and
+    // de-activate FDN feature.
+    QTest::newRow("FDN custom label and phone number")
+        << "FDN"
+        << 1
+        << "James"
+        << (QStringList()
+            << "Name:CustomLabel:James"
+            << "PhoneNumber:PhoneNumber:+44752222222");
 }
 
 /*
@@ -683,7 +696,7 @@ void tst_SimCM::fetchContacts()
     }
 
     // 2. Fetch contacts
-    QList<QContact> contacts= m_cm->contacts(QList<QContactSortOrder>(), QStringList());
+    QList<QContact> contacts= m_cm->contacts();
     QCOMPARE(m_cm->error(), QContactManager::NoError);
     QList<QContactLocalId> contactIds = m_cm->contactIds();
     QCOMPARE(m_cm->error(), QContactManager::NoError);
@@ -691,7 +704,7 @@ void tst_SimCM::fetchContacts()
     // 3. Verify result
     QVERIFY(contacts.count() > 0);
     QCOMPARE(contacts.count(), existingContactCount + contactCount);
-    foreach (QContact contact, contacts) {
+    foreach (const QContact& contact, contacts) {
         QVERIFY(contact.id() != QContactId());
     }
 
@@ -838,7 +851,7 @@ void tst_SimCM::updateContactDetail()
     compareDetails(contact, parsedDetails);
 
     // 3. Update contact detail and verify result
-    foreach (QContactDetail detail, parsedDetails) {
+    foreach (const QContactDetail& detail, parsedDetails) {
         QContactDetail savedDetail = contact.detail(detail.definitionName());
         QVERIFY(contact.removeDetail(&savedDetail));
     }
@@ -910,14 +923,14 @@ void tst_SimCM::batchOperations()
         QVERIFY(m_cm->saveContacts(&contacts, &errorMap));
         QCOMPARE(m_cm->error(), QContactManager::NoError);
         QCOMPARE(errorMap.count(), 0);
-        foreach (QContact contact, contacts) {
+        foreach (const QContact& contact, contacts) {
             QVERIFY(contact.id() != QContactId());
         }
     } else {
         QVERIFY(!m_cm->saveContacts(&contacts, &errorMap));
         QVERIFY(m_cm->error() != QContactManager::NoError);
         QCOMPARE(errorMap.count(), 10);
-        foreach (QContact contact, contacts) {
+        foreach (const QContact& contact, contacts) {
             QCOMPARE(contact.id(), QContactId());
         }
     }
@@ -939,10 +952,10 @@ void tst_SimCM::batchOperations()
     // 3. Remove contacts
     if(expectedResult) {
         QList<QContactLocalId> contactIds;
-        foreach (QContact contact, contacts) {
+        foreach (const QContact& contact, contacts) {
             contactIds.append(contact.localId());
         }
-        QVERIFY(m_cm->removeContacts(&contactIds, &errorMap));
+        QVERIFY(m_cm->removeContacts(contactIds, &errorMap));
         QCOMPARE(m_cm->error(), QContactManager::NoError);
         QCOMPARE(errorMap.count(), 0);
     }
@@ -976,6 +989,7 @@ void tst_SimCM::signalEmission()
     QTRY_COMPARE(spyRemoved.count(), 1);
 
     // 4. contacts added
+    spyAdded.clear();
     int batchOpCount(10);
     QList<QContact> contacts;
     for(int i(0); i < batchOpCount; i++) {
@@ -989,16 +1003,44 @@ void tst_SimCM::signalEmission()
     QTRY_COMPARE(spyAdded.count(), batchOpCount);
 
     // 5. contacts changed
+    spyChanged.clear();
     QVERIFY(m_cm->saveContacts(&contacts, &errorMap));
     QTRY_COMPARE(spyChanged.count(), batchOpCount);
 
     // 6. contacts removed
+    spyRemoved.clear();
     QList<QContactLocalId> contactIds;
-    foreach(QContact contact, contacts) {
+    foreach(const QContact& contact, contacts) {
         contactIds.append(contact.localId());
     }
-    QVERIFY(m_cm->removeContacts(&contactIds, &errorMap));
+    QVERIFY(m_cm->removeContacts(contactIds, &errorMap));
     QTRY_COMPARE(spyRemoved.count(), batchOpCount);
+}
+
+/*!
+ * Tests SDN store specific stuff
+ */
+void tst_SimCM::sdnContacts()
+{
+    QString uri("qtcontacts:symbiansim:store=SDN");
+    QScopedPointer<QContactManager> cm(QContactManager::fromUri(uri));
+    if (cm->error() == QContactManager::NotSupportedError)
+        QSKIP("The store not supported by the SIM card", SkipSingle);
+    
+    QVERIFY(cm->error() == QContactManager::NoError);
+    
+    // Verify that contact details have read only flag
+    QList<QContact> contacts = cm->contacts();
+    QVERIFY(contacts.count());
+    foreach(const QContact& c, contacts) {
+        foreach(const QContactDetail& d, c.details()) {
+            QVERIFY(d.accessConstraints().testFlag(QContactDetail::ReadOnly));
+        }
+    }
+
+    // Writing should fail
+    QContact c = createContact("foo", "1234567");
+    QVERIFY(!cm->saveContact(&c));
 }
 
 /*!
@@ -1045,7 +1087,7 @@ bool tst_SimCM::isContactSupported(QContact contact)
         
     QList<QString> uniqueDetails = QList<QString>();
 
-    foreach(QContactDetail detail, contact.details()) {
+    foreach(const QContactDetail& detail, contact.details()) {
         QString definitionName = detail.definitionName();
 
         // TODO: should we save a contact that has empty, non-supported details?
@@ -1071,7 +1113,7 @@ bool tst_SimCM::isContactSupported(QContact contact)
             }
 
             // check the fields of the detail
-            foreach (QString fieldKey, detail.variantValues().keys()) {
+            foreach (const QString& fieldKey, detail.variantValues().keys()) {
                 if (!detailDef.fields().contains(fieldKey)) {
                     return false;
                 }
@@ -1093,7 +1135,7 @@ bool tst_SimCM::isContactSupported(QContact contact)
 void tst_SimCM::parseDetails(QContact &contact, QStringList details, QList<QContactDetail> &parsedDetails)
 {
     parsedDetails.clear();
-    foreach (QString detail, details) {
+    foreach (const QString& detail, details) {
         // the expected format is <detail definition name>:<field name>:<value>
         QStringList detailParts = detail.split(QChar(':'), QString::KeepEmptyParts, Qt::CaseSensitive);
         QVERIFY(detailParts.count() == 3);
@@ -1142,7 +1184,7 @@ void tst_SimCM::compareDetails(QContact contact, QList<QContactDetail> expectedD
         if(!contact.details().contains(expectedDetail)) {
             // FAIL! Make it easier to debug the output by
             // comparing the contact detail field contents
-            foreach (QString key, expectedDetail.variantValues().keys()) {
+            foreach (const QString& key, expectedDetail.variantValues().keys()) {
                 QVariant value1 = actualDetail.value(key);
                 QVariant value2 = expectedDetail.value(key);
                 QCOMPARE(actualDetail.value(key), expectedDetail.value(key));

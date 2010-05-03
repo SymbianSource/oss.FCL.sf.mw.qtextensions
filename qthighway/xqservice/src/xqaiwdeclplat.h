@@ -29,6 +29,21 @@
 // All declations shall have XQ prefix
 //
 
+/*!
+ FM Radio controlling interface and related operations
+ Operation: command( int commandId )
+  commandId: defined in radioserviceconst.h
+  
+*/
+#define XQI_RADIO_CONTROL QLatin1String("com.nokia.symbian.IRadioControl")
+#define XQOP_RADIO_CONTROL QLatin1String("command(int)")
+
+/*!
+ FM Radio monitoring interface and related operations
+*/
+#define XQI_RADIO_MONITOR QLatin1String("com.nokia.symbian.IRadioMonitor")
+#define XQOP_RADIO_MONITOR QLatin1String("requestNotifications(void)")
+
 // Platform service related constants
 
 #endif

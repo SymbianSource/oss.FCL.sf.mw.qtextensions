@@ -56,9 +56,13 @@ KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
     
     mKeyCapture = new XqKeyCapture();
     
-    mKeysMap.insert("Up", Qt::Key_Up);
-    mKeysMap.insert("Down", Qt::Key_Down);
-    mKeysMap.insert("Manu", Qt::Key_Launch0);
+    mKeysMap.insert("Up_Qt",    Qt::Key_Up);
+    mKeysMap.insert("Down_Qt",  Qt::Key_Down);
+    mKeysMap.insert("Menu_Qt",  Qt::Key_Launch0);
+    
+    mKeysMap.insert("Up_S60",   EKeyUpArrow);
+    mKeysMap.insert("Down_S60", EKeyDownArrow);
+    mKeysMap.insert("Menu_S60", EKeyApplication1);
     
     
     mKeysMenu = new QMenu(this);
@@ -139,27 +143,52 @@ void KeyCaptureTestApp::procesAction(CaptureRequest request)
     TX_ENTRY
     switch (request.mRequestType){
         case CaptureRequest::RequestTypeKey :
-            mKeyCapture->captureKey(request.mKey, request.mModifiersMap, request.mModifier );
+            
+            if (request.isQtKey) 
+                mKeyCapture->captureKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
+            else
+                mKeyCapture->captureKey((TUint) request.mKey, request.mModifiersMap, request.mModifier );
+            
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeLongKey :
-            mKeyCapture->captureLongKey(request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+            if (request.isQtKey)
+                mKeyCapture->captureLongKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+            else
+                mKeyCapture->captureLongKey((TUint) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+            
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeKeyUpAndDowns :
-            mKeyCapture->captureKeyUpAndDowns(request.mKey, request.mModifiersMap, request.mModifier );
+            if (request.isQtKey)
+                mKeyCapture->captureKeyUpAndDowns((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
+            else
+                mKeyCapture->captureKeyUpAndDowns((TUint) request.mKey, request.mModifiersMap, request.mModifier );
+
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelKey :
-            mKeyCapture->cancelCaptureKey(request.mKey, request.mModifiersMap, request.mModifier );
+            if (request.isQtKey)
+                mKeyCapture->cancelCaptureKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
+            else
+                mKeyCapture->cancelCaptureKey((TUint) request.mKey, request.mModifiersMap, request.mModifier );
+                
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelLongKey :
-            mKeyCapture->cancelCaptureLongKey(request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+            if (request.isQtKey)
+                mKeyCapture->cancelCaptureLongKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+            else
+                mKeyCapture->cancelCaptureLongKey((TUint) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
+                
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelKeyUpAndDowns :
-            mKeyCapture->cancelCaptureKeyUpAndDowns(request.mKey, request.mModifiersMap, request.mModifier );
+            if (request.isQtKey)
+                mKeyCapture->cancelCaptureKeyUpAndDowns((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
+            else
+                mKeyCapture->cancelCaptureKeyUpAndDowns((TUint) request.mKey, request.mModifiersMap, request.mModifier );
+            
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         default:
@@ -279,12 +308,18 @@ bool CaptureRequest::setType(QAction* action)
     }
 }
 
-bool CaptureRequest::setKey(QAction* action, QMap<QString, Qt::Key> *map)
+//bool CaptureRequest::setKey(QAction* action, QMap<QString, Qt::Key> *map)
+bool CaptureRequest::setKey(QAction* action, QMap<QString, long> *map)
 {
     if (!action || !map || map->count()==0)
         return false;
     QString key = action->data().toString();
     if ( !key.isNull() && map->contains(key)){
+        if (key.contains("_Qt")) {
+            isQtKey = true;
+        } else {
+            isQtKey = false;
+        }
         mKey = map->value(key);
         return true;
     }

@@ -28,6 +28,7 @@
 #include <QStringList>
 #include <xqserviceprovider.h>
 #include <xqsharablefile.h>
+#include <cntservicescontact.h>
 
 class QLineEdit;
 class QPushButton;
@@ -36,6 +37,9 @@ class UriService;
 class QLabel;
 class FileService;
 class XQSharableFile;
+class NewDialerService;
+class NewUriService;
+class NewFileService;
 
 class ServiceApp : public QWidget
 {
@@ -51,16 +55,20 @@ public slots:
     
 public slots:
     void quit();
-    void answer();
-    void handleAnswerDelivered();
+    void answerDial();
+    void answerUri();
+    void answerFile();
     
 private:
     QLabel *mLabel;
     QLineEdit *mNumber;
     //QPushButton *mEndCallButton;
-    DialerService* mService;
+    DialerService* mDialService;
     UriService* mUriService;
     FileService* mFileService;
+    NewDialerService* mNewDialService;
+    NewUriService* mNewUriService;
+    NewFileService* mNewFileService;
 };
 
 class DialerService : public XQServiceProvider
@@ -71,19 +79,58 @@ public:
     ~DialerService();
     
     void complete(QString number);
-    bool asyncAnswer() {return mAsyncAnswer;}
+    bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
+    
 public slots:
     int dial(const QString& number, bool asyncAnswer);
+    QVariant testVariant(QVariant variant);
+    CntServicesContactList testContactList(CntServicesContactList list);
 
-private slots:
+protected slots:
    void handleClientDisconnect();
+   void handleAnswerDelivered();
 
-private:
+protected:
+    void showRecipients(QVariant &value);
+    void showRecipients(CntServicesContactList &value);
+
+protected:
     ServiceApp* mServiceApp;
     QString mNumber;
-    bool mAsyncAnswer;
-    int mAsyncReqId;
+    QMap<quint32,int> mAsyncReqIds;
 };
+
+
+class NewDialerService : public XQServiceProvider
+{
+    Q_OBJECT
+    public:
+        NewDialerService( ServiceApp *parent = 0 );
+        ~NewDialerService();
+
+        void complete(QString number);
+        bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
+
+    public slots:
+            int dial(const QString& number, bool asyncAnswer);
+    QVariant testVariant(QVariant variant);
+    CntServicesContactList testContactList(CntServicesContactList list);
+
+    protected slots:
+            void handleClientDisconnect();
+    void handleAnswerDelivered();
+
+    protected:
+        void showRecipients(QVariant &value);
+        void showRecipients(CntServicesContactList &value);
+
+    protected:
+        ServiceApp* mServiceApp;
+        QString mNumber;
+        QMap<quint32,int> mAsyncReqIds;
+};
+
+
 
 class UriService : public XQServiceProvider
 {
@@ -91,7 +138,7 @@ class UriService : public XQServiceProvider
     public:
         UriService( ServiceApp *parent = 0 );
         ~UriService();
-        bool asyncAnswer() {return mAsyncAnswer;}
+        bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
         void complete(bool ok);
         
     public slots:
@@ -100,13 +147,38 @@ class UriService : public XQServiceProvider
         
     private slots:
         void handleClientDisconnect();
+        void handleAnswerDelivered();
 
     private:
         ServiceApp* mServiceApp;
-        bool mAsyncAnswer;
-        int mAsyncReqId;
+        QMap<quint32,int> mAsyncReqIds;
         bool mRetValue;
 };
+
+
+class NewUriService : public XQServiceProvider
+{
+    Q_OBJECT
+    public:
+        NewUriService( ServiceApp *parent = 0 );
+        ~NewUriService();
+        bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
+        void complete(bool ok);
+
+    public slots:
+            bool view(const QString& uri);
+    bool view(const QString& uri, bool returnValue);
+
+    private slots:
+            void handleClientDisconnect();
+    void handleAnswerDelivered();
+
+    private:
+        ServiceApp* mServiceApp;
+        QMap<quint32,int> mAsyncReqIds;
+        bool mRetValue;
+};
+
 
 class FileService : public XQServiceProvider
 {
@@ -114,7 +186,31 @@ class FileService : public XQServiceProvider
     public:
         FileService( ServiceApp *parent = 0 );
         ~FileService();
-        bool asyncAnswer() {return mAsyncAnswer;}
+        bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
+        void complete(bool ok);
+
+    public slots:
+            bool view(QString file);
+    bool view(XQSharableFile file);
+
+    private slots:
+            void handleClientDisconnect();
+    void handleAnswerDelivered();
+
+    private:
+        ServiceApp* mServiceApp;
+        QMap<quint32,int> mAsyncReqIds;
+        bool mRetValue;
+};
+
+
+class NewFileService : public XQServiceProvider
+{
+    Q_OBJECT
+    public:
+        NewFileService( ServiceApp *parent = 0 );
+        ~NewFileService();
+        bool asyncAnswer() {return mAsyncReqIds.count() > 0;}
         void complete(bool ok);
 
     public slots:
@@ -123,13 +219,15 @@ class FileService : public XQServiceProvider
         
     private slots:
         void handleClientDisconnect();
+        void handleAnswerDelivered();
 
     private:
         ServiceApp* mServiceApp;
-        bool mAsyncAnswer;
-        int mAsyncReqId;
+        QMap<quint32,int> mAsyncReqIds;
         bool mRetValue;
 };
+
+
 
 
 #endif

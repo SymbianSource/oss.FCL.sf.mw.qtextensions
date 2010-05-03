@@ -42,14 +42,10 @@
 #define TESTRELATIONSHIP_H
 
 #include <QObject>
-
-//Qt Contacts
-#include <qtcontacts.h>
+#include "cntsymbianengine.h"
 
 class CContactDatabase;
 class CntRelationship;
-
-QTM_USE_NAMESPACE
 
 class TestCntRelationship : public QObject
 {
@@ -71,10 +67,10 @@ private slots:
 	void invalidFirstAndSecondContactGroupRelationship();
 
 private:
-    bool TestCntRelationship::validateRelationshipFilter(const QContactRelationshipFilter::Role role, const QContactId contactId, const QList<QContactLocalId> expectedContacts);
+    bool validateRelationshipFilter(const QContactRelationship::Role role, const QContactId contactId, const QList<QContactLocalId> expectedContacts);
 
 private:
-     QContactManager  *m_manager;
+     CntSymbianEngine *m_manager;
      CContactDatabase *m_database;
      CntRelationship  *m_relationship;
 };

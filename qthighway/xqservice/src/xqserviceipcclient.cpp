@@ -54,7 +54,7 @@ struct XQServicePacketHeader
 XQServiceIpcClient::XQServiceIpcClient(const QString& ipcConName, bool isServer, 
                                        bool isSync, XQServiceRequestCompletedAsync* rc,
                                       const void *userData)
-    : QObject(), serviceIpc(NULL), serviceIpcServer(NULL), callBackRequestComplete(rc),
+    : QObject(), cancelledRequest(NULL), serviceIpc(NULL), serviceIpcServer(NULL), callBackRequestComplete(rc),
       mUserData(userData)  // User data can be NULL !
 {
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::XQServiceIpcClient");
@@ -147,6 +147,7 @@ bool XQServiceIpcClient::connectToServer()
         connect(serviceIpc, SIGNAL(readyRead()), this, SLOT(readyRead()));
         XQSERVICE_DEBUG_PRINT("embedded: %d", embedded);
         if (embedded) {
+            // You can have only one embedded service in use at a time !!!
             // Start application in embedded mode (add process ID to connection name !)
             quint64 processId=0;
             bool ret = serviceIpc->startServer(mIpcConName,"", processId, ServiceFwIPC::EStartInEmbeddedMode);
@@ -250,9 +251,6 @@ bool XQServiceIpcClient::handleRequest( ServiceIPCRequest *aRequest )
     QVariant ret;
     // Processing command on server side.
     if (command == XQServiceCmd_Send) {    
-        //TODO: just a hack to be study how get foreground when need
-        // maparnan: XQServiceUtil::toBackground(false);
-    
         //Only support 1 sharable file, so index is 0
         ret=XQServiceChannel::sendLocally(channel, msg, data, aRequest->sharableFile(0) );
     }
@@ -277,9 +275,18 @@ void XQServiceIpcClient::handleCancelRequest(ServiceIPCRequest* aRequest)
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::handleCancelRequest isServer?=%d", server);
     if (server)
     {
+        // Save the request to be cancelled if service provider wants to as
+        // XQRequestInfo for details
+        // Valid only upon sendCommand call
+        cancelledRequest = aRequest; 
+        
         //Attention! At the moment channel name and connection name are the same
         // it might be that in the future will be different then this is not valid anymore.
         XQServiceChannel::sendCommand(mIpcConName,XQServiceChannel::ClientDisconnected);
+
+        // Remember to reset immediatelly
+        cancelledRequest = 0;
+        
         cancelRequest(aRequest);
     }
 }
@@ -762,6 +769,15 @@ void XQServiceIpcClient::wait(int msec)
 ServiceIPCRequest *XQServiceIpcClient::requestPtr(int index) const
 {
     ServiceIPCRequest* request = NULL;
+
+    // If request is being cancelled (saved by handleCancelRequest()) use it's id instead
+    // By that way service provider can access the XQRequestInfo of the cancelled request
+    // Upon handling clientDisconnected
+    if (cancelledRequest)
+    {
+        index = cancelledRequest->id();
+        XQSERVICE_DEBUG_PRINT("\t Cancelled request id=%d", index);
+    }
     
     if (requestsMap.contains(index)) {
         XQSERVICE_DEBUG_PRINT("\t request having id=%d FOUND", index);

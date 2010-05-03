@@ -23,8 +23,9 @@ SYMBIAN_HEADERS += \
         ../../inc/transform/cnttransformbirthday.h \
         ../../inc/transform/cnttransformonlineaccount.h \
         ../../inc/transform/cnttransformorganisation.h \
+        ../../inc/transform/cnttransformringtone.h \
+        ../../inc/transform/cnttransformthumbnail.h \
         ../../inc/transform/cnttransformavatar.h \
-        ../../inc/transform/cnttransformavatarsimple.h \
         ../../inc/transform/cntthumbnailcreator.h \        
         ../../inc/transform/cnttransformsynctarget.h \
         ../../inc/transform/cnttransformgender.h \
@@ -42,7 +43,6 @@ SYMBIAN_HEADERS += \
         ../../inc/cntrelationship.h \
         ../../inc/cntabstractrelationship.h \
         ../../inc/cntrelationshipgroup.h \
-        ../../inc/filtering/cntsymbianfiltersqlhelper.h \
         ../../inc/filtering/cntsymbiansrvconnection.h \
         ../../inc/cntsymbiantransformerror.h \
         ../../inc/cntsymbiandatabase.h \
@@ -76,8 +76,9 @@ SYMBIAN_SOURCES += \
         ../../src/transform/cnttransformbirthday.cpp \
         ../../src/transform/cnttransformonlineaccount.cpp \
         ../../src/transform/cnttransformorganisation.cpp \
+        ../../src/transform/cnttransformringtone.cpp \
+        ../../src/transform/cnttransformthumbnail.cpp \        
         ../../src/transform/cnttransformavatar.cpp \
-        ../../src/transform/cnttransformavatarsimple.cpp \
         ../../src/transform/cntthumbnailcreator.cpp \
         ../../src/transform/cnttransformsynctarget.cpp \
         ../../src/transform/cnttransformgender.cpp \
@@ -93,7 +94,6 @@ SYMBIAN_SOURCES += \
         ../../src/cntrelationship.cpp \
         ../../src/cntabstractrelationship.cpp \
         ../../src/cntrelationshipgroup.cpp \
-        ../../src/filtering/cntsymbianfiltersqlhelper.cpp \
         ../../src/filtering/cntsymbiansrvconnection.cpp \
         ../../src/cntsymbiantransformerror.cpp \
         ../../src/cntsymbiandatabase.cpp \

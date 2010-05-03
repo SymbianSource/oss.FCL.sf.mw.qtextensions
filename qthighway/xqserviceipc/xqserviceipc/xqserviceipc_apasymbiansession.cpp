@@ -102,7 +102,8 @@ void RApaIPCSession::SendReceive(TInt aFunction,
 TInt RApaIPCSession::Connect(const TDesC& aServer, 
                                  const TVersion& aVersion)
 {
-    XQSERVICE_DEBUG_PRINT("RApaIPCSession::Connect");
+    QString server = QString::fromUtf16(aServer.Ptr(), aServer.Length());
+    XQSERVICE_DEBUG_PRINT("RApaIPCSession::Connect %s", qPrintable(server));
     iVersion = aVersion;
     return CreateSession(aServer, aVersion, 10);
 }

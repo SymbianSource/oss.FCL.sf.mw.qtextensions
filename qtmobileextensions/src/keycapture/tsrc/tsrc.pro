@@ -46,14 +46,20 @@ SOURCES += \
   
 symbian { 
     HEADERS += ../keycapture_s60_p.h \
-            ../capturerequest_s60.h
+            ../capturerequest_s60.h \
+			../keymapper.h
     SOURCES +=../keycapture_s60_p.cpp \
-            ../capturerequest_s60.cpp
+            ../capturerequest_s60.cpp \
+			../keymapper.cpp
+	
+	sourcefiles.sources += r:\sf\mw\qt\src\gui\kernel\qkeymapper_s60.cpp
+	sourcefiles.sources += r:\sf\mw\qtextensions\qtmobileextensions\src\keycapture\keymapper.cpp
+	sourcefiles.path = /
+    DEPLOYMENT += sourcefiles
 } else { 
     HEADERS += ../keycapture_stub_p.h
     SOURCES += ./keycapture_stub_p.cpp
 }
-
 
 CONFIG += qtestlib console
 

@@ -47,6 +47,12 @@ VideoWidget::VideoWidget(QWidget *parent)
     : QVideoWidget(parent)
 {
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    QPalette p = palette();
+    p.setColor(QPalette::Window, Qt::black);
+    setPalette(p);
+
+    setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 void VideoWidget::keyPressEvent(QKeyEvent *event)
@@ -54,8 +60,8 @@ void VideoWidget::keyPressEvent(QKeyEvent *event)
 #ifdef Q_OS_SYMBIAN
     if (isFullScreen())
         setFullScreen(false);
-#endif  
-    
+#endif
+
     if (event->key() == Qt::Key_Escape && isFullScreen()) {
         showNormal();
 
@@ -75,3 +81,16 @@ void VideoWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
     event->accept();
 }
+
+void VideoWidget::mousePressEvent(QMouseEvent *event)
+{
+#ifdef Q_WS_MAEMO_5
+    if (isFullScreen())
+        setFullScreen(false);
+
+    event->accept();
+#else
+    QVideoWidget::mousePressEvent(event);
+#endif
+}
+

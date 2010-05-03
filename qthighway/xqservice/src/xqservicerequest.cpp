@@ -240,6 +240,7 @@ bool XQServiceRequest::send(QVariant& retData)
     }
     
     m_data->m_RequestUtil.setSynchronous(m_data->m_Synchronous); // Ensure option is set !
+    m_data->m_RequestUtil.mOperation = m_data->m_Message;  // Save the operation name for startup
     
     // !!!
     // Add the info as extra argument to the request

@@ -42,7 +42,7 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
 
-#include <qmediacontent.h>
+#include "qmediacontent.h"
 
 QTM_BEGIN_NAMESPACE
 
@@ -104,6 +104,19 @@ QMediaContent::QMediaContent(const QUrl &url):
     d(new QMediaContentPrivate)
 {
     d->resources << QMediaResource(url);
+}
+
+/*!
+    Constructs a media content with \a request providing a reference to the content.
+
+    This constructor can be used to reference media content via network protocols such as HTTP.
+    This may include additional information required to obtain the resource, such as Cookies or HTTP headers.
+*/
+
+QMediaContent::QMediaContent(const QNetworkRequest &request):
+    d(new QMediaContentPrivate)
+{
+    d->resources << QMediaResource(request);
 }
 
 /*!
@@ -188,6 +201,15 @@ bool QMediaContent::isNull() const
 QUrl QMediaContent::canonicalUrl() const
 {
     return canonicalResource().url();
+}
+
+/*!
+    Returns a QNetworkRequest that represents that canonical resource for this media content.
+*/
+
+QNetworkRequest QMediaContent::canonicalRequest() const
+{
+    return canonicalResource().request();
 }
 
 /*!

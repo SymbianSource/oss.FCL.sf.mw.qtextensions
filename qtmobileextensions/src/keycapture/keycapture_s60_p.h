@@ -31,33 +31,53 @@ class RWindowGroup;
 class RWsSession;
 class QKeyMapperPrivate;
 #ifdef _XQKEYCAPTURE_UNITTEST_
-    class MyTestWindowGroup;
+class MyTestWindowGroup;
 #endif
 
-class KeyCapturePrivate {
+class KeyCapturePrivate
+    {
 
 public:
     KeyCapturePrivate();
     ~KeyCapturePrivate();
-
+    
     bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier);
+    
+    bool captureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
     
     bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
     
-    bool captureKeyUpAndDowns(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-
+    bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
     
+    bool captureKeyUpAndDowns(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
+
+    bool captureKeyUpAndDowns(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
+
     bool cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
     
-    bool cancelCaptureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
-    
-    bool cancelCaptureKeyUpAndDowns(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
+    bool cancelCaptureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
+    
+    bool cancelCaptureLongKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType);
+    
+    bool cancelCaptureLongKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType);
+    
+    bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
+
+    bool cancelCaptureKeyUpAndDowns(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
 
     QString errorString() const;
 
@@ -66,12 +86,16 @@ public:
 private:
 
     bool doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, CaptureRequest::CaptureRequestType type,
-        XqKeyCapture::LongFlags aLongType = XqKeyCapture::LongWaitNotApplicable);
+            Qt::KeyboardModifiers aModifier,
+            CaptureRequest::CaptureRequestType type,
+            XqKeyCapture::LongFlags aLongType =
+                    XqKeyCapture::LongWaitNotApplicable);
 
     bool doCancelCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, CaptureRequest::CaptureRequestType type,
-        XqKeyCapture::LongFlags aLongType = XqKeyCapture::LongWaitNotApplicable);
+            Qt::KeyboardModifiers aModifier,
+            CaptureRequest::CaptureRequestType type,
+            XqKeyCapture::LongFlags aLongType =
+                    XqKeyCapture::LongWaitNotApplicable);
 
     void regenerateError();
 
@@ -85,6 +109,6 @@ private:
 #endif
     QList<CaptureRequest*> *mRequestsList;
     QKeyMapperPrivate* mMapper;
-};
+    };
 
 #endif /* KEYCAPTUREPRIVATE_S60_H */

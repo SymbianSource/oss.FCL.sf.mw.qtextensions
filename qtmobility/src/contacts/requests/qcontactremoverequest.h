@@ -57,13 +57,9 @@ class Q_CONTACTS_EXPORT QContactRemoveRequest : public QContactAbstractRequest
 
 public:
     QContactRemoveRequest();
-    ~QContactRemoveRequest();
 
     /* Selection */
-    void Q_DECL_DEPRECATED setFilter(const QContactFilter& filter); // deprecated, replaced by explicit list of contacts to remove
-    QContactFilter Q_DECL_DEPRECATED filter() const;                // deprecated, replaced by explicit list of contacts to remove
-
-    void setContactIds(const QList<QContactLocalId>& contactIds);     // replaces the above
+    void setContactIds(const QList<QContactLocalId>& contactIds);
     QList<QContactLocalId> contactIds() const;
 
     /* Results */

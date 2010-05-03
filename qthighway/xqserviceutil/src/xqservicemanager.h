@@ -46,6 +46,7 @@ class XQSERVICEUTIL_EXPORT XQServiceManager : public QObject
                         const void *userData);
         
         int latestError() const;
+        bool isRunning(const XQAiwInterfaceDescriptor& implementation) const;
         
     private:   
    

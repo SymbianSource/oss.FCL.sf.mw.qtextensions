@@ -34,23 +34,13 @@
 #include <w32std.h> // RWsSession
 #include <apacmdln.h>
 #include <eikenv.h>
-/*
-void XQServiceUtil::hideFromFsw( bool hide )
-{
-    RAknUiServer uiServer;
-    int sid = RProcess().SecureId().iId;
-    uiServer.Connect();
-    uiServer.HideApplicationFromFsw( hide, sid );
-    uiServer.Close();
-}
-*/
 
 void XQServiceUtil::toBackground( bool value )
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::toBackground");
     XQSERVICE_DEBUG_PRINT("value: %d", value);
     RWsSession ws;
-    int sid = RProcess().SecureId().iId;
+    int sid = RProcess().SecureId().iId;  // Assumes UID3 == SID !!!
     XQSERVICE_DEBUG_PRINT("sid: %d", sid);
     if (ws.Connect() == KErrNone) {
         XQSERVICE_DEBUG_PRINT("Connected to window server");
@@ -98,5 +88,35 @@ bool XQServiceUtil::isService()
     }
     XQSERVICE_DEBUG_PRINT("Not service");
     return false;
+}
+
+QString XQServiceUtil::interfaceName()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::interfaceName");
+    QString ret;
+    QStringList args = QCoreApplication::arguments();
+    foreach (QString arg, args) {
+        if (arg.contains(QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName),Qt::CaseInsensitive)) {
+            QStringList l= arg.split("=");
+            ret = l.value(1);
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("interfaceName=%s", qPrintable(ret));
+    return ret;
+}
+
+QString XQServiceUtil::operationName()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::operationName");
+    QString ret;
+    QStringList args = QCoreApplication::arguments();
+    foreach (QString arg, args) {
+        if (arg.contains(QString::fromLatin1(XQServiceUtils::StartupArgOperationName),Qt::CaseInsensitive)) {
+            QStringList l= arg.split("=");
+            ret = l.value(1);
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("operationName=%s", qPrintable(ret));
+    return ret;
 }
 

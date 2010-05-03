@@ -24,7 +24,8 @@ CONFIG += ordered
 SUBDIRS= \
          serviceapp \
          serviceclient \
-         appmgrclient
+         appmgrclient \
+         appmgrclient2
 
 # If Orbit configured 
 #include($$[QMAKE_MKSPECS]/features/hb.prf) {

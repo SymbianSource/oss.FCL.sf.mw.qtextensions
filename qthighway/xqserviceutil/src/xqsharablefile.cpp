@@ -91,7 +91,10 @@ bool XQSharableFile::isValid() const
 bool XQSharableFile::open(const QString &fileName)
 {
     close();   // Close possibly existing old one
-        
+
+    QString symbianFileName = fileName;
+    symbianFileName.replace("/", "\\");
+    
     TInt err = mSharableFS.Connect();
     if (err != KErrNone)
     {
@@ -99,7 +102,7 @@ bool XQSharableFile::open(const QString &fileName)
     }
     
     mSharableFS.ShareProtected();
-    TPtrC name( reinterpret_cast<const TUint16*>(fileName.utf16()));
+    TPtrC name( reinterpret_cast<const TUint16*>(symbianFileName.utf16()));
     RFile f;
     err = f.Open(mSharableFS, name, EFileShareReadersOnly);
     if (err != KErrNone)

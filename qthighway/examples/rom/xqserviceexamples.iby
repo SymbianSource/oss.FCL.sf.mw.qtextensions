@@ -38,6 +38,10 @@ S60_APP_EXE(appmgrclient)
 S60_APP_RESOURCE(appmgrclient)
 UPGRADABLE_APP_REG_RSC(appmgrclient)
 
+S60_APP_EXE(appmgrclient2)
+S60_APP_RESOURCE(appmgrclient2)
+UPGRADABLE_APP_REG_RSC(appmgrclient2)
+
 /*
 S60_APP_EXE(hbserviceprovider)
 S60_APP_RESOURCE(hbserviceprovider)

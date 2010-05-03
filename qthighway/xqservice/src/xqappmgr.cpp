@@ -311,3 +311,31 @@ int XQApplicationManager::lastError() const
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::lastError");
     return d->lastError();
 }
+
+
+bool XQApplicationManager::isRunning(const XQAiwInterfaceDescriptor& implementation) const
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::isRunning");
+    return d->isRunning(implementation);
+}
+
+
+bool XQApplicationManager::getDrmAttributes(const QFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::drmAttributes (file)");
+    return d->getDrmAttributes(file, attributeNames, attributeValues);
+}
+
+bool XQApplicationManager::getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::drmAttributes (XQSharableFile)");
+    return d->getDrmAttributes(file, attributeNames, attributeValues);
+}
+
+XQApplicationManager::ServiceStatus XQApplicationManager::status(const XQAiwInterfaceDescriptor& implementation)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::status");
+    return (ServiceStatus)d->status(implementation);
+}
+
+

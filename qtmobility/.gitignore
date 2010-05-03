@@ -19,7 +19,6 @@ moc_*.cpp
 *.ib_pdb_index
 build
 include/*
-config.pri
 config.in
 config.log
 bin/servicexmlgen*
@@ -38,9 +37,13 @@ config.tests/qmf/qmf
 
 #Symbian specific
 *.mmp
+*.pkg
 bld.inf*
 ABLD.BAT
 *.mk
+*.rss
+*.sis
+*.loc
 *.sisx
 .make.cache
 qmakepluginstubs

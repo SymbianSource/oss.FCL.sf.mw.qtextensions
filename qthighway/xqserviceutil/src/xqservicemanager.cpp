@@ -61,6 +61,7 @@ class XQServiceManagerPrivate
                        XQRequestUtil *util);
         TInt Discover(const QString& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode);
         int  LatestError() const {return iLatestError;};
+        bool IsRunning(const XQAiwInterfaceDescriptor& implementation) const;
         
     private:
         void StartServerL(const TUid& uid, bool embedded, TUint64& processId, XQRequestUtil *util);
@@ -160,12 +161,22 @@ int XQServiceManager::latestError() const
     return d->LatestError();
 }
 
+/*!
+    Returns the latest error occured
+*/
+bool XQServiceManager::isRunning(const XQAiwInterfaceDescriptor& implementation) const
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManager::isRunning");
+    return d->IsRunning(implementation);
+}
+
+
 // aService is here the full name (service + interface)
 int XQServiceManagerPrivate::StartServer(const QString& aService,  bool embedded, int& applicationUid, quint64& processId,
                                         XQRequestUtil *util)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::startServer(2)");
-    XQSERVICE_DEBUG_PRINT("aService: %s, embedded: %d", qPrintable(aService), embedded);
+    XQSERVICE_DEBUG_PRINT("aService: %s", qPrintable(aService));
     
     TUid appUid;
     appUid.iUid=0;
@@ -202,7 +213,7 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
                                            XQRequestUtil *util)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::StartServerL");
-    Q_UNUSED(util);  // Currently not used yet.  The uid was set by calling function above
+    Q_UNUSED(embedded);  // Not used any more. XQRequestUtil applied instead
     
     RApaLsSession apa;
     User::LeaveIfError( apa.Connect() );
@@ -210,11 +221,11 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
 
 
     bool toBackground = false;
-    // Apply the utility's option for embedding 
-    embedded = util->mInfo.isEmbedded();
+    // Apply the utility's option for embedding  instead
+    bool embed = util->mInfo.isEmbedded();
     toBackground = util->mInfo.isBackground();
     
-    XQSERVICE_DEBUG_PRINT("\tembedded got from utility=%d", embedded);
+    XQSERVICE_DEBUG_PRINT("\tembedded got from utility=%d", embed);
     XQSERVICE_DEBUG_PRINT("\tbackground got from utility=%d", toBackground);
 
     // retrieve application information
@@ -230,15 +241,23 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
     }
 
     // Consistency check
-    if (embedded && toBackground)
+    if (embed && toBackground)
     {
         User::Leave(KErrArgument);
     }
 
+    /*
+    // Using the "iAppInfo.iCaption" is wrong as the channel name (full servicename) shall be used:
+    // e.g. tester's "com.nokia.servicesd.serviceapp.Dialer" or
+    //       "com.nokia.servicesd.serviceapp.Dialer.PROCESS-ID" in case of embedded launch
+    // Anyway, this is not needed as the "XQServiceIpcClient::connectToServer()" takes care of the checking logic
+    // earlier (the "startServer" logic will be applied only when needed)
     TFindServer find( iAppInfo.iCaption );
     TFullName fullName;
     TInt err = find.Next( fullName );
     XQSERVICE_DEBUG_PRINT("err: %d", err);
+    */
+    TInt err = KErrNotFound;  // Assume not found
     if ( err != KErrNone )
         {
         CApaCommandLine* cmdLine = CApaCommandLine::NewLC();
@@ -250,7 +269,7 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         //cmdLine->SetServerRequiredL( uid.iUid );
         RProcess client;
         cmdLine->SetServerRequiredL(client.Id().Id());
-        if (embedded) {
+        if (embed) {
             CCoeEnv* env= CCoeEnv::Static();
             if (env)  // Could be NULL 
             {
@@ -267,8 +286,7 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
             else
             {
                 // Can not be embedded (non GUI client)
-                embedded = false;
-                util->mInfo.setEmbedded(false);
+                embed = false;
             }
         }
          
@@ -277,10 +295,22 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         // start application with command line parameters
         //User::LeaveIfError( apa.StartApp( *cmdLine, threadId, &requestStatusForRendezvous) );
         QString startupArgs = QString::fromLatin1(XQServiceUtils::StartupArgService);
-        if (embedded)
+        if (embed)
         {
             startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgEmbedded));
         }
+
+        //
+        // Add interface name and operation (message) name to the command line as startup args.
+        // Usable in practise only for the embedded launch
+        // Can be used  by service application to prepare the UI to the coming call.
+        //
+        QStringList l = util->mOperation.split("("); 
+        QString oper = l.value(0); //  // Pick only the function name and ignore parameters
+        
+        startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName) + util->mDescriptor.interfaceName() );
+        startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgOperationName) + oper);
+        
         XQSERVICE_DEBUG_PRINT("\tStartupArgs:%s", qPrintable(startupArgs));
         TPtrC cmdLineArgs( reinterpret_cast<const TUint16*>(startupArgs.utf16()) );
         
@@ -360,7 +390,7 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
     CApaAppServiceInfoArray* apaInfo = NULL;
     TInt error = KErrNone;
     TRAP(error, apaInfo = AvailableServiceImplementationsL());
-    XQSERVICE_DEBUG_PRINT("error: %d", error);
+    XQSERVICE_DEBUG_PRINT("Discover status=%d", error);
     if (error)
         {
         return error;  // This is fatal as nothing found
@@ -454,6 +484,7 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
             foreach (XQAiwInterfaceDescriptor interface,results.interfaces)
                 {
                 QString sn;
+                QString snDeprecated;
                 if (results.version == ServiceMetaDataResults::VERSION_1)
                     {
                     // Old version of the XML format. The parser took care of adaptation
@@ -465,6 +496,15 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
                     // discovery-name = interface name
                    XQSERVICE_DEBUG_PRINT("version 2");
                     }
+
+                // Deprecated service name, if any
+                QString deprecatedServiceName = interface.customProperty("deprecatedsn");
+                bool deprNameExists = !deprecatedServiceName.isEmpty();
+                if (deprNameExists)
+                {
+                    XQSERVICE_DEBUG_PRINT("deprecatedServiceName: %s", qPrintable(deprecatedServiceName));
+                }
+                
                 // This is the name used in match
                 // TODO: Version handling support: Take the latest version if multiple matches
                 switch (matchMode)
@@ -474,15 +514,17 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
                         break;
                     case MatchServiceAndInterfaceName :
                         sn =interface.serviceName() + "." + interface.interfaceName();
+                        snDeprecated = deprecatedServiceName + "." + interface.interfaceName();
                         break;
                     default:
                         sn = interface.interfaceName();
-                        break;
+                       break;
                 }
 
                 XQSERVICE_DEBUG_PRINT("compare name is: %s", qPrintable(sn));
                 XQSERVICE_DEBUG_PRINT("requested name: %s", qPrintable(serviceName));
-                if (!serviceName.compare(sn,Qt::CaseInsensitive)) 
+                if ((!serviceName.compare(sn,Qt::CaseInsensitive)) ||
+                    (deprNameExists && !serviceName.compare(snDeprecated,Qt::CaseInsensitive)))
                     {
                     if (!firstUidPicked)
                         {
@@ -523,6 +565,20 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
     return error;
 }
 
+bool XQServiceManagerPrivate::IsRunning(const XQAiwInterfaceDescriptor& implementation) const
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::IsRunning");
+    QString fullServiceName = implementation.serviceName() + "." +  implementation.interfaceName();
+    TPtrC serverName( reinterpret_cast<const TUint16*>(fullServiceName.utf16()) );
+    
+    TFindServer findServer(serverName);
+    TFullName name;
+    bool b = findServer.Next(name) == KErrNone;
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::IsRunning=%d",b);
+    return b;
+}
+
+    
 int XQServiceManagerPrivate::doMapErrors(TInt aError)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::doMapErrors");

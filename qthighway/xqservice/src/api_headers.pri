@@ -29,7 +29,8 @@ XQSERVICE_API_HEADERS = \
 				src/xqaiwglobal.h \
 				src/xqaiwrequest.h \
 				src/xqappmgr.h \
-				src/xqaiwdecl.h
+				src/xqaiwdecl.h \
+				src/xqapplicationmanager.h \
 
 XQSERVICE_API_HEADERS_INTERNAL = 
 

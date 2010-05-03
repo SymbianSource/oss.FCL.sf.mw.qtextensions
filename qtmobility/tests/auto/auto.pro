@@ -11,11 +11,8 @@ contains(mobility_modules,serviceframework) {
            qservicemanager \
            qabstractsecuritysession \
            qservicecontext \
-           icheck
-
-# servicedatabase is not compiled into the serviceframework library on symbian,
-# special handling is needed
-    !symbian:SUBDIRS+=servicedatabase
+           icheck \
+#           servicedatabase
 }
 
 contains(mobility_modules,bearer) {
@@ -44,7 +41,7 @@ contains(mobility_modules,publishsubscribe) {
     SUBDIRS += qvaluespace \                           #Publish and Subscribe
            qvaluespacepublisher \
            qvaluespacesubscriber \
-	   qcrmlparser
+           qcrmlparser
 
     unix|win32 {
         !symbian:!maemo6:!maemo5: SUBDIRS+= \
@@ -81,7 +78,10 @@ contains(mobility_modules,contacts) {
             qcontactmanager \
             qcontactmanagerplugins \
             qcontactmanagerfiltering \
-            qcontactrelationship
+            qcontactrelationship \
+            qlatin1constant
+    # This needs glibc:
+    linux*: SUBDIRS += qcontactmemusage
 }
 
 contains(mobility_modules,versit) {
@@ -95,14 +95,13 @@ contains(mobility_modules,versit) {
             qversitdocument \
             qversitproperty \
             qversitreader \
-            qversitutils \
             qversitwriter
 }
 
 contains(mobility_modules,multimedia) {
     SUBDIRS += \             #Multimedia
         qaudiocapturesource \
-        qcamera \
+        qgraphicsvideoitem \
         qmediaimageviewer \
         qmediaobject \
         qmediaplayer \
@@ -115,24 +114,18 @@ contains(mobility_modules,multimedia) {
         qmediaserviceprovider \
         qmediacontent \
         qradiotuner \
+        qpaintervideosurface \
         qvideowidget \
         qmediatimerange
-
-    contains(QT_CONFIG, multimedia) {
-        SUBDIRS += \
-                qgraphicsvideoitem \
-                qpaintervideosurface
-
-    }
 
     symbian: {
         #symbian spesific autotests
         SUBDIRS += symbian 
         SUBDIRS -= \
-                qcamera \
-                qmediaplayer \
-                qradiotuner \
-                qmediaobject
+                qmediaplayer_s60 \
+                qradiotuner_s60 \
+                qmediaobject_s60 \
+                qmediarecorder_s60
     }
 }
 #Messaging
@@ -144,4 +137,9 @@ contains(mobility_modules,messaging) {
         qmessage \
         qmessageservice
     }
+}
+
+# Sensors
+contains(mobility_modules,sensors) {
+    SUBDIRS += qsensor
 }

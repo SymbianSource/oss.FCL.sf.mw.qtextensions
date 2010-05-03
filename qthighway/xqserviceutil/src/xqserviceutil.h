@@ -33,6 +33,8 @@ namespace XQServiceUtil
     // Utilities to extract startup command line arguments
     XQSERVICEUTIL_EXPORT bool isEmbedded();  // 
     XQSERVICEUTIL_EXPORT bool isService();
+    XQSERVICEUTIL_EXPORT QString interfaceName();
+    XQSERVICEUTIL_EXPORT QString operationName();
 }
 
 #endif

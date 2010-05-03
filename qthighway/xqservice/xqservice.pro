@@ -44,6 +44,8 @@ include(../xqservicebase.pri)
 include(src/xqservice.pri)
 
 LIBS+=-lxqserviceutil -lxqserviceipcclient -lxqserviceipcserver -lqtgui -lqtserviceframework -lws32 -lefsrv -lapparc -lapgrfx
+LIBS+=-lcaf
+LIBS+=-lxqsettingsmanager
 
 libFiles.sources = xqservice.dll xqserviceutil.dll
 libFiles.path = "!:\sys\bin"

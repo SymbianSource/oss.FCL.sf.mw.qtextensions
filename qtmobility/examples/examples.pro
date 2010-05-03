@@ -5,13 +5,15 @@ TEMPLATE = subdirs
 #ServiceFramework examples
 contains(mobility_modules,serviceframework) {
     SUBDIRS += filemanagerplugin \
-            bluetoothtransferplugin \
-            notesmanagerplugin \
-            servicebrowser
-#            todotool
+               bluetoothtransferplugin \
+               notesmanagerplugin \
+               servicebrowser
+
+    !symbian:SUBDIRS+= servicenotesmanager/sfw-notes
     
     contains(QT_CONFIG, declarative) {
-        SUBDIRS += declarative
+        SUBDIRS += servicenotesmanager/declarative-sfw-notes \
+                   declarative-sfw-dialer
     }
 }
 
@@ -61,16 +63,8 @@ contains(mobility_modules,multimedia) {
     SUBDIRS += \
         radio \
         player \
-        cameracapture \
         slideshow \
-        streamplayer \
         audiorecorder
-
-    contains (QT_CONFIG, declarative) {
-        SUBDIRS += \
-            declarativemusic \
-            declarativevideo
-    }
 }
 
 
@@ -83,9 +77,12 @@ contains(qmf_enabled,yes)|wince*|win32|symbian|maemo5 {
                 writemessage \
                 serviceactions
 
-                contains(mobility_modules,contacts) {
-                    SUBDIRS += keepintouch
-                }
+            contains(mobility_modules,contacts) {
+                SUBDIRS += keepintouch
+            }
+
+            # MessagingEx lives in tests for some reason
+            maemo5:SUBDIRS += ../tests/messagingex
          }
     }
 }
@@ -95,5 +92,6 @@ contains(mobility_modules,sensors) {
     SUBDIRS += sensors
 }
 
-BLD_INF_RULES.prj_exports += "./rom/qtmobilityexamples.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(qtmobilityexamples.iby)"
-
+symbian {
+    SUBDIRS += s60installs/s60installs.pro
+}

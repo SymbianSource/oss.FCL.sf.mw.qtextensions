@@ -40,7 +40,29 @@ class XQAIW_EXPORT XQApplicationManager : public QObject
     Q_OBJECT
 
 public:
-            
+
+    // For the contentAttributes()
+    enum DrmAttribute
+    {
+       DrmIntAttributeBase=0,      // Base value for the  DRM integer attributes
+       IsProtected   = DrmIntAttributeBase+0,
+       IsForwardable = DrmIntAttributeBase+1,
+       // For others DrmIntAttributeBase+N, see N from the caf/caftypes.h
+       
+       DrmStringAttributeBase = 100,  // Base value for the  DRM string attributes 
+       Description = DrmStringAttributeBase+0,
+       MimeType    = DrmStringAttributeBase+1
+       // For others, DrmIntAttributeBase+N, see N from the caf/caftypes.h
+    };
+
+    // For the serviceStatus() function
+    enum ServiceStatus
+    {
+        Unknown=0,  // Not known
+        Enabled,    // Service enabled
+        Disabled    // Service disabled, e.g. required config not OK,
+    };
+    
     XQApplicationManager();
     virtual ~XQApplicationManager();
 
@@ -68,7 +90,15 @@ public:
     XQAiwRequest* create( const XQSharableFile &file, const XQAiwInterfaceDescriptor& implementation, bool embedded = true);
 
     int lastError() const;
+    bool isRunning(const XQAiwInterfaceDescriptor& implementation) const;
 
+    bool getDrmAttributes(const QFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
+    bool getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
+    
+    ServiceStatus status(const XQAiwInterfaceDescriptor& implementation);
+
+signals:
+    
 private:
     // Disable copy contructor
     Q_DISABLE_COPY(XQApplicationManager)

@@ -32,42 +32,55 @@ win32:!contains(CONFIG_WIN32,build_all) {
    }
 }
 
-#lessThan(QT_MAJOR_VERSION, 4) {
-#    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
-#}
+lessThan(QT_MAJOR_VERSION, 4) {
+    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
+}
 
-#contains(QT_MAJOR_VERSION, 4):lessThan(QT_MINOR_VERSION, 6) {
-#    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
-#}
+contains(QT_MAJOR_VERSION, 4):lessThan(QT_MINOR_VERSION, 6) {
+    error(Qt Mobility requires Qt 4.6 or higher. Qt $${QT_VERSION} was found.);
+}
 
 
-#generate prf file for Qt integration
-#PRF_OUTPUT=$${QT_MOBILITY_BUILD_TREE}/features/mobility.prf
+# MCL builds for Symbian do not run configure and require some manual setup steps.
+# This test permits SD builds to skip installation of mobility.prf from within qmake.
+# It is installed in a separate step. MCL builds for SD must set the
+# MOBILITY_SD_MCL_BUILD flag to yes.
+!contains(MOBILITY_SD_MCL_BUILD, yes) {
+    #generate prf file for Qt integration
+    PRF_OUTPUT=$${QT_MOBILITY_BUILD_TREE}/features/mobility.prf
 
-#system(echo MOBILITY_PREFIX=$${QT_MOBILITY_PREFIX} > $$PRF_OUTPUT)
-#system(echo MOBILITY_INCLUDE=$${QT_MOBILITY_INCLUDE} >> $$PRF_OUTPUT)
-#system(echo MOBILITY_LIB=$${QT_MOBILITY_LIB} >> $$PRF_OUTPUT)
+    system(echo MOBILITY_PREFIX=$${QT_MOBILITY_PREFIX} > $$PRF_OUTPUT)
+    system(echo MOBILITY_INCLUDE=$${QT_MOBILITY_INCLUDE} >> $$PRF_OUTPUT)
+    system(echo MOBILITY_LIB=$${QT_MOBILITY_LIB} >> $$PRF_OUTPUT)
 
-#MOD_QT_MOBILITY_SOURCE_TREE=$$replace(QT_MOBILITY_SOURCE_TREE, /, \\)
-#unix:!symbian:system(cat $${QT_MOBILITY_SOURCE_TREE}/features/mobility.prf.template >> $$PRF_OUTPUT)
-#win32:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
-#symbian:system(type $${MOD_QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
+    unix:!symbian:system(cat $${QT_MOBILITY_SOURCE_TREE}/features/mobility.prf.template >> $$PRF_OUTPUT)
+    win32:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
+    symbian:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
 
-#MOD_QT_MOBILITY_BUILD_TREE=$$replace(QT_MOBILITY_BUILD_TREE, /, \\)
-#INSTALL_DATA=$$[QT_INSTALL_DATA]
-#MOD_QT_INSTALL_DATA=$$replace(INSTALL_DATA, /, \\)
-#symbian does not generate make install rule. we have to copy prf manually 
-#symbian:system(copy $${MOD_QT_MOBILITY_BUILD_TREE}\features\mobility.prf $${MOD_QT_INSTALL_DATA}\mkspecs\features)
+    #symbian does not generate make install rule. we have to copy prf manually 
+    symbian {
+        FORMATDIR=$$[QT_INSTALL_DATA]\mkspecs\features
+        FORMATDIR=$$replace(FORMATDIR,/,\\ )
+        system(copy "$${QT_MOBILITY_BUILD_TREE}\features\mobility.prf $$FORMATDIR")
+    }
 
-# install feature file
-#feature.path = $$[QT_INSTALL_DATA]/mkspecs/features
-#feature.files = $$QT_MOBILITY_BUILD_TREE/features/mobility.prf
-#INSTALLS += feature
+    # install feature file
+    feature.path = $$[QT_INSTALL_DATA]/mkspecs/features
+    feature.files = $$QT_MOBILITY_BUILD_TREE/features/mobility.prf
+    INSTALLS += feature
+}
 
 TEMPLATE = subdirs
 CONFIG+=ordered
 
-SUBDIRS += src tools plugins
+SUBDIRS += src
+
+contains(build_tools, yes) {
+    SUBDIRS += tools
+}
+
+SUBDIRS += plugins
+
 #built documentation snippets, if enabled
 contains(build_docs, yes) {
     SUBDIRS += doc
@@ -76,17 +89,11 @@ contains(build_docs, yes) {
     OTHER_FILES += doc/src/*.qdoc doc/src/examples/*.qdoc
 }
 
-#contains(build_unit_tests, yes):SUBDIRS+=tests
-#contains(build_examples, yes):SUBDIRS+=examples
+contains(build_unit_tests, yes):SUBDIRS+=tests
+contains(build_examples, yes):SUBDIRS+=examples
 
 # install Qt style headers
 qtmheaders.path = $${QT_MOBILITY_INCLUDE}
 qtmheaders.files = $${QT_MOBILITY_BUILD_TREE}/include/*
 
 INSTALLS += qtmheaders
-
-symbian {
-BLD_INF_RULES.prj_exports += "./rom/qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
-BLD_INF_RULES.prj_exports += "./rom/qtmobilityresources.iby  $$CORE_ADAPT_LAYER_IBY_EXPORT_PATH(language/mw/qtmobilityresources.iby)"
-BLD_INF_RULES.prj_exports += "./rom/qtmobility_stub.sis      /epoc32/data/z/system/install/qtmobility_stub.sis"
-}

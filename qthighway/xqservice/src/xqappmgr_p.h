@@ -30,6 +30,7 @@
 #include <xqaiwrequest.h>
 #include <xqaiwinterfacedescriptor.h>
 #include <xqsharablefile.h>
+#include <xqapplicationmanager.h>
 
 class XQServiceManager;
 class XQAiwUtils;
@@ -54,7 +55,12 @@ public:
     QList<XQAiwInterfaceDescriptor> list(const XQSharableFile &file);
 
     bool hasCustomHandler(const QUrl &uri) const;
+    
     int lastError() const;
+    bool isRunning(const XQAiwInterfaceDescriptor& implementation) const;
+    bool getDrmAttributes(const QFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
+    bool getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
+    int status(const XQAiwInterfaceDescriptor& implementation);
     
 private:
     

@@ -26,10 +26,6 @@ TOOLS2
 
 PRJ_EXPORTS
 qtextensionsconfig.xml  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
-qtextensionsconfig.flm  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.flm
-qtextensionsconfig.mk   /epoc32/tools/makefile_templates/qt/qtextensionsconfig.mk
-qtextensionsconfig.meta /epoc32/tools/makefile_templates/qt/qtextensionsconfig.meta
-
 qtextensions_pre_targetdep.flm /epoc32/tools/makefile_templates/qt/qtextensions_pre_targetdep.flm
 
 ../qtecomplugins/mkspecs/features/ecomplugin.prf /epoc32/tools/qt/mkspecs/features/symbian/ecomplugin.prf
@@ -46,10 +42,4 @@ PRJ_TESTMMPFILES
 
 
 PRJ_EXTENSIONS
-START EXTENSION qt/qtextensionsconfig
-OPTION MODULES bearer location serviceframework publishsubscribe systeminfo messaging /*multimedia*/
-OPTION TESTS -tests
-OPTION EXAMPLES -examples
-OPTION DOCS -no-docs
-END
 

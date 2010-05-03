@@ -180,25 +180,19 @@ QByteArray XQServiceThreadData::serializeRetData(const QVariant &value, int erro
     QByteArray array;
     // if (!value.isNull() && (value.type() != QVariant::Invalid)) {    maparnan
     if (value.isValid()) {    // 
-        XQServiceVariant retRequest(value);
-        QDataStream stream(&array, 
-                           QIODevice::WriteOnly | QIODevice::Append);
+        QDataStream stream(&array, QIODevice::WriteOnly | QIODevice::Append);
+        
         stream << CmdRetData;
-        //TODO: check if i use type() crash for custom type
-        stream << retRequest.userType();
-        retRequest.save(stream);
+        stream << value;
     }
     else {
         if (error)
             {
-            //QVariant value = QVariant::fromValue(error);
             QVariant value(error);
-            XQServiceVariant retRequest(value);
             QDataStream stream(&array, 
                         QIODevice::WriteOnly | QIODevice::Append);
             stream << CmdErrData;
-            stream << retRequest.userType();
-            retRequest.save(stream);
+            stream << value;
             }
         }
     return array;
@@ -212,21 +206,17 @@ QVariant XQServiceThreadData::deserializeRetData(const QByteArray &retData)
         {
         QDataStream stream(retData);
         int cmd ;
-        int type ;
         stream >> cmd ;
-        stream >> type ;
         if (cmd == CmdRetData) 
             {
-            XQServiceVariant retServiceData;
-            retServiceData.load(stream,type);
+            QVariant retServiceData(stream);
             return retServiceData;
         }
         else
             {
             if (cmd == CmdErrData)
                 {
-                XQServiceVariant retServiceData;
-                retServiceData.load(stream,type);
+                QVariant retServiceData(stream);
                 int error = retServiceData.toInt();
                 XQService::serviceThreadData()->setLatestError(error);
                 }

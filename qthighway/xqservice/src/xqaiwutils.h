@@ -28,6 +28,8 @@
 #include <QObject>
 #include <QFile>
 #include <QUrl>
+#include <QVariant>
+#include <QList>
 #include <qglobal.h>
 #include <xqsharablefile.h>
 
@@ -45,7 +47,11 @@ public:
     int findApplication(const QUrl &uri, int &applicationId);
     QString createCmdlineArgs(const QList<QVariant> &args);
     static QString createErrorMessage(int errorCode, const QString context, const QString detail = "");
-
+    
+    bool getDrmAttributes(const QString &file, const QList<int> &attributes, QVariantList & result);
+    bool getDrmAttributes(const XQSharableFile &file, const QList<int> & attributes, QVariantList & result);
+    int toIntFromHex(const QString &str, bool *ok);
+    
 private:
 
 private:

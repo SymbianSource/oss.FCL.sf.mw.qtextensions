@@ -44,11 +44,14 @@ class XQSERVICEUTIL_EXPORT XQRequestInfo
         void setBackground(bool on);
         bool isBackground() const;
         bool isSynchronous() const;
+        void setForeground(bool on);
+        bool isForeground() const;
         
         quint32 clientSecureId() const;
         quint32 clientVendorId() const;
         QSet<int> clientCapabilities() const;
-        
+        int id() const;
+
         void setInfo(const QString &key, const QVariant &value);
         QVariant info(const QString &key) const;
         QStringList infoKeys() const;

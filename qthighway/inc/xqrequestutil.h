@@ -32,21 +32,27 @@
 
 
 //
-// XQRequestUtil is internal helper class for QtHighway request handling
+// XQRequestUtil is internal helper class for starting QtHigway service app
+// and for request handling
 //
 // Option key names for XQRequestInfo
+
 namespace XQServiceUtils
 {
-    static const char * OptEmbedded= "XQEmb";    // Option Embedded / Non-Embedded call
-    static const char * OptBackground= "XQBg";   // Option Service to Background / Foreground
+    static const char * OptEmbedded= "XQEmb";    // Option Embedded (off=Non-Embedded)
+    static const char * OptBackground= "XQBg";   // Option Service to Background (missing=no changes in Z-order)
+    static const char * OptForeground= "XQFg";   // Set service app to foreground (missing=no changes in Z-order)
     static const char * OptSynchronous= "XQSync"; // Option Syncronous / Asynchronous call
     static const char * InfoSID= "XQSid"; // Client secure ID
     static const char * InfoVID= "XQVid"; // Client vendor ID
     static const char * InfoCap= "XQCap"; //Client cap
+    static const char * InfoId= "XQId"; // Request ID
     
     // Startup arguments
     static const char * StartupArgEmbedded = "embedded=yes";
     static const char * StartupArgService = "service=yes";
+    static const char * StartupArgInterfaceName = "intf=";
+    static const char * StartupArgOperationName = "oper=";
 }
 
 
@@ -63,9 +69,10 @@ class XQSERVICEUTIL_EXPORT XQRequestUtil
     static int mapError(int error);
         
     public:
-        XQAiwInterfaceDescriptor mDescriptor;
+        XQAiwInterfaceDescriptor mDescriptor;  // Contains e.g. service and interface name 
         XQRequestInfo mInfo;
         QList<XQSharableFile> mSharableFileArgs;   // Use list even though one file possible to transfer
+        QString mOperation;  // Operation (message) wanted
 };
 
 #endif

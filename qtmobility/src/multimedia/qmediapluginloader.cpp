@@ -39,13 +39,13 @@
 **
 ****************************************************************************/
 
-#include <qmediapluginloader_p.h>
+#include "qmediapluginloader_p.h"
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qpluginloader.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qdebug.h>
 
-#include <qmediaserviceproviderplugin.h>
+#include "qmediaserviceproviderplugin.h"
 
 QTM_BEGIN_NAMESPACE
 
@@ -87,7 +87,6 @@ void QMediaPluginLoader::load()
         return;
 
     if (staticMediaPlugins() && staticMediaPlugins()->contains(m_location)) {
-        qWarning() << "Load static plugins for" << m_location;
         foreach(QObject *o, staticMediaPlugins()->value(m_location)) {
             if (o != 0 && o->qt_metacast(m_iid) != 0) {
                 QFactoryInterface* p = qobject_cast<QFactoryInterface*>(o);
@@ -99,6 +98,10 @@ void QMediaPluginLoader::load()
         }
     } else {
         QStringList     paths = QCoreApplication::libraryPaths();
+
+#ifdef QTM_PLUGIN_PATH
+        paths << QTM_PLUGIN_PATH;
+#endif
 
         foreach (QString const &path, paths) {
             QString     pluginPathName(path + m_location);

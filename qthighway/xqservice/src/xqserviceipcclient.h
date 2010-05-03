@@ -103,8 +103,7 @@ private:
 
     QString mIpcConName ;
 
-    ServiceIPCRequest* currentRequest;  // @deprecated
-    bool requestAsync;                  // @deprecated
+    ServiceIPCRequest* cancelledRequest; 
     
     ServiceFwIPC* serviceIpc;
     ServiceFwIPCServer* serviceIpcServer;    

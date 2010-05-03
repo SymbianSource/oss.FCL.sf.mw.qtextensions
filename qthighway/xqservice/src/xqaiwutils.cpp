@@ -26,11 +26,13 @@
 #include <apmstd.h>
 #include <w32std.h>
 #include <apgtask.h>
+#include <caf/content.h>
 
 #include "xqaiwdecl.h"
 #include "xqservicelog.h"
 #include <xqserviceglobal.h>  // Error codes
 #include <xqserviceipcconst.h>
+#include <xqapplicationmanager.h>
 #include "xqaiwutils.h"
 
 
@@ -42,10 +44,11 @@ class XQAiwUtilsPrivate : public QObject
         virtual ~XQAiwUtilsPrivate();
         
         void launchApplicationL(int applicationId, const QString &cmdArguments);
-        int findApplicationFromApa(const QFile &file, int &applicationId);
-        int findApplicationFromApa(const XQSharableFile &file, int &applicationId);
+        int findApplicationFromApa(const QString &file, int &applicationId, QString &mimeType);
+        int findApplicationFromApa(const XQSharableFile &file, int &applicationId, QString &mimeType);
         bool applicationExists(int applicationId);
         int toIntFromHex(const QString &str, bool *ok);
+        void GetDrmAttributesL(ContentAccess::CContent *c, const QList<int> & attributes, QVariantList &result);
         
     public:
         RApaLsSession apaSession;
@@ -129,7 +132,8 @@ int XQAiwUtils::findApplication(const QFile &file, int &applicationId)
     XQSERVICE_DEBUG_PRINT("XQAiwUtils::findApplication %s", qPrintable(file.fileName()));
     TInt error = KErrNone;
     int appId = 0;
-    error = d->findApplicationFromApa(file, appId);
+    QString mimeType;
+    error = d->findApplicationFromApa(file.fileName(), appId, mimeType);
     if (!error)
     {
         applicationId = appId;
@@ -143,7 +147,8 @@ int XQAiwUtils::findApplication(const XQSharableFile &file, int &applicationId)
     XQSERVICE_DEBUG_PRINT("XQAiwUtils::findApplication (handle)");
     TInt error = KErrNone;
     int appId = 0;
-    error = d->findApplicationFromApa(file, appId);
+    QString mimeType;
+    error = d->findApplicationFromApa(file, appId, mimeType);
     if (!error)
     {
         applicationId = appId;
@@ -172,7 +177,8 @@ int XQAiwUtils::findApplication(const QUrl &uri, int &applicationId)
     }
     else if (uri.scheme() == XQURI_SCHEME_FILE)  // file://
     {
-        TInt err = d->findApplicationFromApa(uri.toLocalFile(), appId);
+        QString mimeType;
+        TInt err = d->findApplicationFromApa(uri.toLocalFile(), appId, mimeType);
         idOk = (err == KErrNone);
     }
 
@@ -267,6 +273,80 @@ QString XQAiwUtils::createErrorMessage(int errorCode, const QString context, con
     return ret;
 }
 
+bool XQAiwUtils::getDrmAttributes(const QString &file, const QList<int> & attributes, QVariantList &result)
+{
+
+    QString fileName = file;
+    fileName.replace("/", "\\");  // Normalize
+    
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::getDrmAttributes %s", qPrintable(fileName));
+    
+    TPtrC fileNameSymbian( reinterpret_cast<const TUint16*>(fileName.utf16()));
+    
+    TInt err=KErrNone;
+    ContentAccess::CContent* c = 0;
+
+    TRAP(err,c = ContentAccess::CContent::NewL(fileNameSymbian));
+    if (err != KErrNone)
+    {
+        XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::getDrmAttributes leave %d", err);
+        return false;
+    }
+    CleanupStack::PushL(c);
+
+    d->GetDrmAttributesL(c, attributes, result);
+
+    CleanupStack::PopAndDestroy();  // c
+
+    return true;
+}
+
+
+bool XQAiwUtils::getDrmAttributes(const XQSharableFile &file, const QList<int> & attributes, QVariantList &result)
+{
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::getDrmAttributes (handle) %s", qPrintable(file.fileName()));
+
+    RFile fileHandle;
+    if (!file.getHandle(fileHandle))
+    {
+        XQSERVICE_DEBUG_PRINT("\tInvalid handle");
+        return false;
+    }
+    TInt err=KErrNone;
+    ContentAccess::CContent* c = 0;
+    TRAP(err,c = ContentAccess::CContent::NewL(fileHandle));
+    if (err != KErrNone)
+    {
+        XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::getDrmAttributes leave %d", err);
+        return false;
+    }
+    CleanupStack::PushL(c);
+
+    d->GetDrmAttributesL(c, attributes, result);
+
+    CleanupStack::PopAndDestroy();  // c
+
+    return true;
+}
+
+int XQAiwUtils::toIntFromHex(const QString &str, bool *ok)
+{
+    return d->toIntFromHex(str,ok);
+    
+}
+
+
+// --- XQAiwUtilsPrivate--
+
+XQAiwUtilsPrivate::XQAiwUtilsPrivate()
+{
+    apaSession.Connect();
+}
+
+XQAiwUtilsPrivate::~XQAiwUtilsPrivate()
+{
+    apaSession.Close();
+}
 
 void XQAiwUtilsPrivate::launchApplicationL(int applicationId, const QString &cmdArguments)
 {
@@ -311,23 +391,14 @@ void XQAiwUtilsPrivate::launchApplicationL(int applicationId, const QString &cmd
 
 }
 
-// ----- XQAiwUtilsPrivate --- 
 
-XQAiwUtilsPrivate::XQAiwUtilsPrivate()
+int XQAiwUtilsPrivate::findApplicationFromApa(const QString &file, int &applicationId, QString &mimeType)
 {
-    apaSession.Connect();
-}
+    QString fileName = file;
+    
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::::findApplicationFromApa file=%s", qPrintable(fileName));
 
-XQAiwUtilsPrivate::~XQAiwUtilsPrivate()
-{
-    apaSession.Close();
-}
-
-
-int XQAiwUtilsPrivate::findApplicationFromApa(const QFile &file, int &applicationId)
-{
-    QString fileName = file.fileName();
-    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::::findApplicationFromApa %s", qPrintable(fileName));
+    fileName.replace("/", "\\");  // Normalize
     
     TPtrC name( reinterpret_cast<const TUint16*>(fileName.utf16()) );
 
@@ -344,15 +415,18 @@ int XQAiwUtilsPrivate::findApplicationFromApa(const QFile &file, int &applicatio
     }
 
     applicationId = uid.iUid;  // return value
-
-    XQSERVICE_DEBUG_PRINT("\tapplicationId=%x", applicationId);
+    QString mime = QString::fromUtf16(dataType.Des().Ptr(), dataType.Des().Length());
+    mimeType = mime;
+    
+    XQSERVICE_DEBUG_PRINT("\tapplicationId=%x,mime-type=%s", applicationId, qPrintable(mime));
+    
     return KErrNone;
     
 }
 
-int XQAiwUtilsPrivate::findApplicationFromApa(const XQSharableFile &file, int &applicationId)
+int XQAiwUtilsPrivate::findApplicationFromApa(const XQSharableFile &file, int &applicationId, QString &mimeType)
 {
-    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::findApplicationFromApa (handle)");
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::findApplicationFromApa by handle, file=%s", qPrintable(file.fileName()));
     RFile fileHandle;
     if (!file.getHandle(fileHandle))
     {
@@ -373,8 +447,10 @@ int XQAiwUtilsPrivate::findApplicationFromApa(const XQSharableFile &file, int &a
     }
 
     applicationId = uid.iUid;  // return value
-
-    XQSERVICE_DEBUG_PRINT("\tapplicationId=%x", applicationId);
+    QString mime = QString::fromUtf16(dataType.Des().Ptr(), dataType.Des().Length());
+    mimeType = mime;
+    
+    XQSERVICE_DEBUG_PRINT("\tapplicationId=%x,mime-type=%s", applicationId, qPrintable(mime));
     return KErrNone;
 
 }
@@ -400,6 +476,10 @@ int XQAiwUtilsPrivate::toIntFromHex(const QString &str, bool *ok)
     int power = 0;
     int base=16;
     QString s = str.toUpper();
+    s.replace("0X", "");  // Remove possible 0x
+
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::toIntFromHex=%s", qPrintable(s));
+    
     for (int i=s.length()-1; i >= 0; i--)
     {
         int val = (int)s[i].toLatin1();
@@ -427,3 +507,62 @@ int XQAiwUtilsPrivate::toIntFromHex(const QString &str, bool *ok)
     return result;
 }
 
+
+
+void XQAiwUtilsPrivate::GetDrmAttributesL(ContentAccess::CContent *c, const QList<int> & attributes, QVariantList &result)
+{
+
+    XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::GetDrmAttributesL");
+    
+    HBufC* buffer = 0;
+
+    foreach (int attrName, attributes)
+    {
+        QVariant v; // By default invalid
+        bool isStringAttribute = attrName >= XQApplicationManager::DrmStringAttributeBase;
+        if (isStringAttribute && !buffer)
+        {
+            // Assume 512 characters is enough
+            buffer = HBufC::NewLC(512);
+            XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::buffer allocated");
+        }
+        
+        if (!isStringAttribute)
+        {
+            TInt value = 0;
+            TInt err = c->GetAttribute(attrName, value);
+            if(err == KErrNone)
+            {
+                // Ok, set the value
+                v.setValue(value);
+            }
+            XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::GetDrmAttributesL (int):%d,%d=%d", err, attrName, value);
+        }
+        else
+        {
+            // String attribute
+            attrName -= XQApplicationManager::DrmStringAttributeBase;  // CAF uses same values for int and string attributes 
+            TPtr value( buffer->Des() );
+            value.Zero();
+            TInt err = c->GetStringAttribute(attrName, value);
+            QString strValue;            
+            if(err == KErrNone)
+            {
+                // Ok, set the value
+                strValue = QString::fromUtf16(value.Ptr(), value.Length());
+                v.setValue(strValue);
+            }
+            XQSERVICE_DEBUG_PRINT("XQAiwUtilsPrivate::GetDrmAttributesL (string):%d,%d=%s", err, attrName, qPrintable(strValue));
+
+        }
+        // On error value remains invalid and client can check that
+        // v.isValid()
+        result.append(v);
+    }
+
+    if (buffer)
+    {
+        CleanupStack::PopAndDestroy();  // buffer
+    }
+
+}

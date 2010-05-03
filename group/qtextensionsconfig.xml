@@ -5,13 +5,6 @@
 
 	<!-- Tools interfaces -->
 
-	<interface name="qt.qtextensionsconfig" extends="Symbian.UserFLM" flm="qtextensionsconfig.flm">
-		<param name='MODULES' default='' />
-		<param name='TESTS' default='' />
-		<param name='EXAMPLES' default='' />
-		<param name='DOCS' default='' />
-	</interface>
-	
 	<interface name="qt.qtextensions_pre_targetdep.export" extends="Symbian.UserFLM"
                 flm="qtextensions_pre_targetdep.flm">
     <param name='PREDEP_TARGET' />

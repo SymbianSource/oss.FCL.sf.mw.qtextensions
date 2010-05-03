@@ -22,6 +22,10 @@
 #include <xqservicerequest.h>
 #include <xqservicemanager.h>
 #include <QList>
+#include <xqsettingsmanager.h>
+#include <xqsettingskey.h>
+#include <e32std.h>
+
 #include "xqservicelog.h"
 #include "xqaiwutils.h"
 #include "xqaiwuridriver.h"
@@ -34,6 +38,7 @@ XQApplicationManagerPrivate::XQApplicationManagerPrivate():
    
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate");
+    serviceMgr = new XQServiceManager();
 }
 
 XQApplicationManagerPrivate::~XQApplicationManagerPrivate()
@@ -53,14 +58,6 @@ XQAiwRequest* XQApplicationManagerPrivate::create(
     const QString &service, const QString &interface, const QString &operation, bool embedded)
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate::create(service+interface)");
-
-    if (!serviceMgr)
-        serviceMgr = new XQServiceManager();
-    if (!serviceMgr)
-    {
-        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate:: Can not create service manager");
-        return 0;
-    }
 
     QList<XQAiwInterfaceDescriptor> impls;
     if (service.isEmpty())
@@ -212,16 +209,6 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::list(
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate::list(interface)");
     Q_UNUSED(operation);
 
-    if (!serviceMgr)
-        serviceMgr = new XQServiceManager();
-    
-    QList<XQAiwInterfaceDescriptor> result;    
-    if (!serviceMgr)
-    {
-        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate:: Can not create service manager");
-        return result;
-    }
-    
     return serviceMgr->findInterfaces(interface);
 }
 
@@ -231,17 +218,6 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::list(
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate::list (service+interface)");
     Q_UNUSED(operation);
 
-    if (!serviceMgr)
-        serviceMgr = new XQServiceManager();
-    
-    QList<XQAiwInterfaceDescriptor> result;    
-    if (!serviceMgr)
-    {
-        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate:: Can not create service manager");
-        return result;
-    }
-
-    
     return serviceMgr->findInterfaces(service, interface);
 }
 
@@ -324,12 +300,86 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::list(const XQSharab
 int XQApplicationManagerPrivate::lastError() const
 {
     int err=0;
-    if (serviceMgr)
-        err = serviceMgr->latestError();
+    err = serviceMgr->latestError();
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate:: lastError=%d", err);
     return err;
 }
 
+bool XQApplicationManagerPrivate::isRunning(const XQAiwInterfaceDescriptor& implementation) const
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate isRunning");
+    return serviceMgr->isRunning(implementation);
+}
+
+bool XQApplicationManagerPrivate::getDrmAttributes(const QFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate drmAttributes");
+    if (aiwUtilities == 0)
+        aiwUtilities = new XQAiwUtils();
+    return aiwUtilities->getDrmAttributes(file.fileName(), attributeNames, attributeValues);
+}
+
+bool XQApplicationManagerPrivate::getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate drmAttributes");
+    if (aiwUtilities == 0)
+        aiwUtilities = new XQAiwUtils();
+    return aiwUtilities->getDrmAttributes(file,attributeNames, attributeValues);
+}
+
+int XQApplicationManagerPrivate::status(const XQAiwInterfaceDescriptor& implementation)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate status");
+    QString statusKeyValue = implementation.customProperty(XQCUSTOM_PROP_AIW_SERVICE_STATUS);
+    if (statusKeyValue.isEmpty())
+    {
+        // No custom property,  have to assume service is enabled
+        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate no custom property %s",
+                              XQCUSTOM_PROP_AIW_SERVICE_STATUS);
+        return XQApplicationManager::Unknown;
+    }
+
+    if (aiwUtilities == 0)
+        aiwUtilities = new XQAiwUtils();
+    
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate custom property value=%s",
+                          qPrintable(statusKeyValue));
+    
+    bool b=false;
+    int keyId = aiwUtilities->toIntFromHex(statusKeyValue, &b);
+    if (!b)
+    {
+        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate bad custom property value");
+        return XQApplicationManager::Unknown;
+    }
+    
+    XQSettingsManager settingsManager;
+    int implId = implementation.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate %x,%x", keyId, implId);
+    
+    XQSettingsKey statusKey (XQSettingsKey::TargetCentralRepository, implId, keyId);
+    QVariant value = settingsManager.readItemValue(statusKey);
+    if (value.isNull())
+    {
+        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate Cenrep %x does not contain key %x",
+                              implId, keyId);
+        return XQApplicationManager::Unknown;
+    }
+
+    
+    int status = value.toInt(&b);
+    if (!b)
+    {
+        XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate invalid status value %s",
+                              qPrintable(value.toString()));
+        return XQApplicationManager::Unknown;
+    }
+        
+    XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate status=%d", status);
+    
+    return status;
+   
+}
 
 // ---- PRIVATE FUNCTIONS ----
 

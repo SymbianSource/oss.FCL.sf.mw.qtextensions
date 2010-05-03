@@ -107,8 +107,9 @@ bool CServiceSymbianServer::listen(const QString& aServerName)
     // Needs to be here becuase Q_Ptr isonly set after constructor of public
     iObserver = Observer();
     TPtrC serverName(reinterpret_cast<const TUint16*> (aServerName.utf16()));
-    TRAPD( err, StartL(serverName) );
-    XQSERVICE_DEBUG_PRINT("err: %d", err);
+    TInt err=0;
+    TRAP( err, StartL(serverName) );
+    XQSERVICE_DEBUG_PRINT("listen status=%d", err);
     if (err != KErrNone) {
         listening = false;
     }

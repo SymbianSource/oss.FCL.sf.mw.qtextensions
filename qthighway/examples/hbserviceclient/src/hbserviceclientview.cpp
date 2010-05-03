@@ -27,6 +27,9 @@
 #include <hblineedit.h>
 #include <hblabel.h>
 //#include <hbcheckbox.h>
+#include <hbmessagebox.h>
+#include <cntservicescontact.h>
+
 
 #include <QMessageBox>
 #include <QVariant>
@@ -36,6 +39,7 @@
 #include <xqservicerequest.h>
 
 #include "../hbserviceprovider/src/hbcontact.h"
+
 
 HbServiceClientView::HbServiceClientView(QGraphicsItem *parent)
     : HbView(parent)
@@ -95,8 +99,8 @@ HbServiceClientView::HbServiceClientView(QGraphicsItem *parent)
     HbAction* callEmbeddedAction = new HbAction("Call Embedded"); 
     connect(callEmbeddedAction, SIGNAL(triggered()), this, SLOT(callContactEmbedded()));
 
-    HbAction* showAddressesAction = new HbAction("Show Addresses"); 
-    connect(showAddressesAction, SIGNAL(triggered()), this, SLOT(showAddresses()));
+    HbAction* showAddressesAction = new HbAction("Select contacts"); 
+    connect(showAddressesAction, SIGNAL(triggered()), this, SLOT(launchContactSelecting()));
     
     toolBar->addAction(callAction);
     toolBar->addAction(callEmbeddedAction);
@@ -200,6 +204,58 @@ void HbServiceClientView::showAddresses()
     }
 }
 
+void HbServiceClientView::launchContactSelecting()
+{
+    if (sndAsync)
+        delete sndAsync;
+    sndAsync = new XQServiceRequest("com.nokia.services.phonebookservices.Fetch",
+                                    "fetch(QString,QString,QString)", false);
+
+    connect(sndAsync, SIGNAL(requestCompleted(QVariant)),
+            this, SLOT(addSelectedRecipients(QVariant)));
+    *sndAsync << "Select contact"; 
+    *sndAsync << KCntActionAll;   
+    *sndAsync << KCntFilterDisplayAll;
+
+    bool result = sndAsync->send();
+    if (!result) {
+    }  
+
+}
+
+void HbServiceClientView::addSelectedRecipients(const QVariant &value)
+{
+    CntServicesContactList list;
+    if(value.canConvert<CntServicesContactList>()) {
+        list = qVariantValue<CntServicesContactList>(value);
+    }
+    else {
+        ;
+    }    
+
+    if (list.count() == 0) {
+        HbMessageBox note;
+        note.setTimeout(10000);
+        // "Nothing returned" will be replaced by a hbTrId when it is ready
+        note.setText(tr("Nothing returned"));
+        note.exec();
+    }
+    else {
+        QString data;
+        foreach (CntServicesContact cnt, list)
+        {
+            QString recipientName = cnt.mDisplayName;
+            data += recipientName + "\n";
+        }
+        HbMessageBox msgBox;
+        msgBox.setWindowTitle("Returned value");
+        msgBox.setText(data);
+        msgBox.exec();
+    }
+}
+    
 Q_IMPLEMENT_USER_METATYPE(HbContact)
- 
 Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(HbContactList)
+
+Q_IMPLEMENT_USER_METATYPE(CntServicesContact)
+Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(CntServicesContactList)

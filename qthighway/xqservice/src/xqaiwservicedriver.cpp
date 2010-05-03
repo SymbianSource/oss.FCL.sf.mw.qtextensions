@@ -125,10 +125,20 @@ bool XQAiwServiceDriver::send(QVariant& retValue)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwServiceDriver::send>>>");
 
-    // Update info  (the ones given by explicit method calls count)
+    // Update info  (these ones  can be given via XQAiwRequest function count)
     XQRequestInfo opt = info();
-    opt.setEmbedded(mEmbedded);
-    opt.setBackground(mBackground);
+    QVariant emb = opt.info(XQServiceUtils::OptEmbedded);
+    QVariant bg = opt.info(XQServiceUtils::OptBackground);
+    if (!emb.isValid())
+    {
+        // Not set via setInfo
+        opt.setEmbedded(mEmbedded); 
+    }
+    if (!bg.isValid())
+    {
+        // Not set via setInfo
+        opt.setBackground(mBackground);
+    }
     currentRequest->setInfo(opt);
     
     QStringList list;

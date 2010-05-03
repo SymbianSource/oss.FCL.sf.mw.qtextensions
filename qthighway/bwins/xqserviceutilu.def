@@ -71,4 +71,10 @@ EXPORTS
 	??0XQSharableFile@@QAE@XZ @ 70 NONAME ; XQSharableFile::XQSharableFile(void)
 	?latestError@XQServiceManager@@QBEHXZ @ 71 NONAME ; int XQServiceManager::latestError(void) const
 	?mapError@XQRequestUtil@@SAHH@Z @ 72 NONAME ; int XQRequestUtil::mapError(int)
+	?interfaceName@XQServiceUtil@@YA?AVQString@@XZ @ 73 NONAME ; class QString XQServiceUtil::interfaceName(void)
+	?operationName@XQServiceUtil@@YA?AVQString@@XZ @ 74 NONAME ; class QString XQServiceUtil::operationName(void)
+	?id@XQRequestInfo@@QBEHXZ @ 75 NONAME ; int XQRequestInfo::id(void) const
+	?isRunning@XQServiceManager@@QBE_NABVXQAiwInterfaceDescriptor@@@Z @ 76 NONAME ; bool XQServiceManager::isRunning(class XQAiwInterfaceDescriptor const &) const
+	?setForeground@XQRequestInfo@@QAEX_N@Z @ 77 NONAME ; void XQRequestInfo::setForeground(bool)
+	?isForeground@XQRequestInfo@@QBE_NXZ @ 78 NONAME ; bool XQRequestInfo::isForeground(void) const
 

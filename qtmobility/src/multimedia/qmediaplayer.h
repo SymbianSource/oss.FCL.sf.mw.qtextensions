@@ -42,9 +42,9 @@
 #ifndef QMEDIAPLAYER_H
 #define QMEDIAPLAYER_H
 
-#include <qmediaserviceprovider.h>
-#include <qmediaobject.h>
-#include <qmediacontent.h>
+#include "qmediaserviceprovider.h"
+#include "qmediaobject.h"
+#include "qmediacontent.h"
 
 QTM_BEGIN_NAMESPACE
 
@@ -95,7 +95,8 @@ public:
 
     enum Flag
     {
-        LowLatency = 0x01
+        LowLatency = 0x01,
+        StreamPlayback = 0x02
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 

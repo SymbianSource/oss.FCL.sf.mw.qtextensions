@@ -1,3 +1,43 @@
+/****************************************************************************
+**
+** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the Qt Mobility Components.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**
+**
+**
+**
+**
+**
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
 #include "qmessageglobal.h"
 #include "qmessagemanager.h"
 #include "qmessageaccount.h"
@@ -17,8 +57,7 @@ Q_GLOBAL_STATIC(TelepathyEngine,telepathyEngine);
 
 TelepathyEngine::TelepathyEngine()
 {
-    tpSession=new TpSession("ring",TRUE); // Create as sync, telephony "ring" as default
-
+  tpSession=TpSession::instance(TRUE); // Create as sync, telephony "ring" as default
 }
 
 TelepathyEngine::~TelepathyEngine()
@@ -33,42 +72,32 @@ TelepathyEngine* TelepathyEngine::instance()
 
 bool TelepathyEngine::sendMessage(QMessage &message)
 {
-    QMessage::Type type=message.type();
-    QString cm=type == QMessage::Sms ? "ring" :  type == QMessage::Xmpp ? "gabble" : "";
-    QMessageAddressList toList=message.to();
-    QMessageAccountId account=message.parentAccountId();
-    if(!cm.isEmpty()) {
-        foreach(QMessageAddress to,toList) {
-             tpSession->sendMessageToAddress(cm,to.recipient(),message.textContent());
-        };
-    }
-    else
-        qDebug() << "TelepathyEngine::sendMessage unsupported message type" << type;
+  bool retVal=false;
+  QMessage::Type type=message.type();
+  QMessageAccountId account=message.parentAccountId();
+  QString cm=type == QMessage::Sms ? "ring" :  type == QMessage::InstantMessage ? account.toString() : "";
+  QMessageAddressList toList=message.to();
+  if(!cm.isEmpty()) {
+    foreach(QMessageAddress to,toList) {
+      tpSession->sendMessageToAddress(cm,to.addressee(),message.textContent());
+      retVal=true;
+    };
+  }
+  else
+    qDebug() << "TelepathyEngine::sendMessage unsupported message type" << type;
+  return retVal;
 }
 
 
 
-bool TelepathyEngine::queryMessages(QMessageService& messageService, const QMessageFilter &filter, const QMessageSortOrder &sortOrder, uint limit, uint offset) const
-{
-    return true;
-}
-
-bool TelepathyEngine::queryMessages(QMessageService& messageService, const QMessageFilter &filter, const QString &body, QMessageDataComparator::MatchFlags matchFlags, const QMessageSortOrder &sortOrder, uint limit, uint offset) const
-{
-    return true;
-}
-
-bool TelepathyEngine::countMessages(QMessageService& messageService, const QMessageFilter &filter)
-{
-    return true;
-};
 
 void TelepathyEngine::updateImAccounts() const
 {
 //    iDefaultImAccountId = QMessageAccountId();
+//  qDebug() << "TelepathyEngine::updateImAccounts";
     iAccounts.clear();
     foreach (TpSessionAccount *tpacc, tpSession->accounts) {
-        qDebug() << "TelepathyEngine::updateImAccounts" << tpacc->acc->cmName() << " " << tpacc->acc->protocol() << " " << tpacc->acc->displayName();
+      //     qDebug() << "TelepathyEngine::updateImAccounts" << tpacc->acc->cmName() << " " << tpacc->acc->protocol() << " " << tpacc->acc->displayName();
         bool account_ok = tpacc->acc->isEnabled() && tpacc->acc->isValidAccount();
         QString cm=tpacc->acc->cmName();
         if (account_ok) {
@@ -89,8 +118,8 @@ void TelepathyEngine::updateImAccounts() const
                 QString accountAddress = tpacc->acc->normalizedName();
                 QMessageAccount account = QMessageAccountPrivate::from(QMessageAccountId(accountId),
                                                                        accountName,
-                                                                       QMessageAddress(QMessageAddress::Xmpp, accountAddress),
-                                                                       QMessage::Xmpp);
+                                                                       QMessageAddress(QMessageAddress::InstantMessage, accountAddress),
+                                                                       QMessage::InstantMessage);
                 iAccounts.insert(accountId, account);
             } else qDebug() << "Protocol " << tpacc->acc->protocol() << "with connectionmanager " << cm << "Is not yet supported";
 //                if (strncmp(account_name_key, default_account, strlen(default_account))) iDefaultEmailAccountId = accountId;
@@ -102,6 +131,7 @@ void TelepathyEngine::updateImAccounts() const
 QMessageAccountIdList TelepathyEngine::queryAccounts(const QMessageAccountFilter &filter, const QMessageAccountSortOrder &sortOrder,
                                                   uint limit, uint offset, bool &isFiltered, bool &isSorted) const
 {
+  //  qDebug() << "TelepathyEngine::queryAccounts";
     QMessageAccountIdList accountIds;
 
     updateImAccounts();
@@ -131,6 +161,7 @@ QMessageAccount TelepathyEngine::account(const QMessageAccountId &id) const
 
 QMessageAccountId TelepathyEngine ::defaultAccount(QMessage::Type type) const
 {
+  //  qDebug() << "TelepathyEngine::defaultAccount";
     updateImAccounts();
     return defaultSmsAccountId;
 }

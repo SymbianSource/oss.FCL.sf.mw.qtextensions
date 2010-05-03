@@ -130,6 +130,9 @@ void QGeoAreaMonitorS60::handleTriggerEvent(TPositionInfo aPosInfo, enTriggerTyp
         case ExitTrigger :             //emit areaExited trigger
             emit areaExited(posInfo);
             break;
+        case NotifyChangesTrigger:
+        case InvalidTrigger:
+            break;
     }
 
 }
@@ -221,7 +224,7 @@ void QGeoAreaMonitorS60::TPositionInfoToQGeoPositionInfo(TPositionInfo& aPosInfo
                        datetime.MicroSecond() / 1000));
 
     //store the time stamp
-    aQInfo.setDateTime(dt);
+    aQInfo.setTimestamp(dt);
 
     //store the horizontal accuracy
     aQInfo.setAttribute(QGeoPositionInfo::HorizontalAccuracy, pos.HorizontalAccuracy());

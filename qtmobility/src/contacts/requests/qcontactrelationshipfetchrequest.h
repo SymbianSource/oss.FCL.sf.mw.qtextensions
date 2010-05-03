@@ -60,7 +60,6 @@ class Q_CONTACTS_EXPORT QContactRelationshipFetchRequest : public QContactAbstra
 
 public:
     QContactRelationshipFetchRequest();
-    ~QContactRelationshipFetchRequest();
 
     /* Selection */
     void setFirst(const QContactId& firstId);
@@ -69,12 +68,6 @@ public:
     void setRelationshipType(const QString& relationshipType);
     QString relationshipType() const;
 
-    // we no longer use "participant" or "participant role" -- deprecated and will be removed after transition period has elapsed.
-    void Q_DECL_DEPRECATED setParticipant(const QContactId& participant, QContactRelationshipFilter::Role role = QContactRelationshipFilter::Either); // deprecated
-    QContactId Q_DECL_DEPRECATED participant() const; // deprecated
-    QContactRelationshipFilter::Role Q_DECL_DEPRECATED participantRole() const; // deprecated
-
-    // replaces the above functions.
     void setSecond(const QContactId& secondId);
     QContactId second() const;
 

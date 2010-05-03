@@ -220,7 +220,7 @@ void CServiceSymbianSession::handleRequestL(const RMessage2& aMessage)
 
     // Get client info
     ClientInfo *client = new ClientInfo();
-    client->setProcessId(aMessage.Identity().iUid);
+    client->setProcessId(aMessage.SecureId().iId);
     client->setVendorId(aMessage.VendorId().iId);
     RThread clientThread;
     aMessage.ClientL(clientThread);

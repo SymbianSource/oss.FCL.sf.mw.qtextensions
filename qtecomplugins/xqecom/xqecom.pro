@@ -28,7 +28,6 @@ QT -= core
 
 QPRO_PWD   = $$PWD
 
-
 DESTDIR = /epoc32/tools/
 #$$[QT_INSTALL_BINS]$${DIR_SEPARATOR}
 #QTSOURCEDIR = $$[QT_INSTALL_BINS]$${DIR_SEPARATOR}..$${DIR_SEPARATOR}src
@@ -45,94 +44,11 @@ DEFINES += 	QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_PCRE \
 	       	  QT_NO_THREAD QT_NO_QOBJECT QT_NO_GEOM_VARIANT QT_NO_DATASTREAM \
 		        QT_NO_LIBRARY QT_BOOTSTRAPPED
 
-VPATH += $$QTSOURCEDIR/corelib/global \
-         $$QTSOURCEDIR/corelib/tools \
-         $$QTSOURCEDIR/corelib/codecs \
-         $$QTSOURCEDIR/corelib/kernel \
-         $$QTSOURCEDIR/corelib/plugin \
-				 $$QTSOURCEDIR/corelib/io \
-	       $$QTSOURCEDIR/corelib/xml \
-	       $$QTSOURCEDIR/script \
-		   c:/MinGW/include/
-
 INCPATH += $$QTINCLUDEDIR $$QTINCLUDEDIR/QtCore
 
 SOURCES += main.cpp 
 
-#QT sources    			 
-SOURCES+= \
-      qbitarray.cpp \
-      qbuffer.cpp \
-      qbytearray.cpp \
-      qbytearraymatcher.cpp \
-      qcryptographichash.cpp \
-      qdatetime.cpp \
-      qdir.cpp \
-      qdiriterator.cpp \
-      qfile.cpp \
-      qabstractfileengine.cpp \
-      qfileinfo.cpp \
-      qfsfileengine.cpp \
-      qfsfileengine_win.cpp \
-      qfsfileengine_iterator.cpp \
-      qfsfileengine_iterator_win.cpp \
-      qglobal.cpp \
-      qnumeric.cpp \
-      qhash.cpp \
-      qiodevice.cpp \
-      qlist.cpp \	  
-	  qutfcodec.cpp \
-      qlinkedlist.cpp \
-      qlocale.cpp \
-      qmalloc.cpp \
-      qmap.cpp \
-      qmetatype.cpp \
-      qregexp.cpp \
-      qstring.cpp \
-      qstringlist.cpp \
-      qtemporaryfile.cpp \
-      qtextstream.cpp \
-      qurl.cpp \
-#      quuid.cpp \
-      qvariant.cpp \
-      qvector.cpp \
-      qvsnprintf.cpp 
-
-   HEADERS+= \
-        qbitarray.h \
-        qbytearray.h \
-        qbytearraymatcher.h \
-        qchar.h \
-        qcryptographichash.h \
-        qdatetime.h \
-        qdatetime_p.h \
-        qdir.h \
-        qdiriterator.h \
-        qfile.h \
-        qabstractfileengine.h \
-        qabstractfileengine_p.h \
-	    qfsfileengine_p.h \
-	    qfsfileengine_iterator_p.h \
-        qfileinfo.h \
-        qfileinfo_p.h \
-        qglobal.h \
-        qnumeric.h \
-        qhash.h \
-        qiodevice.h \
-        qlist.h \
-        qlinkedlist.h \
-        qlocale.h \
-        qmap.h \
-        qmetatype.h \
-        qregexp.h \
-        qstring.h \
-        qstringlist.h \
-        qstringmatcher.h \
-        qtemporaryfile.h \
-        qtextstream.h \
-        qurl.h \
-        quuid.h \
-        qvector.h \
+include(../bootstrap/bootstrap.pri)
       
 DEFINES *= QT_NO_QOBJECT
     

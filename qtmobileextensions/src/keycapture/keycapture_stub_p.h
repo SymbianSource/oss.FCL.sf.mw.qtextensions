@@ -31,23 +31,43 @@ public:
     KeyCapturePrivate();
     ~KeyCapturePrivate();
 
-    void captureKey(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier);
+    bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier);
     
-    void captureLongKey(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier, XqKeyCapture::LongFlags aLongType);
+    bool captureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier);
     
-    void captureKeyUpAndDowns(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier);
+    bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+    
+    bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+    
+    bool captureKeyUpAndDowns(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
 
-    void cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier);
+    bool captureKeyUpAndDowns(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
+
+    bool cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier);
     
-    void cancelCaptureLongKey(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier, XqKeyCapture::LongFlags aLongType);
+    bool cancelCaptureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+        Qt::KeyboardModifiers aModifier);
     
-    void cancelCaptureKeyUpAndDowns(Qt::Key aKey, Qt::KeyboardModifier aModifiersMask,
-	    Qt::KeyboardModifier aModifier);
+    bool cancelCaptureLongKey(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType);
+    
+    bool cancelCaptureLongKey(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
+        XqKeyCapture::LongFlags aLongType);
+    
+    bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
+
+    bool cancelCaptureKeyUpAndDowns(TUint aKey,
+        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
 
     QString errorString() const;
 

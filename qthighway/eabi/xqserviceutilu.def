@@ -86,4 +86,10 @@ EXPORTS
 	_ZTV14XQSharableFile @ 85 NONAME
 	_ZNK16XQServiceManager11latestErrorEv @ 86 NONAME
 	_ZN13XQRequestUtil8mapErrorEi @ 87 NONAME
+	_ZN13XQServiceUtil13interfaceNameEv @ 88 NONAME
+	_ZN13XQServiceUtil13operationNameEv @ 89 NONAME
+	_ZNK13XQRequestInfo2idEv @ 90 NONAME
+	_ZNK16XQServiceManager9isRunningERK24XQAiwInterfaceDescriptor @ 91 NONAME
+	_ZN13XQRequestInfo13setForegroundEb @ 92 NONAME
+	_ZNK13XQRequestInfo12isForegroundEv @ 93 NONAME
 

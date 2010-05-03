@@ -200,8 +200,6 @@ void CApaServerSymbianSession::handleRequestL( const RMessage2& aMessage )
     // Store the message
     iMessage = aMessage;
 
-    TUid uid = iMessage.SecureId();
-    XQSERVICE_DEBUG_PRINT("client uid: %x", uid.iUid );
     // Convert from Symbian to QT
     HBufC* request = ReadDesLC(aMessage, 0);
     HBufC8* data = ReadDes8LC(aMessage, 1);
@@ -237,7 +235,7 @@ void CApaServerSymbianSession::handleRequestL( const RMessage2& aMessage )
 
     // Get client info
     ClientInfo *client = new ClientInfo();
-    client->setProcessId(aMessage.Identity().iUid);
+    client->setProcessId(aMessage.SecureId().iId);
     client->setVendorId(aMessage.VendorId().iId);
     RThread clientThread;
     aMessage.ClientL(clientThread);

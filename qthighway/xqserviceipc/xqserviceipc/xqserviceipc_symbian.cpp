@@ -180,7 +180,9 @@ QByteArray CServiceSymbianIPC::readAll()
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::readAll");
     QByteArray rtn;
     
-    TRAPD( err, rtn = doReadAllL() );
+    TInt err(KErrNone);
+    TRAP( err, rtn = doReadAllL() );
+    XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::readAll status=%d",err);
     
     if ( err )
         {
@@ -261,11 +263,14 @@ void CServiceSymbianIPC::readAll(QByteArray& aArray)
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::readAll");
 	
     // this is async operation
-    TRAPD(err, doReadAllL(aArray));
+    TInt err(KErrNone);
+    TRAP(err, doReadAllL(aArray));
+    XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::readAll status=%d", err);
     if (err)
         {
         emitError(err);
         }
+    
 }
 
 /*!

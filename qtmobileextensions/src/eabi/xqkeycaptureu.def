@@ -11,4 +11,10 @@ EXPORTS
 	_ZN12XqKeyCaptureD2Ev @ 10 NONAME
 	_ZNK12XqKeyCapture11errorStringEv @ 11 NONAME
 	_ZNK12XqKeyCapture7errorIdEv @ 12 NONAME
+	_ZN12XqKeyCapture10captureKeyEj6QFlagsIN2Qt16KeyboardModifierEES3_ @ 13 NONAME
+	_ZN12XqKeyCapture14captureLongKeyEj6QFlagsIN2Qt16KeyboardModifierEES3_NS_9LongFlagsE @ 14 NONAME
+	_ZN12XqKeyCapture16cancelCaptureKeyEj6QFlagsIN2Qt16KeyboardModifierEES3_ @ 15 NONAME
+	_ZN12XqKeyCapture20cancelCaptureLongKeyEj6QFlagsIN2Qt16KeyboardModifierEES3_NS_9LongFlagsE @ 16 NONAME
+	_ZN12XqKeyCapture20captureKeyUpAndDownsEj6QFlagsIN2Qt16KeyboardModifierEES3_ @ 17 NONAME
+	_ZN12XqKeyCapture26cancelCaptureKeyUpAndDownsEj6QFlagsIN2Qt16KeyboardModifierEES3_ @ 18 NONAME
 

@@ -98,7 +98,8 @@ void RServiceIPCSession::SendReceive(TInt aFunction,
  */
 TInt RServiceIPCSession::Connect(const TDesC& aServer, const TVersion& aVersion)
 {
-    XQSERVICE_DEBUG_PRINT("RServiceIPCSession::Connect");
+    QString server = QString::fromUtf16(aServer.Ptr(), aServer.Length());
+    XQSERVICE_DEBUG_PRINT("RServiceIPCSession::Connect %s", qPrintable(server));
     iVersion = aVersion;
     return CreateSession(aServer, aVersion, 1);
 }

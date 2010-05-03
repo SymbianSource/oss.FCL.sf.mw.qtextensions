@@ -42,10 +42,8 @@ QMAKE_LIBDIR = $$DESTDIR $$QMAKE_LIBDIR
 symbian {
 defFilePath=..
 deploy.path = /
-headers.sources = $$XQSERVICE_API_HEADERS
-headers.path = epoc32/include/mw
 # This is for new exporting system coming in garden
-for(header, headers.sources):BLD_INF_RULES.prj_exports += "$$header $$deploy.path$$headers.path/$$basename(header)"
-for(header_internal, XQSERVICE_API_HEADERS_INTERNAL):BLD_INF_RULES.prj_exports += "$$header_internal $$XQSERVICE_ROOT/inc/$$basename(header_internal)"
+for(header_public, XQSERVICE_API_HEADERS):BLD_INF_RULES.prj_exports += "$$header_public $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header_public))"
+for(header_internal, XQSERVICE_API_HEADERS_INTERNAL):BLD_INF_RULES.prj_exports += "$$header_internal |../inc/$$basename(header_internal)"
 for(header_platform, XQSERVICE_API_HEADERS_PLATFORM):BLD_INF_RULES.prj_exports += "$$header_platform $$MW_LAYER_PLATFORM_EXPORT_PATH($$basename(header_platform))"
 }

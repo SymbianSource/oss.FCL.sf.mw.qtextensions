@@ -13,8 +13,6 @@ contains(mobility_modules,bearer) {
 
 symbian {
     contains(mobility_modules,messaging): SUBDIRS += messagingex
-    contains(mobility_modules,multimedia): SUBDIRS += cameracapture_s60 playerex_s60
     contains(mobility_modules,publishsubscribe): SUBDIRS += publishsubscribeex
+    SUBDIRS += s60installs/s60installs.pro
 }
-
-BLD_INF_RULES.prj_exports += "./rom/qtmobilitytests.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(qtmobilitytests.iby)"

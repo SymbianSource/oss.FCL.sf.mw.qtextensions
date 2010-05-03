@@ -41,6 +41,8 @@
 #include <xqserviceglobal.h>
 #include <QDir>
 #include <QTranslator>
+#include <cntservicescontact.h>
+
 #include <XQSharableFile.h>
 
 #include <xqaiwdeclplat.h>
@@ -51,6 +53,7 @@
 
 AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     : QWidget(parent, f),
+      actionButton(0),
       req1(0),
       req2(0),
       req3(0),
@@ -60,7 +63,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
       req7(0),
       req8(0),
       req9(0),
-      actionButton(0),
+      req10(0),
       mImplIndex(0)      
 {
     /* Adjust the palette */
@@ -79,11 +82,12 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     qApp->setPalette(p);
 #endif
 
-    QPushButton *testButton1 = 0;
-    QPushButton *anyTestButton = 0;
-    
     QPushButton *quitButton = new QPushButton(tr("quit"));
     connect(quitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
+
+    
+    QPushButton *testButton1 = 0;
+    QPushButton *anyTestButton = 0;
 
     testButton1 = new QPushButton("Tests");
     mMenu = new QMenu(this);
@@ -91,24 +95,28 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     anyTestButton = new QPushButton(tr("Any test"));
     connect(anyTestButton, SIGNAL(clicked()), this, SLOT(anyTest()));
 
-    QAction *test1 = new QAction("Interface", this);
+    QAction *test1 = new QAction("1:Interface", this);
     connect(test1, SIGNAL(triggered()), this, SLOT(test1()));
-    QAction *test2 = new QAction("Descriptor", this);
+    QAction *test2 = new QAction("2:Descriptor", this);
     connect(test2, SIGNAL(triggered()), this, SLOT(test2()));
-    QAction *test3 = new QAction("Errors", this);
+    QAction *test3 = new QAction("3:Errors", this);
     connect(test3, SIGNAL(triggered()), this, SLOT(test3()));
-    QAction *test4 = new QAction("QAction", this);
+    QAction *test4 = new QAction("4:QAction", this);
     connect(test4, SIGNAL(triggered()), this, SLOT(test4()));
-    QAction *test5 = new QAction("appto:", this);
+    QAction *test5 = new QAction("5:appto:", this);
     connect(test5, SIGNAL(triggered()), this, SLOT(test5()));
-    QAction *test6 = new QAction("testto:", this);
+    QAction *test6 = new QAction("6:testto:", this);
     connect(test6, SIGNAL(triggered()), this, SLOT(test6()));
-    QAction *test7 = new QAction("MIME", this);
+    QAction *test7 = new QAction("7:MIME", this);
     connect(test7, SIGNAL(triggered()), this, SLOT(test7()));
-    QAction *test8 = new QAction("URI", this);
+    QAction *test8 = new QAction("8:URI", this);
     connect(test8, SIGNAL(triggered()), this, SLOT(test8()));
-    QAction *test9 = new QAction("XQSharableFile", this);
+    QAction *test9 = new QAction("9:XQSharableFile", this);
     connect(test9, SIGNAL(triggered()), this, SLOT(test9()));
+    QAction *test10 = new QAction("10:Select contact", this);
+    connect(test10, SIGNAL(triggered()), this, SLOT(test10()));
+    QAction *test11 = new QAction("11:getDrmAttr", this);
+    connect(test11, SIGNAL(triggered()), this, SLOT(test11()));
 
     mMenu = new QMenu(this);
     mMenu->addAction(test1);
@@ -120,12 +128,15 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     mMenu->addAction(test7);
     mMenu->addAction(test8);
     mMenu->addAction(test9);
+    mMenu->addAction(test10);
+    mMenu->addAction(test11);
 
     testButton1->setMenu(mMenu);
     
     mCheckEmbedded = new QCheckBox("Embedded");
     mSynchronous = new QCheckBox("Synchronous");
     mBackground = new QCheckBox("Background");
+    mForeground = new QCheckBox("Foreground");
     mCheckDeleteRequest = new QCheckBox("Delete request");
     mGenericSend = new QCheckBox("Use generic send()");
     mCheckEmbedded->setCheckState(Qt::Checked);
@@ -136,7 +147,10 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     
     mTextRetValue = new QLineEdit("no ret value set");
 
-    QLabel *label = new QLabel("APPMGR CLIENT TEST");
+    QFileInfo appinfo (qApp->applicationFilePath());
+    mAppName = appinfo.baseName();
+
+    QLabel *label = new QLabel(mAppName);
 
     vl = new QVBoxLayout;
     vl->setMargin(0);
@@ -146,6 +160,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     vl->addWidget(mCheckEmbedded);
     vl->addWidget(mSynchronous);
     vl->addWidget(mBackground);
+    vl->addWidget(mForeground);
     vl->addWidget(mCheckDeleteRequest);
     vl->addWidget(mGenericSend);
     vl->addWidget(mReqArg);
@@ -177,23 +192,28 @@ AppMgrClient::~AppMgrClient()
     delete req7;
     delete req8;
     delete req9;
+    delete req10;
     delete mMenu;
     
 }
 
-void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QString& operation, bool embedded)
+void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QString& operation)
 {
-    qDebug() << "AppMgrClient::test START";    
+    qDebug() << mAppName << " test START"; 
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
     
-    qDebug() << "AppMgrClient:test: embed=" << embed << ",sync=" << sync << "background=" << background;
+    qDebug() << mAppName << " test: embed=" << embed << ",sync=" << sync << "background=" << background;
     
     if (!*req)
     {
         *req = appmgr.create(interface, operation);
+        if (!*req)
+        {
+            return;
+        }
         connectSignals(*req);        
     }
     // Test embedded funcions
@@ -201,18 +221,19 @@ void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QStr
     (*req)->setSynchronous(sync);
     (*req)->setBackground(background);
     
-    qDebug("AppMgrClient::isEmbbedded %d", (*req)->isEmbedded());
+    
+    qDebug("%s::isEmbbedded %d", qPrintable(mAppName), (*req)->isEmbedded());
     
     test(req, mReqArg->text());
 
-    qDebug() << "AppMgrClient::test END";    
+    qDebug() << mAppName << " test END";    
     
 }
 
 
-void AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation, bool embedded)
+void AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation)
 {
-    qDebug() << "AppMgrClient::test START";    
+    qDebug() << mAppName << " test START";    
 
     if (!*req)
     {
@@ -220,11 +241,11 @@ void AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, cons
         connectSignals(*req);        
     }
     // Test embedded funcions
-    qDebug("AppMgrClient::isEmbbedded %d", (*req)->isEmbedded());
+    qDebug("%s::isEmbbedded %d", qPrintable(mAppName),(*req)->isEmbedded());
 
     test(req, mReqArg->text());
 
-    qDebug() << "AppMgrClient::test END";    
+    qDebug() << mAppName << " test END";    
 
 }
 
@@ -232,11 +253,11 @@ void AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, cons
 
 void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
 {
-    qDebug() << "AppMgrClient::testreq START";    
+    qDebug() << mAppName << " testreq START";    
 
     if (!req || !*req)
     {
-        qDebug() << "AIW-ERROR:AppMgrClient::NULL request";
+        qDebug() <<  mAppName << " AIW-ERROR::NULL request";
         return;
     }
 
@@ -244,11 +265,16 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
+    bool foreground = (mForeground->checkState() == Qt::Checked);
     
     // Set arguments for request
     QList<QVariant> args;
     args << arg;
-    args << QVariant(!sync);
+    if ((*req)->operation() == OPERATION1)
+    {
+        qDebug() << mAppName << " test: add bool arg" << !sync;
+        args << QVariant(!sync);
+    }
     (*req)->setArguments(args);
 
     bool genericSend = (mGenericSend->checkState() == Qt::Checked);
@@ -256,12 +282,17 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
     (*req)->setSynchronous(sync);
     (*req)->setBackground(background);
     
+    // Apply additional options
+    XQRequestInfo options;
+    options.setForeground(foreground);
+    (*req)->setInfo(options);
+    
     // Make the request
     if (genericSend || !sync)
     {
         if (!(*req)->send())
         {
-            qDebug() << "AIW-ERROR: AppMgrClient:test: Send failed" << (*req)->lastError();;
+            qDebug() << mAppName << " AIW-ERROR:test: Send failed" << (*req)->lastError();;
         }
     }
     else if (!genericSend && sync)
@@ -269,20 +300,20 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         QVariant retValue;
         if (!(*req)->send(retValue))
         {
-            qDebug() << "AIW-ERROR: AppMgrClient:test: Send(retValue) failed" << (*req)->lastError();;
+            qDebug() << mAppName <<  " AIW-ERROR: test: Send(retValue) failed" << (*req)->lastError();;
         }
         else
         {
             if (retValue.canConvert<QString>())
             {
-                qDebug("AppMgrClient::retValue=%s,%s",
+                qDebug("%s::retValue=%s,%s", qPrintable(mAppName),
                        retValue.typeName(),
                        qPrintable(retValue.value<QString>()));
                 mTextRetValue->setText(retValue.value<QString>());
             }
             else
             {
-                qDebug("AppMgrClient:retValue=%s",
+                qDebug("%s:retValue=%s", qPrintable(mAppName),
                        retValue.typeName());
                 mTextRetValue->setText("Not displayable");
             }
@@ -301,12 +332,12 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         
     if (deleteRequest)
     {
-        qDebug() << "AIW-NOTE: Request deleted";
+        qDebug() << mAppName <<  " AIW-NOTE: Request deleted";
         delete *req;
         *req = 0;
     }
 
-    qDebug() << "AppMgrClient::test END";
+    qDebug() << mAppName << " test END";
 
     update();
     
@@ -335,7 +366,7 @@ void AppMgrClient::createTestFile(const QString &dir, const QString &fileName)
     QFile file(dir + "/" + fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        qDebug() << "Creating file failed " << QString(dir + "/" + fileName);
+        qDebug() << mAppName <<  " Creating file failed " << QString(dir + "/" + fileName);
         return;
     }
     QTextStream out(&file);
@@ -344,16 +375,40 @@ void AppMgrClient::createTestFile(const QString &dir, const QString &fileName)
     
 }
 
+bool AppMgrClient::testRunning(const QString & service, const QString & interface)
+{
+
+    QList<XQAiwInterfaceDescriptor> impls = appmgr.list(service, interface, QString(""));
+    qDebug() << mAppName <<  " isRunning" << impls.count();
+    if (impls.count() > 0)
+    {
+        bool b = appmgr.isRunning(impls[0]);
+        qDebug() << mAppName <<  " isRunning=" << b;
+        return b;
+    }
+    else
+    {
+        qDebug("%s isRunning: no service found (%s,%s)", qPrintable(mAppName),
+               qPrintable(service),qPrintable(interface));
+        return false;
+    }
+   
+}
+
 
 void AppMgrClient::test1()
 {
-    qDebug() << "AppMgrClient::test1 START";
-    test(&req1, IDIAL, OPERATION1);
-    qDebug() << "AppMgrClient::test1 END";
 
+    qDebug() << mAppName << " test1 START";
+    test(&req1, IDIAL, OPERATION1);
+    qDebug() << mAppName << " test1 END";
+
+    qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning("com.nokia.services.serviceapp", IDIAL));
+    
+    
     /*
     mReqArg->setText("77777"); 
-    qDebug() << "AppMgrClient::test1 second call";
+    qDebug() << mAppName <<  " test1 second call";
     test(&req1, IDIAL, OPERATION1);
     */
 }
@@ -361,48 +416,76 @@ void AppMgrClient::test1()
 
 void AppMgrClient::test2()
 {
-    qDebug() << "AppMgrClient::test2 START";
+    qDebug() << mAppName << " test2 START";
     
     QList<XQAiwInterfaceDescriptor> list=appmgr.list(IDIAL, "");
-    qDebug() << "AppMgrClient::Found implementations: " << list.count();
+    qDebug() << mAppName << " list implementations: " << list.count();
     int i=0;
+    Q_ASSERT(list.count() > 0);
     foreach (XQAiwInterfaceDescriptor d, list)
     {
-        qDebug("AppMgrClient::Service[%d]=%s",i,qPrintable(d.serviceName()));
-        qDebug("AppMgrClient::Interface[%d]=%s",i,qPrintable(d.interfaceName()));
-        qDebug("AppMgrClient::Implementation Id[%d]=%x",i,d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
+        qDebug("%s::Interface[%d]=%s",qPrintable(mAppName),i,qPrintable(d.interfaceName()));
+        qDebug("%s::Implementation Id[%d]=%x",qPrintable(mAppName),i,d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning(d.serviceName(), d.interfaceName()));
+        qDebug("%s::status=%d", qPrintable(mAppName), appmgr.status(d));
+        i++;
+    }
+
+    QList<XQAiwInterfaceDescriptor> list2=appmgr.list("com.nokia.services.serviceapp", IDIAL, "");
+    qDebug() << mAppName << " list implementations 2: " << list2.count();
+    i=0;
+    Q_ASSERT(list2.count() > 0);
+    foreach (XQAiwInterfaceDescriptor d, list2)
+    {
+        qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
+        qDebug("%s::Interface[%d]=%s",qPrintable(mAppName),i,qPrintable(d.interfaceName()));
+        qDebug("%s::Implementation Id[%d]=%x",qPrintable(mAppName),i,d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        i++;
+    }
+
+    QList<XQAiwInterfaceDescriptor> list3=appmgr.list("serviceapp", IDIAL, "");
+    qDebug() << mAppName << " New: list implementations: " << list3.count();
+    i=0;
+    Q_ASSERT(list3.count() > 0);
+    foreach (XQAiwInterfaceDescriptor d, list3)
+    {
+        qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
+        qDebug("%s::Interface[%d]=%s",qPrintable(mAppName),i,qPrintable(d.interfaceName()));
+        qDebug("%s::Implementation Id[%d]=%x",qPrintable(mAppName),i,d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
         i++;
     }
     
     if (!list.isEmpty())
     {
         // Use the first found
-        qDebug() << "AppMgrClient::Using implementation nbr: " << mImplIndex;
+        qDebug() << mAppName << " Using implementation nbr: " << mImplIndex;
         test(&req2,list[mImplIndex], OPERATION1);
     }
 
-    qDebug() << "AppMgrClient::test2 END";
+    qDebug() << mAppName << " test2 END";
     
 }
 
 void AppMgrClient::test3()
 {
-    qDebug() << "AppMgrClient::test3 START";
+    qDebug() << mAppName << " test3 START";
     
     test(&req3,IDIAL,ERR_OPERATION1);
     test(&req3,ERR_IDIAL,ERR_OPERATION1);
     test(&req3,ERR_IDIAL,ERR_OPERATION1);
     
-    qDebug() << "AppMgrClient::test3 END";
+    qDebug() << mAppName << " test3 END";
     
 }
 
 void AppMgrClient::test4()
 {
-    qDebug() << "AppMgrClient::test4 START";
+    qDebug() << mAppName << " test4 START";
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
+    bool foreground = (mForeground->checkState() == Qt::Checked);
 
     if (req4)
     {
@@ -414,13 +497,18 @@ void AppMgrClient::test4()
     req4 = appmgr.create(QLatin1String("com.nokia.services.hbserviceprovider"), IDIAL, OPERATION1);
     if (!req4)
     {
-        qDebug() << "AIW-ERROR:AppMgrClient::NULL request";
+        qDebug() << mAppName << " AIW-ERROR::NULL request";
         return;
     }
 
-    connectSignals(req4); 
-    req4->setEmbedded(embed);
-    req4->setSynchronous(embed);
+    connectSignals(req4);
+    req4->setSynchronous(sync);
+
+    // In this test case, apply "options" for other options
+    XQRequestInfo options;
+    options.setEmbedded(embed);
+    options.setForeground(foreground);
+    req4->setInfo(options);
 
     if (actionButton)
     {
@@ -432,7 +520,7 @@ void AppMgrClient::test4()
     }
     
     QAction *action = req4->createAction();  // Also connects the triggered event to req !!!!
-    qDebug() << "AppMgrClient::action:" << action->isEnabled();
+    qDebug() << mAppName << " action:" << action->isEnabled();
     
     // Create UI
     if (action)
@@ -448,11 +536,11 @@ void AppMgrClient::test4()
     }
     else
     {
-        qDebug() << "AppMgrClient::test4 No action available";
+        qDebug() << mAppName << " test4 No action available";
 
     }
 
-    qDebug() << "AppMgrClient::test4 END";
+    qDebug() << mAppName << " test4 END";
     
 }
 
@@ -471,13 +559,13 @@ void AppMgrClient::test4ActionTriggered()
 
 void AppMgrClient::test5()
 {
-    qDebug() << "AppMgrClient::test5 START";
+    qDebug() << mAppName << " test5 START";
 
     // E0022E73 == ServiceApp
     QUrl uri(XQURI_SCHEME_ACTIVITY + "://E0022E73?" + XQURI_KEY_ACTIVITY_NAME + "=emailView&view=myview"); 
-    qDebug() << "AppMgrClient::Uri=" << uri.toString();
-    qDebug() << "AppMgrClient::isValid=" << uri.isValid();
-    qDebug() << "AppMgrClient::Uri authority=" << uri.authority();
+    qDebug() << mAppName << " Uri=" << uri.toString();
+    qDebug() << mAppName << " isValid=" << uri.isValid();
+    qDebug() << mAppName << " Uri authority=" << uri.authority();
     QString old=mReqArg->text();
     if (!req5)
     {
@@ -489,26 +577,27 @@ void AppMgrClient::test5()
     test(&req5, mReqArg->text());
     mReqArg->setText(old);
     
-    qDebug() << "AppMgrClient::test5 END";
+    qDebug() << mAppName << " test5 END";
     
 }
 
 void AppMgrClient::test6()
 {
-    qDebug() << "AppMgrClient::test6 START";
+    qDebug() << mAppName << " test6 START";
 
     QUrl uri("testto://authority?param1=value1&param1=value2"); 
-    qDebug() << "AppMgrClient::Uri=" << uri.toString();
-    qDebug() << "AppMgrClient::isValid=" << uri.isValid();
-    qDebug() << "AppMgrClient::Uri authority=" << uri.authority();
+    qDebug() << mAppName << " Uri=" << uri.toString();
+    qDebug() << mAppName << " isValid=" << uri.isValid();
+    qDebug() << mAppName << " Uri authority=" << uri.authority();
 
     QList<XQAiwInterfaceDescriptor> uriHandlers = appmgr.list(uri);
     // Note : Only services supporting custom property are returned
     foreach (XQAiwInterfaceDescriptor d, uriHandlers)
     {
-        qDebug() << "AppMgrClient::Service=" << d.serviceName();
-        qDebug() << "AppMgrClient::Interface=" << d.interfaceName();
-        qDebug("AppMgrClient::Implementation Id=%x",d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        qDebug() << mAppName << " Service=" << d.serviceName();
+        qDebug() << mAppName << " Interface=" << d.interfaceName();
+        qDebug("%s::Implementation Id=%x",qPrintable(mAppName),d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning(d.serviceName(), d.interfaceName()));
     }
 
     if (!req6)
@@ -519,28 +608,29 @@ void AppMgrClient::test6()
 
     test(&req6, uri.toString());
 
-    qDebug() << "AppMgrClient::test6 END";
+    qDebug() << mAppName << " test6 END";
     
 }
 
 void AppMgrClient::test7()
 {
-    qDebug() << "AppMgrClient::test7 START";
+    qDebug() << mAppName << " test7 START";
     
     // Should launch viewer for text/plain MimeTestApp.
     // Create test file
     createTestFile("C:/data/Others", "test.txt");
+
     
     QFile file("C:/data/Others/test.txt");
-    qDebug() << "AppMgrClient::File=" << file.fileName();
-    qDebug() << "AppMgrClient::exists=" << file.exists();
+    qDebug() << mAppName << " File=" << file.fileName();
+    qDebug() << mAppName << " exists=" << file.exists();
 
     QList<XQAiwInterfaceDescriptor> fileHandlers = appmgr.list(file);
     foreach (XQAiwInterfaceDescriptor d, fileHandlers)
     {
-        qDebug() << "AppMgrClient::Service=" << d.serviceName();
-        qDebug() << "AppMgrClient::Interface=" << d.interfaceName();
-        qDebug() << "AppMgrClient::Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
+        qDebug() << mAppName << " Service=" << d.serviceName();
+        qDebug() << mAppName << " Interface=" << d.interfaceName();
+        qDebug() << mAppName << " Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
     }
     
     if (!req7)
@@ -550,20 +640,20 @@ void AppMgrClient::test7()
     }
     test(&req7, file.fileName());
 
-    qDebug() << "AppMgrClient::test7 END";
+    qDebug() << mAppName << " test7 END";
     
 }
 
 
 void AppMgrClient::test8()
 {
-    qDebug() << "AppMgrClient::test8 START";
+    qDebug() << mAppName << " test8 START";
 
     // E0022E73 == ServiceApp
     QUrl uri("http://www.nokia.com"); 
-    qDebug() << "AppMgrClient::Uri=" << uri.toString();
-    qDebug() << "AppMgrClient::isValid=" << uri.isValid();
-    qDebug() << "AppMgrClient::Uri authority=" << uri.authority();
+    qDebug() << mAppName << " Uri=" << uri.toString();
+    qDebug() << mAppName << " isValid=" << uri.isValid();
+    qDebug() << mAppName << " Uri authority=" << uri.authority();
 
     if (!req8)
     {
@@ -572,14 +662,14 @@ void AppMgrClient::test8()
     }
     test(&req8, uri.toString());
 
-    qDebug() << "AppMgrClient::test8 END";
+    qDebug() << mAppName << " test8 END";
     
 }
 
 void AppMgrClient::test9()
 {
 
-    qDebug() << "AppMgrClient::test9 START";    
+    qDebug() << mAppName << " test9 START";    
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
@@ -588,10 +678,17 @@ void AppMgrClient::test9()
 
     // Access data-caged file 
     XQSharableFile sf;
-    createTestFile("c:/private/e0022e74", "test.txt");
-    if (!sf.open("c:\\private\\e0022e74\\test.txt"))
+    QString fileDir = "c:/private/e0022e74";
+    
+    if (mAppName == "appmgrclient2")
     {
-        qDebug() << "AppMgrClient:file open failed";
+        fileDir = "c:/private/e0022e76";
+    }
+
+    createTestFile(fileDir, "test.txt");
+    if (!sf.open(fileDir + "\\test.txt"))
+    {
+        qDebug() << mAppName << " file open failed " << (fileDir + "/test.txt");
         return;
     }
 
@@ -600,9 +697,9 @@ void AppMgrClient::test9()
     if (fileHandlers.count() > 0)
     {
         XQAiwInterfaceDescriptor d = fileHandlers.first();
-        qDebug() << "AppMgrClient::File Service=" << d.serviceName();
-        qDebug() << "AppMgrClient::File Interface=" << d.interfaceName();
-        qDebug() << "AppMgrClient::Handler Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
+        qDebug() << mAppName << " File Service=" << d.serviceName();
+        qDebug() << mAppName << " File Interface=" << d.interfaceName();
+        qDebug() << mAppName << " Handler Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
         if (!req9)
         {
             // Create by descriptor
@@ -611,14 +708,14 @@ void AppMgrClient::test9()
         if (!req9)
         {
             sf.close();
-            qDebug() << "AppMgrClient:anyTest: ERROR IN XQAppMgr API";
+            qDebug() << mAppName <<  " anyTest: ERROR IN XQAppMgr API";
             return ;
         }
     }
     else
     {
         sf.close();
-        qDebug() << "AppMgrClient:anyTest: NO HANDLER FOUND";
+        qDebug() << mAppName <<  " anyTest: NO HANDLER FOUND";
     }
 
     connectSignals(req9);        
@@ -633,7 +730,7 @@ void AppMgrClient::test9()
     if (req9->lastError() == XQService::EMessageNotFound)
     {
         // Slot was not found
-        qDebug() << "AIW-ERROR:XQService::EMessageNotFound";
+        qDebug() << mAppName <<  " AIW-ERROR:XQService::EMessageNotFound";
         deleteRequest = true;
     }
     // Remember to close the file !!!
@@ -645,8 +742,149 @@ void AppMgrClient::test9()
         req9 = 0;
     }
 
-    qDebug() << "AppMgrClient::test9 END";
+    qDebug() << mAppName << " test9 END";
     
+}
+
+// Test 10
+void AppMgrClient::test10()
+{
+
+    qDebug() << mAppName << " test10 START";
+
+    bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
+    bool sync = (mSynchronous->checkState() == Qt::Checked);
+    bool background = (mBackground->checkState() == Qt::Checked);
+
+    qDebug() << mAppName <<  " test10: embed=" << embed << ",sync=" << sync << "background=" << background;
+
+    if (!req10)
+    {
+        req10 = appmgr.create(QLatin1String("com.nokia.services.phonebookservices"), QLatin1String("Fetch"), QLatin1String(""));
+        connect(req10, SIGNAL(requestOk(const QVariant&)), this, SLOT(showRecipients(const QVariant&)));
+        connect(req10, SIGNAL(requestError(int,const QString&)), this, SLOT(handleError(int,const QString&)));
+    }
+
+    if (!req10)
+    {
+        qDebug() << mAppName <<  " AIW-ERROR: NULL request";
+        return;
+    }
+
+    // Set request attributes
+    req10->setOperation("fetch(QString,QString,QString)");
+    req10->setEmbedded(embed);
+    req10->setSynchronous(sync);
+    req10->setBackground(background);
+
+    // Set arguments
+    QList<QVariant> args;
+    args << "Contact"; 
+    args << KCntActionAll;   
+    args << KCntFilterDisplayAll;
+    req10->setArguments(args);
+
+    // Send the request
+    req10->send();
+
+    bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
+    if (deleteRequest)
+    {
+        delete req10;
+        req10 = 0;
+    }
+    
+    qDebug() << mAppName << " test10 END";
+
+
+}
+
+
+void AppMgrClient::test11()
+{
+    qDebug() << mAppName << " test11 START";
+
+    // Copy files from DrmTestFiles.zip into correct location
+    QList<QString> drmFiles;
+    drmFiles.append("C:/data/Others/RoAcqoffer-111-aac-i15m.ort");
+    drmFiles.append("C:/data/Others/SD_Celebration_SP.dcf");
+    drmFiles.append("C:/data/Others/111-test1.odf");
+    drmFiles.append("C:/data/Others/SD_jpg_sun.dcf");
+    drmFiles.append("C:/data/Others/STC1_128_44_16_2_CBR.wma");
+    drmFiles.append("C:/data/Others/test.txt");
+    drmFiles.append("C:/data/Others/foo.txt");
+
+    QList<int> attrNames;
+    attrNames.append(XQApplicationManager::MimeType);
+    attrNames.append(XQApplicationManager::IsProtected);
+    attrNames.append(XQApplicationManager::IsForwardable);
+
+    // Test with file names
+    foreach (QString f, drmFiles)
+    {
+        QFile file(f);
+        QVariantList attrValues;
+        bool ok = appmgr.getDrmAttributes(file, attrNames, attrValues);
+        qDebug() << mAppName << " getDrmAttributes for " << f << " status=" << ok;
+        int i=0;
+        foreach (QVariant v, attrValues)
+        {
+            qDebug() << mAppName << " Attribute " << attrNames[i] << "=" << qPrintable(v.toString());
+            i++;
+        }
+    }
+
+    // Test with file handles
+    foreach (QString f, drmFiles)
+    {
+        XQSharableFile file;
+        file.open(f);  // Create handle manually
+        QVariantList attrValues;
+        bool ok = appmgr.getDrmAttributes(file, attrNames, attrValues);
+        qDebug() << mAppName << " getDrmAttributes for file " << file.fileName() << " handle status=" << ok;
+        int i=0;
+        foreach (QVariant v, attrValues)
+        {
+            qDebug() << mAppName << " Attribute " << attrNames[i] << "=" << qPrintable(v.toString());
+            i++;
+        }
+        file.close();
+    }
+    
+    qDebug() << mAppName << " test11 END";
+
+}
+
+
+void AppMgrClient::showRecipients(const QVariant &value)
+{
+    qDebug("%s::showRecipients::variant(%d,%s)", qPrintable(mAppName),value.type(), value.typeName());
+    
+    CntServicesContactList list;
+    if(value.canConvert<CntServicesContactList>())
+    {
+        qDebug() << mAppName << " showRecipients: canConvert";
+        list = qVariantValue<CntServicesContactList>(value);
+    }
+    else
+    {
+        qDebug() << mAppName << " showRecipients: canConvert NOK !!!";
+        return;
+    }    
+
+    if (list.count() == 0)
+    {
+        qDebug() << mAppName << " showRecipients: Count==0";
+    }
+    else {
+        for (int i = 0; i < list.count(); ++i)
+        {
+            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mDisplayName;
+            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mPhoneNumber;
+            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mEmailAddress;
+
+        }
+    }
 }
 
 
@@ -657,51 +895,116 @@ void AppMgrClient::test9()
 void AppMgrClient::anyTest()
 {
 
+    qDebug() << mAppName << " anyTest START";
 
-    qDebug() << "AppMgrClient:name" << qApp->applicationName();
-    qDebug() << "AppMgrClient:dirpath" << qApp->applicationDirPath();
-    qDebug() << "AppMgrClient:filename" << qApp->applicationFilePath();
-    qDebug() << "AppMgrClient:pid" << qApp->applicationPid();
+    bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
+    bool sync = (mSynchronous->checkState() == Qt::Checked);
+    bool background = (mBackground->checkState() == Qt::Checked);
+
+    XQAiwRequest *req=0;
+    req = appmgr.create(QLatin1String("com.nokia.services.serviceapp"), IDIAL, QLatin1String("testContactList(CntServicesContactList)"));
+
+    if (!req)
+    {
+        qDebug() << mAppName << " AIW-ERROR NULL request";
+        return;
+    }
+
+    // Comment next line  if using the operation signature given in the "create"
+    req->setOperation(QLatin1String("testVariant(QVariant)"));
     
+    connectSignals(req);        
+
+    // Set request attributes
+    req->setEmbedded(embed);
+    req->setSynchronous(sync);
+    req->setBackground(background);
+
+    QList<QVariant> args;
+    
+    // Just construct dummies
+    MetaDummy1 dummy1;
+    MetaDummy2 dummy2;
+    
+    CntServicesContact cnt1;
+    cnt1.mDisplayName = "Test1";
+    cnt1.mPhoneNumber = "050-1111111";
+    cnt1.mEmailAddress = "test1.test@nokia.com";
+    
+    CntServicesContact cnt2;
+    cnt2.mDisplayName = "Test2";
+    cnt2.mPhoneNumber = "050-2222222";
+    cnt2.mEmailAddress = "test2.test@nokia.com";
+
+    CntServicesContactList list;
+    list.append(cnt1);
+    list.append(cnt2);
+    
+    args.clear();
+    args << qVariantFromValue(list);
+    req->setArguments(args);
+
+    req->send();
+    
+    bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
+    if (deleteRequest)
+    {
+        delete req;
+        req = 0;
+    }
+
+    qDebug() << mAppName << " test END";
+
+    //  ---- OLD TESTS ------
+    
+    /*
+    qDebug() << mAppName << "  name" << qApp->applicationName();
+    qDebug() << mAppName << " dirpath" << qApp->applicationDirPath();
+    qDebug() << mAppName << " filename" << qApp->applicationFilePath();
+    qDebug() << mAppName << " pid" << qApp->applicationPid();
+
     QFileInfo appinfo (qApp->applicationFilePath());
-    qDebug() << "AppMgrClient:appinfo.applicationFilePath" << qApp->applicationFilePath();
-    qDebug() << "AppMgrClient:appinfo.absolutePath" << appinfo.absolutePath();
-    qDebug() << "AppMgrClient:appinfo.baseName" << appinfo.baseName();
-    
+    qDebug() << mAppName << " appinfo.applicationFilePath" << qApp->applicationFilePath();
+    qDebug() << mAppName << " appinfo.absolutePath" << appinfo.absolutePath();
+    qDebug() << mAppName << " appinfo.baseName" << appinfo.baseName();
+
     QString lang = QLocale::system().name();
-    qDebug() << "AppMgrClient::anyTest:" << lang;
+    qDebug() << mAppName << " anyTest:" << lang;
 
     // QString textFile = "z:/resource/qt/translations/hbserviceprovider";
     QString textFile = "hbserviceprovider";
     QFileInfo info(textFile);
-    qDebug() << "AppMgrClient::base" << info.baseName();
-    qDebug() << "AppMgrClient::path" << info.filePath();
+    qDebug() << mAppName << " base" << info.baseName();
+    qDebug() << mAppName << " path" << info.filePath();
     if (info.baseName() == info.filePath())
     {
         textFile = qApp->applicationFilePath().left(2) + "/resource/qt/translations/" + textFile;
-        qDebug() << "AppMgrClient::path added" << textFile;
+        qDebug() << mAppName << " path added" << textFile;
     }
-    
+
     textFile += "_"; 
     textFile += lang;
-    qDebug() << "AppMgrClient::anyTest:" << textFile;
+    qDebug() << mAppName << " anyTest:" << textFile;
 
     QTranslator translator;
     bool res = translator.load(textFile);
-    qDebug() << "AppMgrClient::anyTest:" << res;
+    qDebug() << mAppName << " anyTest:" << res;
     if (res)
     {
         qApp->installTranslator(&translator);
     }
-    
+
     QString textId = TXT_ID;
     QByteArray ba = textId.toLatin1();
     const char *textPtr = ba.data();
-    
+
     QString text = qtTrId(textPtr);  // translate
-    qDebug() << "Translated text:" << text;
+    qDebug() << mAppName << " translated text:" << text;
 
     qApp->removeTranslator(&translator);
+
+    Q_ASSERT(0==1);
+    */
 
 }
 
@@ -711,21 +1014,35 @@ void AppMgrClient::anyTest()
 // Aiw request responses
 void AppMgrClient::handleOk(const QVariant& result)
 {
-    XQAiwRequest *r = (XQAiwRequest *)sender();
+    XQAiwRequest *r = static_cast<XQAiwRequest *>(sender());
+    
     int impl=-1;
     impl = (r->descriptor().property(XQAiwInterfaceDescriptor::ImplementationId)).toInt();
+    QString interface = r->descriptor().interfaceName();
+    QString service = r->descriptor().serviceName();
     
-    if (result.canConvert<QString>())
+    if (result.canConvert<CntServicesContactList>())
     {
-        qDebug("AppMgrClient::%x:handleOk result=%s,%s",
+        showRecipients(result);
+    }
+    else if (result.canConvert<QString>())
+    {
+        qDebug("%s::handleOk from [%s.%s,%x]=(%s,%s)",
+               qPrintable(mAppName),
+               qPrintable(service),
+               qPrintable(interface),
                impl,
                result.typeName(),
                qPrintable(result.value<QString>()));
         mTextRetValue->setText(result.value<QString>());
     }
+
     else
     {
-        qDebug("AppMgrClient::%x:handleOk result=%s",
+        qDebug("%s::handleOk from [%s.%s,%x]=(%s)",
+               qPrintable(mAppName),
+               qPrintable(service),
+               qPrintable(interface),
                impl,
                result.typeName());
         mTextRetValue->setText("Not displayable");
@@ -734,14 +1051,25 @@ void AppMgrClient::handleOk(const QVariant& result)
   
 void AppMgrClient::handleError(int errorCode, const QString& errorMessage)
 {
-    XQAiwRequest *r = (XQAiwRequest *)sender();
+    XQAiwRequest *r = static_cast<XQAiwRequest *>(sender());
+    QString interface = r->descriptor().interfaceName();
+    QString service = r->descriptor().serviceName();
+    
     int impl=-1;
     impl = (r->descriptor().property(XQAiwInterfaceDescriptor::ImplementationId)).toInt();
 
-    qDebug("AppMgrClient::%x:handleError code=%d, errorMessage:%s",
+    qDebug("%s::handleError from [%s.%s,%d]=(%d,%s)",
+           qPrintable(mAppName),
+           qPrintable(service),
+           qPrintable(interface),
            impl, errorCode, qPrintable(errorMessage));
     
     mTextRetValue->setText(errorMessage);
 }
 
 
+
+Q_IMPLEMENT_USER_METATYPE(MetaDummy1)
+Q_IMPLEMENT_USER_METATYPE(MetaDummy2)
+Q_IMPLEMENT_USER_METATYPE(CntServicesContact)
+Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(CntServicesContactList)

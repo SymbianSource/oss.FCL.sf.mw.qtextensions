@@ -40,10 +40,8 @@
 ****************************************************************************/
 
 #include <qmobilityglobal.h>
-#include <QtTest/QtTest>
-
 #include "qgraphicsvideoitem.h"
-
+#include <QtTest/QtTest>
 #include "qmediaobject.h"
 #include "qmediaservice.h"
 #include "qpaintervideosurface_p.h"
@@ -360,7 +358,7 @@ void tst_QGraphicsVideoItem::show()
     QVERIFY(object.testService->rendererControl->surface() != 0);
 
     item->hide();
-    QCOMPARE(object.testService->outputControl->output(), QVideoOutputControl::NoOutput);
+    QCOMPARE(object.testService->outputControl->output(), QVideoOutputControl::RendererOutput);
 
     item->show();
     QCOMPARE(object.testService->outputControl->output(), QVideoOutputControl::RendererOutput);

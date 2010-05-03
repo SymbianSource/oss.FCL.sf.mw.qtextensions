@@ -40,14 +40,16 @@
 ****************************************************************************/
 #include "qmessagecontentcontainer.h"
 #include "qmessagecontentcontainer_maemo_p.h"
+#include "modestengine_maemo_p.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QTextCodec>
 
 QTM_BEGIN_NAMESPACE
 
-QMessageContentContainer QMessageContentContainerPrivate::from(long int messageId,
-                                                               unsigned int attachmentId,
+QMessageContentContainer QMessageContentContainerPrivate::from(QString &messageId,
+                                                               QString &attachmentId,
                                                                QByteArray &name,
                                                                QByteArray &mimeType,
                                                                QByteArray &mimeSubType,
@@ -110,8 +112,8 @@ void QMessageContentContainerPrivate::clearContents()
     _size = 0;
     _header.clear();
     _attachments.clear();
-    _containingMessageId = 0;
-    _attachmentId = 0;
+    _containingMessageId = QString();
+    _attachmentId.clear();
 }
 
 void QMessageContentContainerPrivate::setContentType(const QByteArray &type, const QByteArray &subType, const QByteArray &charset)
@@ -310,10 +312,12 @@ int QMessageContentContainer::size() const
 
 QString QMessageContentContainer::textContent() const
 {
-    //TODO: if (d_ptr->_textContent.isEmpty() && d_ptr->_attachmentId != 0) {
-    //TODO:     CMTMEngine* mtmEngine = CMTMEngine::instance();
-    //TODO:     const_cast<QString&>(d_ptr->_textContent) = mtmEngine->attachmentTextContent(d_ptr->_containingMessageId, d_ptr->_attachmentId, d_ptr->_charset);
-    //TODO: }
+    if (d_ptr->_textContent.isEmpty() && d_ptr->_attachmentId != 0) {
+        ModestEngine *engine = ModestEngine::instance();
+        d_ptr->_textContent = engine->getMimePart(QMessageId(d_ptr->_containingMessageId),
+                                                  d_ptr->_attachmentId);
+        d_ptr->_size = d_ptr->_textContent.size();
+    }
     if (!d_ptr->_textContent.isEmpty()) {
         return d_ptr->_textContent;
     }
@@ -328,10 +332,13 @@ QString QMessageContentContainer::textContent() const
 
 QByteArray QMessageContentContainer::content() const
 {
-    //TODO: if (d_ptr->_content.isEmpty() && d_ptr->_attachmentId != 0) {
-    //TODO:     CMTMEngine* mtmEngine = CMTMEngine::instance();
-    //TODO:     const_cast<QByteArray&>(d_ptr->_content) = mtmEngine->attachmentContent(d_ptr->_containingMessageId, d_ptr->_attachmentId);
-    //TODO: }
+    if (d_ptr->_content.isEmpty() && d_ptr->_attachmentId != 0) {
+        ModestEngine *engine = ModestEngine::instance();
+        d_ptr->_content = engine->getMimePart(
+                QMessageId (d_ptr->_containingMessageId),
+                d_ptr->_attachmentId);
+        d_ptr->_size = d_ptr->_content.size();
+    }
 
     return d_ptr->_content;
 }

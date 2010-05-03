@@ -9,4 +9,10 @@ EXPORTS
 	?errorString@XqKeyCapture@@QBE?AVQString@@XZ @ 8 NONAME ; class QString XqKeyCapture::errorString(void) const
 	?captureKey@XqKeyCapture@@QAE_NW4Key@Qt@@V?$QFlags@W4KeyboardModifier@Qt@@@@1@Z @ 9 NONAME ; bool XqKeyCapture::captureKey(enum Qt::Key, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
 	??1XqKeyCapture@@QAE@XZ @ 10 NONAME ; XqKeyCapture::~XqKeyCapture(void)
+	?captureKeyUpAndDowns@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0@Z @ 11 NONAME ; bool XqKeyCapture::captureKeyUpAndDowns(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
+	?captureKey@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0@Z @ 12 NONAME ; bool XqKeyCapture::captureKey(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
+	?cancelCaptureKeyUpAndDowns@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0@Z @ 13 NONAME ; bool XqKeyCapture::cancelCaptureKeyUpAndDowns(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
+	?captureLongKey@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0W4LongFlags@1@@Z @ 14 NONAME ; bool XqKeyCapture::captureLongKey(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>, enum XqKeyCapture::LongFlags)
+	?cancelCaptureKey@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0@Z @ 15 NONAME ; bool XqKeyCapture::cancelCaptureKey(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
+	?cancelCaptureLongKey@XqKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0W4LongFlags@1@@Z @ 16 NONAME ; bool XqKeyCapture::cancelCaptureLongKey(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>, enum XqKeyCapture::LongFlags)
 

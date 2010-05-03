@@ -362,7 +362,6 @@ Q_GLOBAL_STATIC(QSystemNetworkInfoPrivate, netInfoPrivate)
 Q_GLOBAL_STATIC(QSystemDisplayInfoPrivate, displayInfoPrivate)
 Q_GLOBAL_STATIC(QSystemStorageInfoPrivate, storageInfoPrivate)
 Q_GLOBAL_STATIC(QSystemDeviceInfoPrivate, deviceInfoPrivate)
-Q_GLOBAL_STATIC(QSystemScreenSaverPrivate, screenSaverPrivate)
 
  /*!
 \fn QSystemInfo::QSystemInfo(QObject *parent)
@@ -478,7 +477,6 @@ QSystemNetworkInfo::~QSystemNetworkInfo()
 */
 QSystemNetworkInfo::NetworkStatus QSystemNetworkInfo::networkStatus(QSystemNetworkInfo::NetworkMode mode)
 {
-    qWarning() << __FUNCTION__;
     return netInfoPrivate()->networkStatus(mode);
 }
 
@@ -582,6 +580,52 @@ QString QSystemNetworkInfo::macAddress(QSystemNetworkInfo::NetworkMode mode)
 QNetworkInterface QSystemNetworkInfo::interfaceForMode(QSystemNetworkInfo::NetworkMode mode)
 {
     return netInfoPrivate()->interfaceForMode(mode);
+}
+/*!
+  Returns the current active mode. If more than one mode is active, returns the
+  default or preferred mode. If no modes are active, returns UnknownMode.
+  */
+QSystemNetworkInfo::NetworkMode QSystemNetworkInfo::currentMode()
+{
+    return netInfoPrivate()->currentMode();
+}
+
+/*!
+    \internal
+
+    This function is called when the client connects to the networkSignalStrengthChanged()
+    signal.
+*/
+void QSystemNetworkInfo::connectNotify(const char *signal)
+{
+    //check for networkSignalStrengthChanged() signal connect notification
+    //This is not required on all platforms
+#if defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
+    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(
+                                 networkSignalStrengthChanged(QSystemNetworkInfo::NetworkMode, int))))) {
+        netInfoPrivate()->setWlanSignalStrengthCheckEnabled(true);
+    }
+#endif
+}
+
+/*!
+    \internal
+
+    This function is called when the client disconnects from the networkSignalStrengthChanged()
+    signal.
+
+    \sa connectNotify()
+*/
+void QSystemNetworkInfo::disconnectNotify(const char *signal)
+{
+    //check for networkSignalStrengthChanged() signal disconnect notification
+    //This is not required on all platforms
+#if defined(Q_WS_MAEMO_5) || defined(Q_WS_MAEMO_6)
+    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(
+                                 networkSignalStrengthChanged(QSystemNetworkInfo::NetworkMode, int))))) {
+        netInfoPrivate()->setWlanSignalStrengthCheckEnabled(false);
+    }
+#endif
 }
 
 // display
@@ -863,8 +907,13 @@ QSystemDeviceInfo::PowerState QSystemDeviceInfo::currentPowerState()
  */
 
 QSystemScreenSaver::QSystemScreenSaver(QObject *parent)
-    : QObject(parent), d(screenSaverPrivate())
+    : QObject(parent)
 {
+#ifdef Q_OS_LINUX
+    d = new QSystemScreenSaverPrivate(static_cast<QSystemScreenSaverLinuxCommonPrivate*>(parent));
+#else
+    d = new QSystemScreenSaverPrivate(parent);
+#endif
     screenSaverIsInhibited = screenSaverInhibited();
 }
 
@@ -873,7 +922,6 @@ QSystemScreenSaver::QSystemScreenSaver(QObject *parent)
  */
 QSystemScreenSaver::~QSystemScreenSaver()
 {
-    qWarning() << Q_FUNC_INFO;
     delete d;
 }
 

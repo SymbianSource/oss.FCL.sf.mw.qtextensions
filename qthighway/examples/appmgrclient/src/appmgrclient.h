@@ -54,25 +54,30 @@ private slots:
         void test7();
         void test8();
         void test9();
+        void test10();
+        void test11();
         void anyTest();
         
        // Aiw request responses
         void handleOk(const QVariant &result);
         void handleError(int errorCode, const QString& errorMessage);
         void test4ActionTriggered();
+        void showRecipients(const QVariant &value);
 
               
 private:
-        void test(XQAiwRequest **req,const QString& interface, const QString& operation, bool embedded=true);
-        void test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation, bool embedded=true);
+        void test(XQAiwRequest **req,const QString& interface, const QString& operation);
+        void test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation);
         void test(XQAiwRequest **req, const QString &arg);
         void connectSignals(XQAiwRequest *req);
         void createTestFile(const QString &dir, const QString &file);
+        bool testRunning(const QString & service, const QString & interface);
 
 private:
         QCheckBox* mCheckEmbedded;
         QCheckBox* mCheckDeleteRequest;
         QCheckBox* mBackground;
+        QCheckBox* mForeground;
         QCheckBox* mGenericSend;
         QCheckBox* mSynchronous;
         QLineEdit *mReqArg;
@@ -92,13 +97,14 @@ private:
         XQAiwRequest* req7;
         XQAiwRequest* req8;
         XQAiwRequest* req9;
+        XQAiwRequest* req10;
 
         int mImplIndex;
         
         RFs fs;
-
-        
         RFile file;
+
+        QString mAppName;
 };
 
 
