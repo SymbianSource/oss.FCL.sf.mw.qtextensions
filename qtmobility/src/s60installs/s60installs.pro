@@ -31,17 +31,17 @@ symbian: {
     isEmpty(epoc31) {
         EPOCROOT31 = $${EPOCROOT}
     } else {
-    EPOCROOT31 = $$(EPOCROOT31)
+        EPOCROOT31 = $$(EPOCROOT31)
     }
     isEmpty(epoc32) {
         EPOCROOT32 = $${EPOCROOT}
     }else {
-    EPOCROOT32 = $$(EPOCROOT32)
+        EPOCROOT32 = $$(EPOCROOT32)
     }
     isEmpty(epoc50) {
         EPOCROOT50 = $${EPOCROOT}
     } else {
-    EPOCROOT50 = $$(EPOCROOT50)
+        EPOCROOT50 = $$(EPOCROOT50)
     }
     
     contains(mobility_modules, bearer) {
