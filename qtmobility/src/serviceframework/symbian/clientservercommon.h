@@ -43,7 +43,14 @@
 
 #include <e32base.h>
 
-_LIT(KDatabaseManagerServerName, "SFWDatabaseManagerServer");
+
+#ifdef __WINSCW__
+_LIT(KDatabaseManagerServerName, "qsfwdatabasemanagerserver");
+#else
+_LIT(KDatabaseManagerServerName, "!qsfwdatabasemanagerserver");
+#endif
+
+_LIT(KDatabaseManagerServerProcess, "qsfwdatabasemanagerserver");
 
 const TUint KServerMajorVersionNumber = 0;
 const TUint KServerMinorVersionNumber = 1;

@@ -15,12 +15,15 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:  Private implementation of plugin description
+* Description: This is a private implementation of a plugin's description.
 *
 */
 
 #include "xqplugininfoprivate.h"
 
+/*!
+  Default constructor.
+*/
 XQPluginInfoPrivate::XQPluginInfoPrivate()
 :
 iUid(),
@@ -30,6 +33,9 @@ iOpaqueData()
 {
 }
 
+/*!
+  Constructor.
+*/
 XQPluginInfoPrivate::XQPluginInfoPrivate(
         const XQPluginInfoPrivate &pluginInfoPrivate)
 :
@@ -40,6 +46,9 @@ iOpaqueData(pluginInfoPrivate.opaqueData())
 {
 }
 
+/*!
+  Constructor.
+*/
 XQPluginInfoPrivate::XQPluginInfoPrivate(quint32 id, 
                                          quint32 version, 
                                          const QString &dllName, 
@@ -52,6 +61,9 @@ iOpaqueData(opaqueData)
 {
 }
 
+/*!
+  Destructor.
+*/
 XQPluginInfoPrivate::~XQPluginInfoPrivate()
 {
 }

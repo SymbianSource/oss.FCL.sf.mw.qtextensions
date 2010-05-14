@@ -29,27 +29,36 @@
 #include <xqpluginloader.h>
 #include <xqplugininfo.h>
 
-#include "qtracker.h"
+#include <stdio.h>
 
 #include <testplugininterface.h>
+
+void log(const QString& aString)
+{
+    FILE* poFile = fopen( "c:/trace.log", "a" );
+    if( !poFile )
+        return;
+    fprintf( poFile, "%s\n", aString.toAscii().constData() );
+    fclose( poFile );
+}
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QTracker::log("--- Start ---");
+    log("--- Start ---");
     QList<XQPluginInfo> impls;
     
     XQPluginLoader::listImplementations("org.nokia.mmdt.TestPlugin/1.0", impls);
 
-    QTracker::log("list plugins:");
+    log("list plugins:");
     
     for (int i=0; i<impls.size(); i++) {
-        QTracker::log("plugin found...");
+        log("plugin found...");
         QString fmtStr("%1: %2");
-        QTracker::log(fmtStr.arg("dll: ").arg(impls[i].dllName()));
-        QTracker::log(fmtStr.arg("opaque data: ").arg(impls[i].opaqueData()));
-        QTracker::log(fmtStr.arg("uid: ").arg(impls[i].uid()));
-        QTracker::log("---");
+        log(fmtStr.arg("dll: ").arg(impls[i].dllName()));
+        log(fmtStr.arg("opaque data: ").arg(impls[i].opaqueData()));
+        log(fmtStr.arg("uid: ").arg(impls[i].uid()));
+        log("---");
     }
 
     XQPluginLoader pluginLoader;
@@ -58,16 +67,16 @@ int main(int argc, char *argv[])
     QObject *plugin = pluginLoader.instance();
 
     QString pluginFmt("Plugin instance: %1");
-    QTracker::log(pluginFmt.arg(reinterpret_cast<int>(plugin)));
+    log(pluginFmt.arg(reinterpret_cast<int>(plugin)));
 
     TestPluginInterface *pluginCast = qobject_cast<TestPluginInterface*>(plugin);
-    QTracker::log(pluginFmt.arg(reinterpret_cast<int>(pluginCast)));
+    log(pluginFmt.arg(reinterpret_cast<int>(pluginCast)));
 
 
     if (pluginCast!=0)
-    	QTracker::log(pluginFmt.arg(pluginCast->test()));
+    	log(pluginFmt.arg(pluginCast->test()));
     
-    QTracker::log("--- Stop ---");
+    log("--- Stop ---");
 //    return app.exec();
 }
 

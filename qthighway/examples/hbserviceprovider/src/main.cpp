@@ -27,14 +27,45 @@
 int main(int argc, char **argv)
 {
     // qInstallMsgHandler(XQSERVICEMESSAGEHANDLER);
-    XQSERVICE_DEBUG_PRINT("HbServicePrivder::main");
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main");
     
-    HbApplication a( argc, argv ); 
+    HbApplication app( argc, argv ); 
 
+    // Let's figure out why application was started?
+    if(app.activateReason()== Hb::ActivationReasonActivity )
+    {
+        QString id = app.activateId();
+        QVariant data = app.activateData();
+        XQSERVICE_DEBUG_PRINT("HbServiceProvider::main Hb::ActivationReasonActivity=%s,data=%s",
+                              qPrintable(id), qPrintable(data.toString()));
+        QVariantHash params = app.activateParams();
+        QHashIterator<QString, QVariant> i(params);
+        while (i.hasNext())
+        {
+            i.next();
+            XQSERVICE_DEBUG_PRINT("HbServiceProvider::param key=%s,value=%s",
+                                  qPrintable(i.key()), qPrintable(i.value().toString()));
+        }        
+    }
+    else if (app.activateReason() == Hb::ActivationReasonNormal)
+    {
+        XQSERVICE_DEBUG_PRINT("HbServiceProvider::main Hb::ActivationReasonNormal");
+    }
+    else if(app.activateReason() == Hb::ActivationReasonService)
+    {
+        // Does not come here: Bug MPAN-84QL7V entered for this
+        XQSERVICE_DEBUG_PRINT("HbServiceProvider::main Hb::ActivationReasonService");
+    }
+    else
+    {
+        // This applicatiob does not support services
+        XQSERVICE_DEBUG_PRINT("HbServiceProvider::main UNKNOWN reason");
+    }
+    
     HbServiceProviderMainWindow mainWindow;
 
     mainWindow.show();
 
-    return a.exec();     
+    return app.exec();     
 }
 

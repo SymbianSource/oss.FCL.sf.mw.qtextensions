@@ -38,4 +38,4 @@ libFiles.sources = xqservice.dll
 libFiles.path = "!:\sys\bin"
 DEPLOYMENT += libFiles
 
-TRANSLATIONS=hbserviceprovider.ts
+# TRANSLATIONS=hbserviceprovider.ts

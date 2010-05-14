@@ -15,7 +15,7 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:  Class implement extended wrapper for ECom framework
+* Description:  This class implements an extended wrapper for the ECOM framework.
 *
 */
 
@@ -24,10 +24,11 @@
 
 #include <qfileinfo.h>
 #include "qdebug.h"
-// -----------------------------------------------------------------------------
-// XQPluginLoader()
-// -----------------------------------------------------------------------------
-//
+
+/*!
+  Constructs plugin loader with the given parent.
+  @param parent - address of class instance parent 
+*/
 XQPluginLoader::XQPluginLoader(QObject* parent) 
 : 
 QObject(parent),
@@ -36,10 +37,11 @@ did_load( false )
 {
 }
 
-// -----------------------------------------------------------------------------
-// XQPluginLoader(int, QObject*)
-// -----------------------------------------------------------------------------
-//
+/*!
+  Constructs plugin loader with the given parent and plugin implementation UID.
+  @param uid - UID of plugin that should be loaded
+  @param parent - address of class instance parent 
+ */
 XQPluginLoader::XQPluginLoader(int requestedUid, QObject* parent) 
 : 
 QObject(parent),
@@ -48,10 +50,9 @@ did_load( false )
 {
 }
 
-// -----------------------------------------------------------------------------
-// ~XQPluginLoader2()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Destroys plugin loader. Unless unload() was called explicitly, plugins still stays in memory.
+*/
 XQPluginLoader::~XQPluginLoader()
 {
     if(d) {
@@ -59,10 +60,13 @@ XQPluginLoader::~XQPluginLoader()
     }
 }
 
-// -----------------------------------------------------------------------------
-// listImplementations(const QString &interfaceName, QList<XQPluginInfo> &impls)
-// -----------------------------------------------------------------------------
-//
+/*!
+  List available plugins which implement requested interface. Plugins are resolved using interface name.
+  
+  @param interfaceName - requested interface name
+  @param impls - destination list where resolved plugins info will be stored
+  @return true on success, false on any error
+*/
 bool XQPluginLoader::listImplementations(
         const QString &interfaceName, 
         QList< XQPluginInfo > &impls)
@@ -73,19 +77,18 @@ bool XQPluginLoader::listImplementations(
     return ( KErrNone == errCode );
 }
 
-// -----------------------------------------------------------------------------
-// uid()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Returns UID of requested plugin.
+ */
 int XQPluginLoader::uid()const
 {
     return ( d ? d->uid : KNullUid.iUid );
 }
 
-// -----------------------------------------------------------------------------
-// instance()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Return pointer to plugin root-component instance
+  @return instance address on success, 0 otherwise  
+ */
 QObject* XQPluginLoader::instance()
 {
     if (!load())
@@ -101,10 +104,10 @@ QObject* XQPluginLoader::instance()
     
 }
 
-// -----------------------------------------------------------------------------
-// isLoaded()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Return information if plugin have been loaded
+  @return true if plugin have been loaded, false otherwise 
+ */
 bool XQPluginLoader::isLoaded() const
 {
     return d && d->pHnd
@@ -115,10 +118,10 @@ bool XQPluginLoader::isLoaded() const
 #endif    
 }
 
-// -----------------------------------------------------------------------------
-// load()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Load requested plugin.
+  @return true on success, false otherwise
+ */
 bool XQPluginLoader::load()
 {
     if (!d)
@@ -129,10 +132,12 @@ bool XQPluginLoader::load()
     return d->loadPlugin();
 }
 
-// -----------------------------------------------------------------------------
-// unload()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Unloads the plugin and returns true if plugin could be unloaded. All plugins are unloaded at aplication exit 
+  so calling this method is not mandatory. 
+  Actual unloading will succed only when all instances of given plugin loaders calls unload.
+  @return true on success, false otherwise
+ */
 bool XQPluginLoader::unload()
 {
     if (did_load) {
@@ -144,10 +149,9 @@ bool XQPluginLoader::unload()
     return false;
 }
 
-// -----------------------------------------------------------------------------
-// setUid ( int )
-// -----------------------------------------------------------------------------
-//
+/*!
+  Setter for UID of plugin. It is the same UID that may be specified in constructor.
+*/
 void XQPluginLoader::setUid ( int uid )
 {
     if (d) {
@@ -158,10 +162,10 @@ void XQPluginLoader::setUid ( int uid )
     d = XQPluginLoaderPrivate::findOrCreate( uid );
 }
 
-// -----------------------------------------------------------------------------
-// errorString ()
-// -----------------------------------------------------------------------------
-//
+/*!
+  Return string.with description of last error that occured.
+  @return error description
+*/
 QString XQPluginLoader::errorString () const
 {
     return (!d || d->errorString.isEmpty()) ? tr("Unknown error") : d->errorString;

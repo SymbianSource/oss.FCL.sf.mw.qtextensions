@@ -1,1 +1,0 @@
-Those patches should be regarded as hints how to change symmake.cpp in qmake sources as different snapshots of qt could vary here much (even if from the same branch).

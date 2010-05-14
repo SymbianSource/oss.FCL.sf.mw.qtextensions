@@ -43,7 +43,7 @@ include(src/api_headers.pri)
 include(../xqservicebase.pri)
 include(src/xqservice.pri)
 
-LIBS+=-lxqserviceutil -lxqserviceipcclient -lxqserviceipcserver -lqtgui -lqtserviceframework -lws32 -lefsrv -lapparc -lapgrfx
+LIBS+=-lxqserviceutil -lxqserviceipcclient -lxqserviceipcserver -lQtGui -lQtServiceFramework -lws32 -lefsrv -lapparc -lapgrfx
 LIBS+=-lcaf
 LIBS+=-lxqsettingsmanager
 

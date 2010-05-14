@@ -15,32 +15,20 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:  Class is responsible for unload ECom resources
+* Description:  This class is responsible for unload ECom resources
 *
 */
 
 #ifndef XQPLUGINHANDLE_H
 #define XQPLUGINHANDLE_H
 
-// INCLUDES
 #include <QObject>
 
-
-/**
- *  QPluginHandle
- * 
- */
 class XQPluginHandle : public QObject
     {
 public:
-    /**
-     * Constructor
-     */
     XQPluginHandle(int pluginContextId, QObject* parentPtr);
     
-    /**
-     * Destructor.
-     */
     ~XQPluginHandle();
     
 private:

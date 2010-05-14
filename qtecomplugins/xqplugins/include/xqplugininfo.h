@@ -15,7 +15,7 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:  Class implement plugin description
+* Description: This class implements a plugin's description (metadata).
 *
 */
 
@@ -35,57 +35,20 @@ class XQPluginInfoPrivate;
 class DLL_EXPORT XQPluginInfo
     {
 public:
-    /**
-     * Constructor
-     */
+
     XQPluginInfo();
-    
-    /**
-     * Copy constuctor
-     */
     XQPluginInfo(const XQPluginInfo &pluginInfo);
-    
-    /**
-     * Initialization constructor
-     */
     XQPluginInfo(quint32 uid, quint32 version, const QString &dllName, const QString &opaqueData);
-    
-    /**
-     * Destructor
-     */
     ~XQPluginInfo();
-    
-    /**
-     * Assignment operator
-     */
     XQPluginInfo &operator=(const XQPluginInfo &other);
-    
-    /**
-     * Plugin implementation UID
-     */
     quint32 uid() const;
-    
-    /**
-     * Plugin implementation version
-     */
     quint32 version() const;
-    
-    /**
-     * Plugin file name
-     */
     const QString& dllName() const;
-    
-    /**
-     * Plugin meta data
-     */
     const QString& opaqueData() const;
     
 private:
-    /**
-     * Plugin info private implementation.
-     * Own
-     */
+
     XQPluginInfoPrivate *d_ptr;
     };
+	
 #endif /* XQPLUGININFO_H_ */
-

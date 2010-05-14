@@ -23,7 +23,7 @@
 #define XQ_SERVICEIPC_REQUEST_H
 
 #include <QtCore>
-#include <List>
+#include <QList>
 #include <xqserviceipcdefs.h>
 #include <xqrequestinfo.h>
 #include <xqsharablefile.h>

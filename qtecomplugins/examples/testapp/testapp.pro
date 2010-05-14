@@ -39,11 +39,9 @@ TARGET.EPOCHEAPSIZE = 0x20000 0x1600000
 LIBS += -lxqplugins
 
 SOURCES += \
-           src/main.cpp \
-           src/qtracker.cpp
+           src/main.cpp
           
-HEADERS += \
-		   inc\qtracker.h
+HEADERS += 
 		   
 
            

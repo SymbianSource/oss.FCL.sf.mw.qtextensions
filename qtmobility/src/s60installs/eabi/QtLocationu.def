@@ -129,12 +129,12 @@ EXPORTS
 	_ZNK10QtMobility23QNmeaPositionInfoSource21minimumUpdateIntervalEv @ 128 NONAME
 	_ZNK10QtMobility23QNmeaPositionInfoSource27supportedPositioningMethodsEv @ 129 NONAME
 	_ZNK10QtMobility23QNmeaPositionInfoSource6deviceEv @ 130 NONAME
-	_ZTIN10QtMobility15QGeoAreaMonitorE @ 131 NONAME
-	_ZTIN10QtMobility22QGeoPositionInfoSourceE @ 132 NONAME
-	_ZTIN10QtMobility23QGeoSatelliteInfoSourceE @ 133 NONAME
-	_ZTIN10QtMobility23QNmeaPositionInfoSourceE @ 134 NONAME
-	_ZTVN10QtMobility15QGeoAreaMonitorE @ 135 NONAME
-	_ZTVN10QtMobility22QGeoPositionInfoSourceE @ 136 NONAME
-	_ZTVN10QtMobility23QGeoSatelliteInfoSourceE @ 137 NONAME
-	_ZTVN10QtMobility23QNmeaPositionInfoSourceE @ 138 NONAME
+	_ZTIN10QtMobility15QGeoAreaMonitorE @ 131 NONAME ; #<TI>#
+	_ZTIN10QtMobility22QGeoPositionInfoSourceE @ 132 NONAME ; #<TI>#
+	_ZTIN10QtMobility23QGeoSatelliteInfoSourceE @ 133 NONAME ; #<TI>#
+	_ZTIN10QtMobility23QNmeaPositionInfoSourceE @ 134 NONAME ; #<TI>#
+	_ZTVN10QtMobility15QGeoAreaMonitorE @ 135 NONAME ; #<VT>#
+	_ZTVN10QtMobility22QGeoPositionInfoSourceE @ 136 NONAME ; #<VT>#
+	_ZTVN10QtMobility23QGeoSatelliteInfoSourceE @ 137 NONAME ; #<VT>#
+	_ZTVN10QtMobility23QNmeaPositionInfoSourceE @ 138 NONAME ; #<VT>#
 

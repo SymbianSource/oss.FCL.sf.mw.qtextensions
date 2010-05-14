@@ -22,12 +22,11 @@
 #ifndef XQPLUGINLOADER_H
 #define XQPLUGINLOADER_H
 
-//Incudes
 #include <QtGlobal>
 #include <QObject>
 #include <QList>
 #include <QString>
-//Forward class declarations
+
 class XQPluginInfo;
 class XQPluginLoaderPrivate;
 
@@ -37,79 +36,31 @@ class XQPluginLoaderPrivate;
 #define DLL_EXPORT Q_DECL_IMPORT
 #endif
 
-
-//Class declaration
 class DLL_EXPORT XQPluginLoader : public QObject
 {
 public:
-    /**
-     * Constructor
-     * @param parent - address of class instance parent 
-     */
+
     XQPluginLoader(QObject* parent = 0);
     
-    /**
-     * Constructor
-     * @param uid - UID of plugin that should be loaded
-     * @param parent - address of class instance parent 
-     */
     XQPluginLoader(int uid, QObject* parent = 0);
     
-    /**
-     * Destructor
-     */
     virtual ~XQPluginLoader();
     
-    /**
-     * List available plugins which implement requested interface. 
-     * Function resolve plugins using interface name
-     * @param interfaceName - requested interface name
-     * @param impls - destination list where resolved plugins info will be stored
-     * @return true on success, false on any error
-     */
     static bool listImplementations(const QString &interfaceName, 
                              QList<XQPluginInfo > &impls);
     
-    
-    /**
-     * Function return UID of requested plugin
-     */
     int uid()const;
     
-    
-    /**
-     * Function return pointer to plugin root-component instance
-     * @return instance address on success, 0 otherwise  
-     */
     QObject* instance();
     
-    /**
-     * Function return information if plugin have been loaded
-     * @return true if plugin have been loaded, false otherwise 
-     */
     bool isLoaded() const;
     
-    /**
-     * Function load requested plugin
-     * @return true on success, false otherwise
-     */
     bool load();
     
-    
-    /**
-     * Function unload plugin
-     * @return true on success, false otherwise 
-     */
     bool unload();
     
-    /**
-     * 
-     */
     void setUid ( int uid );
     
-    /**
-     * 
-     */
     QString errorString () const;
     
 private:

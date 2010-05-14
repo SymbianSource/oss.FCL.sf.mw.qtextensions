@@ -28,44 +28,20 @@
 class XQPluginInfoPrivate
 {
 public:
-    /**
-     * Constructor
-     */
     XQPluginInfoPrivate();
     
-    /**
-     * Copy constuctor
-     */
     XQPluginInfoPrivate(const XQPluginInfoPrivate &pluginInfoPrivate);
     
-    /**
-     * Initialization constructor
-     */
     XQPluginInfoPrivate(quint32 id, quint32 version, const QString &dllName, const QString &opaqueData);
     
-    /**
-     * Destructor
-     */
     ~XQPluginInfoPrivate();
     
-    /**
-     * Plugin implementation UID
-     */
     inline quint32 uid() const;
     
-    /**
-     * Plugin implementation version
-     */
     inline quint32 version() const;
     
-    /**
-     * Plugin file name
-     */
     inline const QString& dllName() const;
     
-    /**
-     * Plugin meta data
-     */
     inline const QString& opaqueData() const;
     
 private:

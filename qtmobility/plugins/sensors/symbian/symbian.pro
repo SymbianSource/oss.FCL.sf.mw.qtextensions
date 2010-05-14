@@ -2,14 +2,14 @@ INCLUDEPATH+=../../../src/sensors
 INCLUDEPATH+=../../sensors \epoc32\include\osextensions
 
 include(version.pri)
-include(symbian.pri)
+#include(symbian.pri)
 include(../../../common.pri)
 
 TEMPLATE = lib
 CONFIG += plugin
-TARGET = $$qtLibraryTarget(sensors_sym)
+TARGET = $$qtLibraryTarget(qtsensors_sym)
 
-SOURCES +=  \
+SOURCES +=  \			
 			sensorbackendsym.cpp \
 			proximitysensorsym.cpp \
 			ambientlightsensorsym.cpp \
@@ -17,7 +17,10 @@ SOURCES +=  \
 			compasssym.cpp \
 			accelerometersym.cpp \
 			orientationsym.cpp \
-			main.cpp
+			rotationsensorsym.cpp \
+			tapsensorsym.cpp \			
+			main.cpp \
+			
 PRIVATE_HEADERS += \
 			sensorbackendsym.h \
 			sensorbackenddatasym.h \
@@ -26,7 +29,9 @@ PRIVATE_HEADERS += \
 			magnetometersensorsym.h \
 			compasssym.h \
 			accelerometersym.h \
-			orientationsym.h
+			orientationsym.h \
+			rotationsensorsym.h \
+			tapsensorsym.h \
            
 HEADERS = $$PRIVATE_HEADERS
 
@@ -56,7 +61,7 @@ symbian: {
 load(data_caging_paths)
  
 # Defines plugin files into Symbian .pkg package
-pluginDep.sources = sensors_sym.dll
+pluginDep.sources = qtsensors_sym.dll
 pluginDep.path = $$QT_PLUGINS_BASE_DIR/sensors
 DEPLOYMENT += pluginDep
 }

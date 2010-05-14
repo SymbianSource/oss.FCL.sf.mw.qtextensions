@@ -15,17 +15,16 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:
+* Description: This class implements a plugin handle.
 *
 */
 
 #include "xqpluginhandle.h"
 #include <ecom/ecom.h>
 
-// -----------------------------------------------------------------------------
-// QPluginHandle
-// -----------------------------------------------------------------------------
-//
+/*!
+  QPluginHandle.
+*/
 XQPluginHandle::XQPluginHandle(int contextId, QObject* parentPtr)
 :
 QObject(parentPtr),
@@ -34,10 +33,9 @@ pluginContextId(contextId)
     //No implementation required
 }
 
-// -----------------------------------------------------------------------------
-// ~QPluginHandle
-// -----------------------------------------------------------------------------
-//
+/*!
+  ~QPluginHandle.
+*/
 XQPluginHandle::~XQPluginHandle()
 {
     if( KNullUid != TUid::Uid(pluginContextId) ){

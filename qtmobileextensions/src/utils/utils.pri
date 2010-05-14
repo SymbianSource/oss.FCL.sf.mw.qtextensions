@@ -29,6 +29,6 @@ SOURCES += xqutils.cpp \
     xqconversions.cpp
 
 symbian:LIBS += -lapmime \
-    -lcommonui \
+    -lCommonUI \
     -lplatformenv \
     -lcharconv

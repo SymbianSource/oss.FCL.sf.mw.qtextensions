@@ -14,3 +14,4 @@ snap_enabled = yes
 occ_enabled = yes 
 symbiancntsim_enabled = yes 
 MOBILITY_SD_MCL_BUILD = yes
+sensors_symbian_enabled = yes

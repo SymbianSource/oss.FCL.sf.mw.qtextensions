@@ -15,7 +15,7 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:
+* Description: This is the private implementation of the XQPluginLoader class.
 *
 */
 

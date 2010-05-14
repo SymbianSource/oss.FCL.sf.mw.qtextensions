@@ -526,14 +526,16 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
                 if ((!serviceName.compare(sn,Qt::CaseInsensitive)) ||
                     (deprNameExists && !serviceName.compare(snDeprecated,Qt::CaseInsensitive)))
                     {
+                    TUid appUid = implArray[ii].Uid();
                     if (!firstUidPicked)
                         {
-                        aAppUid = implArray[ii].Uid();
+                        aAppUid = appUid;
                         firstUidPicked = ETrue;
+                        XQSERVICE_DEBUG_PRINT("First service found UID3=%x", appUid.iUid);
                         }
-                    XQSERVICE_DEBUG_PRINT("Service found %x", aAppUid);
+                    XQSERVICE_DEBUG_PRINT("Service found UID3=%x", appUid.iUid);
                     //  Add impl. UID to interface
-                    interface.setProperty(XQAiwInterfaceDescriptor::ImplementationId, (int)aAppUid.iUid);
+                    interface.setProperty(XQAiwInterfaceDescriptor::ImplementationId, (int)appUid.iUid);
                     found = ETrue;
 
                     // Add the matched interface to result set

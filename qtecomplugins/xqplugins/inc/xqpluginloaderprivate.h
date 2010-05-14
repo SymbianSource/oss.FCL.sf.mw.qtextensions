@@ -15,7 +15,7 @@
 * along with this program.  If not, 
 * see "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html/".
 *
-* Description:  Private plugin loader implementation
+* Description: Private plugin's loader implementation.
 *
 */
 
@@ -29,14 +29,11 @@
 #include <QLibrary>
 #include <QSettings>
 
-//Incudes
 #include <ecom/implementationinformation.h>
 #include <ecom/ecom.h>
 
-//Forward class declaration
 class XQPluginInfo;
 
-//Class declaration
 class XQPluginLoaderPrivate
 {
 public:

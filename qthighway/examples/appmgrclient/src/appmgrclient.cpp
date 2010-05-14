@@ -561,8 +561,15 @@ void AppMgrClient::test5()
 {
     qDebug() << mAppName << " test5 START";
 
-    // E0022E73 == ServiceApp
-    QUrl uri(XQURI_SCHEME_ACTIVITY + "://E0022E73?" + XQURI_KEY_ACTIVITY_NAME + "=emailView&view=myview"); 
+    QString str("e0022e70");
+    uint ui = str.toUInt();
+    qDebug() << mAppName << " toUInt value=" << ui;
+    bool b=false;
+    ui=str.toUInt(&b,16);
+    qDebug() << mAppName << " toUInt status=" << b <<  ",value=" << ui;
+    
+    
+    QUrl uri(XQURI_SCHEME_ACTIVITY + "://E0022E70?" + XQURI_KEY_ACTIVITY_NAME + "=MainView&key1=data1&key2=data2"); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();

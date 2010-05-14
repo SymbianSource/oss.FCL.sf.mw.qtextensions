@@ -27,9 +27,7 @@ DEFINES += BUILD_XQPLUGINS_DLL
 QT -= gui
 LIBS += -lecom.dll
 LIBS += -lcharconv.dll
-INCLUDEPATH += /epoc32/include/domain \
-    /epoc32/include/domain/middleware \
-    /epoc32/include/domain/applications
+INCLUDEPATH += $$MW_LAYER_SYSTEMINCLUDE
 HEADERS = include/xqplugin.h \
     include/xqpluginloader.h \
     include/xqtecom.hrh \
@@ -47,7 +45,6 @@ SOURCES = src/xqpluginfactory.cpp \
 symbian { 
     TARGET.CAPABILITY = All -TCB
     TARGET.EPOCALLOWDLLDATA = 1
-
     defFilePath=..
 
 #    deploy.path = /

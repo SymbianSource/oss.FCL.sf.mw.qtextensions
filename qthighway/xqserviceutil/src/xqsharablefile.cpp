@@ -20,7 +20,7 @@
 */
 
 #include "xqservicelog.h"
-#include "xqSharableFile.h"
+#include "xqsharablefile.h"
 #include <QVariant>
 
 
