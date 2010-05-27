@@ -49,19 +49,32 @@
  Image fetching interface and related operations
 */
 #define XQI_IMAGE_FETCH QLatin1String("com.nokia.symbian.IImageFetch")
-#define XQOP_IMAGE_FETCH QLatin1String("fetch(void)")
+#define XQOP_IMAGE_FETCH QLatin1String("fetch()")
 
 /*!
  Music fetching interface and related operations
 */
 #define XQI_MUSIC_FETCH QLatin1String("com.nokia.symbian.IMusicFetch")
-#define XQOP_MUSIC_FETCH QLatin1String("fetch(void)")
+#define XQOP_MUSIC_FETCH QLatin1String("fetch()")
+
+/*!
+ Tones fetching interface and related operations
+*/
+#define XQI_TONE_FETCH QLatin1String("com.nokia.symbian.IToneFetch")
+#define XQOP_TONE_FETCH QLatin1String("fetch()")
 
 /*!
  Video fetching interface and related operations
 */
 #define XQI_VIDEO_FETCH QLatin1String("com.nokia.symbian.IVideoFetch")
-#define XQOP_VIDEO_FETCH QLatin1String("fetch(void)")
+#define XQOP_VIDEO_FETCH QLatin1String("fetch()")
+
+/*!
+ Video collection browser interface and related operations
+*/
+#define XQI_VIDEO_BROWSE QLatin1String("com.nokia.symbian.IVideoBrowse")
+#define XQOP_VIDEO_BROWSE QLatin1String("browseVideos(int, int)")
+
 
 /*!
  Camera capture interface and related operations
@@ -81,6 +94,16 @@
 #define XQCAMERA_MODE_SWITCH QLatin1String("AllowModeSwitch")
 #define XQCAMERA_INDEX_SWITCH QLatin1String("AllowCameraSwitch")
 #define XQCAMERA_QUALITY_CHANGE QLatin1String("AllowQualityChange")
+
+/*!
+ Incomplete list of interfaces.
+ To be completed with operation signatures and related declarations.
+*/
+#define XQI_LOG_VIEW QLatin1String("com.nokia.symbian.ILogView")
+#define XQI_CONTACT_VIEW QLatin1String("com.nokia.symbian.IContactView")
+#define XQI_CONTACT_FETCH QLatin1String("com.nokia.symbian.IContactFetch")
+#define XQI_FILE_FETCH QLatin1String("com.nokia.symbian.IFileFetch")
+#define XQI_FILE_SHARE QLatin1String("com.nokia.symbian.IFileShare")
 
 // Public URI related constants
 /*!

@@ -1,1 +1,0 @@
-For those who cant compile original sources (eg. QT 4.5 has problems here, use 4.6 if you want to build it for yourself).

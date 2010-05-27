@@ -22,7 +22,10 @@
 #ifndef XQ_SERVICEIPCCONST_H
 #define XQ_SERVICEIPCCONST_H
 
-// This UID has been officially allocated
+// The UID for the service.prf (old format needing xqsreg tool)
 #define KXQServiceUid    0x2002A535
+
+// UID for the new service2.prf  (new format)
+#define KXQServiceUid2 0x2002EAD4
 
 #endif //XQ_SERVICEIPCCONST_H

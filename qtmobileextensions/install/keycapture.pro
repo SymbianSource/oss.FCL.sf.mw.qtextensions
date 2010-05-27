@@ -27,7 +27,7 @@ symbian: {
 
     qtmobileextension.sources = xqkeycapture.dll
     qtmobileextension.path = /sys/bin
-    qtmobileextension.depends = "(0x2002C342), 4, 5, 0, {\"QtLibs pre-release\"}"
+    qtmobileextension.depends = "(0x2001e61c), 4, 5, 0, {\"QtLibs pre-release\"}"
 
     license.depends = "\"install.txt\" - \"\", FILETEXT, TEXTEXIT"
     DEPLOYMENT += license qtmobileextension

@@ -67,6 +67,7 @@ class XQSERVICEUTIL_EXPORT XQRequestUtil
     void setSecurityInfo(const quint32 sid, const quint32 vid, const quint32 caps );
     const XQSharableFile *getSharableFile(int index) const;
     static int mapError(int error);
+    static QString channelName(const QString &connectionName);
         
     public:
         XQAiwInterfaceDescriptor mDescriptor;  // Contains e.g. service and interface name 

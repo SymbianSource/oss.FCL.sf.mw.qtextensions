@@ -118,3 +118,20 @@ int XQRequestUtil::mapError(int error)
     return mappedError;
 
 }
+
+// connectionName=[requesthandle:]channel
+QString XQRequestUtil::channelName(const QString &connectionName)
+{
+    XQSERVICE_DEBUG_PRINT("XQRequestUtil::channelName %s", qPrintable(connectionName));
+    QString ret = connectionName;
+    QStringList l = ret.split(":");
+    if (l.count() > 1)
+    {
+        ret = l.at(1);
+    }
+
+    XQSERVICE_DEBUG_PRINT("XQRequestUtil::channelName ret=%s", qPrintable(ret));
+    return ret;
+    
+}
+   

@@ -100,21 +100,21 @@ contains(mobility_modules,versit) {
 contains(mobility_modules,multimedia) {
     SUBDIRS += \             #Multimedia
         qaudiocapturesource \
-        qgraphicsvideoitem \
-        qmediaimageviewer \
+#        qgraphicsvideoitem \
+#        qmediaimageviewer \
         qmediaobject \
         qmediaplayer \
-        qmediaplaylist \
+#        qmediaplaylist \
         qmediaplaylistnavigator \
-        qmediapluginloader \
+#        qmediapluginloader \
         qmediarecorder \
         qmediaresource \
         qmediaservice \
-        qmediaserviceprovider \
+#        qmediaserviceprovider \
         qmediacontent \
         qradiotuner \
-        qpaintervideosurface \
-        qvideowidget \
+#        qpaintervideosurface \
+#        qvideowidget \
         qmediatimerange
 
     symbian: {

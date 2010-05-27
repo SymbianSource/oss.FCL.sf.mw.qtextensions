@@ -29,7 +29,7 @@ qtextensionsconfig.xml  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.x
 qtextensions_pre_targetdep.flm /epoc32/tools/makefile_templates/qt/qtextensions_pre_targetdep.flm
 
 ../qtecomplugins/mkspecs/features/ecomplugin.prf /epoc32/tools/qt/mkspecs/features/symbian/ecomplugin.prf
-../qtecomplugins/supplements/xqecom/xqecom.exe   /epoc32/tools/xqecom.exe
+../qtecomplugins/supplements/xqecom/xqecom.py    /epoc32/tools/xqecom.py
 ../qthighway/bin/service.prf                     /epoc32/tools/qt/mkspecs/features/symbian/service.prf
 ../qthighway/bin/xqsreg.exe                      /epoc32/tools/xqsreg.exe
 

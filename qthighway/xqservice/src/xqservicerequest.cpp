@@ -77,7 +77,7 @@ public:
     XQServiceRequest* m_Parent;
     XQRequestUtil m_RequestUtil;
     XQServiceManager* serviceManager;
-
+    QString m_uniqueChannelName;
     
 };
 
@@ -172,8 +172,8 @@ XQServiceRequest& XQServiceRequest::operator=(const XQServiceRequest& orig)
 */
 XQServiceRequest::~XQServiceRequest()
 {
-    XQSERVICE_DEBUG_PRINT("XQServiceRequest::~XQServiceRequest=");
-    XQServiceAdaptor::cancelPendingSend(m_data->m_Service);
+    XQSERVICE_DEBUG_PRINT("XQServiceRequest::~XQServiceRequest %s", qPrintable(m_data->m_uniqueChannelName));
+    XQServiceAdaptor::cancelPendingSend(m_data->m_uniqueChannelName);
     delete m_data;
 }
 
@@ -247,13 +247,16 @@ bool XQServiceRequest::send(QVariant& retData)
     // This shall be removed by the server
     // !!!
     addArg(qVariantFromValue(m_data->m_RequestUtil.mInfo));
-
-    XQSERVICE_DEBUG_PRINT("XQServiceRequest::send(2):mDescriptor");
-        
+       
     // Pass always the util instance onwards as user data.
     // It can be utilized by the XQServiceManager::startServer
     // e.g. to optimize startup of a service server
-    return XQServiceAdaptor::send(m_data->m_Service,  message(), m_data->m_arguments, retData, m_data->m_Synchronous,m_data,
+
+    // Create unique channel name to separate multiple client requests to same channel name.
+    quint32 handle = (unsigned int)m_data;
+    m_data->m_uniqueChannelName = QString("%1:").arg(handle) + m_data->m_Service;
+    XQSERVICE_DEBUG_PRINT("XQServiceRequest::send(2):uniqueChannel=%s", qPrintable(m_data->m_uniqueChannelName));
+    return XQServiceAdaptor::send(m_data->m_uniqueChannelName,  message(), m_data->m_arguments, retData, m_data->m_Synchronous,m_data,
                                  (const void *)&m_data->m_RequestUtil);
 }
 /*!

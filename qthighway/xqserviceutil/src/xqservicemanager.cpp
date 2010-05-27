@@ -19,17 +19,9 @@
 *
 */
 
-#include "xqservicelog.h"
-#include <xqserviceglobal.h>
-
-#include "xqrequestutil.h"
-
-#include "xqservicemanager.h"
-#include "xqserviceipcconst.h"
-#include <QCoreApplication>
 #include <e32std.h>
 #include <w32std.h>
-
+#include <apaidpartner.h>
 #include <apparc.h>
 #include <apgcli.h>
 #include <apacln.h>
@@ -39,17 +31,26 @@
 #include <coemain.h>
 
 #include <QBuffer>
+#include <QString>
+#include <QCoreApplication>
+
+#include "xqservicelog.h"
+#include <xqserviceglobal.h>
+#include "xqrequestutil.h"
+#include "xqservicemanager.h"
+#include "xqserviceipcconst.h"
+
 #include "xqservicemetadata/xqservicemetadata_p.h"
 #include <xqservicemetadata/xqaiwinterfacedescriptor.h>
+#include "xqconversions.h"
 
-#include <QString>
 
 
 class XQServiceManagerPrivate 
     {
     public:
-        XQServiceManagerPrivate() {iLatestError = 0;};
-        ~XQServiceManagerPrivate() {};
+        XQServiceManagerPrivate();
+        ~XQServiceManagerPrivate();
 
         enum matchMode
         {
@@ -59,20 +60,28 @@ class XQServiceManagerPrivate
         
         int StartServer(const QString& aService,  bool embedded, int& applicationUid, quint64& processId,
                        XQRequestUtil *util);
-        TInt Discover(const QString& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode);
+        TInt Discover(const QString& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode,
+                      bool findFirst=false);
         int  LatestError() const {return iLatestError;};
         bool IsRunning(const XQAiwInterfaceDescriptor& implementation) const;
         
     private:
         void StartServerL(const TUid& uid, bool embedded, TUint64& processId, XQRequestUtil *util);
-        TInt Discover(const TDesC& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode);
-        CApaAppServiceInfoArray* AvailableServiceImplementationsL();
+        TInt Discover(const TDesC& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode,
+                      bool findFirst=false);
+        TInt Discover1(const TDesC& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode,
+                       bool findFirst=false);
+        TInt Discover2(const TDesC& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces, int matchMode,
+                       bool findFirst=false);
+        CApaAppServiceInfoArray* AvailableServiceImplementations1L();
+        CApaAppServiceInfoArray* AvailableServiceImplementations2L();
         TUint64 getAppPid(const TUid& aAppUid);   
         int doMapErrors(TInt aError);
         
         TVersion iVersion;
         TApaAppInfo  iAppInfo;
         int iLatestError;
+        RApaLsSession iApaSession;
     };
 
 XQServiceManager::XQServiceManager()
@@ -126,7 +135,7 @@ int XQServiceManager::startServer(const QString& service, bool embedded, int& ap
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QString &interfaceName ) const
     {
-    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::findInterfaces");
+    XQSERVICE_DEBUG_PRINT("XQServiceManager::findInterfaces 1");
     QList<XQAiwInterfaceDescriptor> interfaces;
     TUid appUid;
     interfaces.clear();
@@ -142,7 +151,7 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QString &serviceName, const QString &interfaceName ) const
 {
-    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::findInterfaces 2");
+    XQSERVICE_DEBUG_PRINT("XQServiceManager::findInterfaces 2");
     QList<XQAiwInterfaceDescriptor> interfaces;
     TUid appUid;
     interfaces.clear(); 
@@ -151,6 +160,41 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
                            XQServiceManagerPrivate::MatchServiceAndInterfaceName);
     return interfaces;
 }
+
+
+/*!
+    Finds implementations for the given interface
+    \param interfaceName Interfacename to match
+    \return List of implementations
+*/
+QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QString &interfaceName ) const
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManager::findFirstInterface 1");
+    QList<XQAiwInterfaceDescriptor> interfaces;
+    TUid appUid;
+    interfaces.clear();
+    TInt error=d->Discover(interfaceName, appUid, interfaces, XQServiceManagerPrivate::MatchInterfaceName, true);
+    return interfaces;
+}
+
+/*!
+    Finds implementations for the given interface implemented by given service
+    \param serviceName Service name
+    \param interfaceName Interfacename to match
+    \return List of implementations
+*/
+QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QString &serviceName, const QString &interfaceName ) const
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManager::findFirstInterface 2");
+    QList<XQAiwInterfaceDescriptor> interfaces;
+    TUid appUid;
+    interfaces.clear(); 
+    // Catenate to get full name
+    TInt error=d->Discover(serviceName + "." + interfaceName, appUid, interfaces,
+                           XQServiceManagerPrivate::MatchServiceAndInterfaceName, true);
+    return interfaces;
+}
+
 
 
 /*!
@@ -170,6 +214,20 @@ bool XQServiceManager::isRunning(const XQAiwInterfaceDescriptor& implementation)
     return d->IsRunning(implementation);
 }
 
+// ====== Private part ==============
+
+XQServiceManagerPrivate::XQServiceManagerPrivate()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::XQServiceManagerPrivate");
+    iLatestError = 0;
+    iApaSession.Connect();    
+}
+
+XQServiceManagerPrivate::~XQServiceManagerPrivate()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::~XQServiceManagerPrivate");
+    iApaSession.Close();
+};
 
 // aService is here the full name (service + interface)
 int XQServiceManagerPrivate::StartServer(const QString& aService,  bool embedded, int& applicationUid, quint64& processId,
@@ -194,7 +252,8 @@ int XQServiceManagerPrivate::StartServer(const QString& aService,  bool embedded
     // Otherwise, go directly starting the service server
     if (appUid.iUid == 0)
     {
-        error = Discover(serverName,appUid,interfaces, XQServiceManagerPrivate::MatchServiceAndInterfaceName);
+        // Find the first implementation
+        error = Discover(serverName,appUid,interfaces, XQServiceManagerPrivate::MatchServiceAndInterfaceName, true);
     }
     if (error)
         {
@@ -215,11 +274,6 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::StartServerL");
     Q_UNUSED(embedded);  // Not used any more. XQRequestUtil applied instead
     
-    RApaLsSession apa;
-    User::LeaveIfError( apa.Connect() );
-    CleanupClosePushL( apa );
-
-
     bool toBackground = false;
     // Apply the utility's option for embedding  instead
     bool embed = util->mInfo.isEmbedded();
@@ -229,10 +283,10 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
     XQSERVICE_DEBUG_PRINT("\tbackground got from utility=%d", toBackground);
 
     // retrieve application information
-    User::LeaveIfError( apa.GetAppInfo( iAppInfo, uid ) );
+    User::LeaveIfError( iApaSession.GetAppInfo( iAppInfo, uid ) );
 
     TApaAppCapabilityBuf caps;
-    User::LeaveIfError(apa.GetAppCapability(caps, uid));
+    User::LeaveIfError(iApaSession.GetAppCapability(caps, uid));
     if (!toBackground)
     {
         // If service wants to be launched to background.. respect it
@@ -293,7 +347,7 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         TRequestStatus requestStatusForRendezvous;
         
         // start application with command line parameters
-        //User::LeaveIfError( apa.StartApp( *cmdLine, threadId, &requestStatusForRendezvous) );
+        //User::LeaveIfError( iApaSession.StartApp( *cmdLine, threadId, &requestStatusForRendezvous) );
         QString startupArgs = QString::fromLatin1(XQServiceUtils::StartupArgService);
         if (embed)
         {
@@ -336,7 +390,6 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Done"); 
         }
     
-    CleanupStack::PopAndDestroy( &apa ); // ap
 }
 
 
@@ -357,39 +410,69 @@ TUint64 XQServiceManagerPrivate::getAppPid(const TUid& aAppUid)
     }
     return pid;
 }
-CApaAppServiceInfoArray* XQServiceManagerPrivate::AvailableServiceImplementationsL()
+
+CApaAppServiceInfoArray* XQServiceManagerPrivate::AvailableServiceImplementations1L()
 {
-    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::AvailableServiceImplementationsL");
-    RApaLsSession ls;
-    User::LeaveIfError( ls.Connect() );
-    CleanupClosePushL( ls );
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::AvailableServiceImplementations1L");
     // retrieve list of available services implementations from apparc
     CApaAppServiceInfoArray* apaInfo = 
-                    ls.GetServiceImplementationsLC(TUid::Uid(KXQServiceUid));
+                    iApaSession.GetServiceImplementationsLC(TUid::Uid(KXQServiceUid));
     CleanupStack::Pop( apaInfo );
-    CleanupStack::PopAndDestroy( &ls );
+    return apaInfo;
+}
+
+CApaAppServiceInfoArray* XQServiceManagerPrivate::AvailableServiceImplementations2L()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::AvailableServiceImplementations2L");
+    // retrieve list of available services implementations from apparc
+    CApaAppServiceInfoArray* apaInfo = 
+                    iApaSession.GetServiceImplementationsLC(TUid::Uid(KXQServiceUid2));
+    CleanupStack::Pop( apaInfo );
     return apaInfo;
 }
 
 TInt XQServiceManagerPrivate::Discover(const QString& aService,TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces,
-                                      int matchMode)
+                                      int matchMode, bool findFirst)
     {
     TPtrC serverName( reinterpret_cast<const TUint16*>(aService.utf16()) );
-    TInt error=Discover(serverName, aAppUid, interfaces, matchMode);
+    TInt error=Discover(serverName, aAppUid, interfaces, matchMode, findFirst);
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Discover (1)");
     return error;
     }
 
-
 TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
                                       TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces,
-                                      int matchMode)
+                                      int matchMode, bool findFirst)
     {
     XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Discover (2)");
+    TInt discoverResult1 = KErrNotFound;
+    TInt discoverResult2 = KErrNotFound;
+
+    // Discover first possible reg files with old format
+    discoverResult1 = Discover1(aService, aAppUid, interfaces, matchMode, findFirst);
+    // Discover then  reg files with new format (add results)
+    discoverResult2 = Discover2(aService, aAppUid, interfaces, matchMode, findFirst);
+    
+    if (discoverResult1 == KErrNone || discoverResult2 == KErrNone)
+        {
+        // Results merged
+        return KErrNone;
+        }
+    else
+        {
+        return KErrNotFound;
+        }
+    }
+
+TInt XQServiceManagerPrivate::Discover1( const TDesC& aService,
+                                      TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces,
+                                      int matchMode, bool findFirst)
+    {
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Discover1");
         
     CApaAppServiceInfoArray* apaInfo = NULL;
     TInt error = KErrNone;
-    TRAP(error, apaInfo = AvailableServiceImplementationsL());
+    TRAP(error, apaInfo = AvailableServiceImplementations1L());
     XQSERVICE_DEBUG_PRINT("Discover status=%d", error);
     if (error)
         {
@@ -406,6 +489,8 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
     TBool found( EFalse );
     QString serviceName = QString::fromUtf16(aService.Ptr(),aService.Length());
     XQSERVICE_DEBUG_PRINT("serviceName: %s", qPrintable(serviceName));
+    TBool firstUidPicked(EFalse);
+    
     for ( TInt ii = 0; ii < implArray.Count(); ii++ )  
         {
 
@@ -480,7 +565,6 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
             // Go through all interfaces and pick the UI for the first matching one.
             // THIS NEED TO BE FIXED IF SOMEONE WANTS DEDICATED IMPLEMENTATION
             // Fill in the implementationId for all interfaces
-            TBool firstUidPicked(EFalse);
             foreach (XQAiwInterfaceDescriptor interface,results.interfaces)
                 {
                 QString sn;
@@ -547,12 +631,21 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
         else
             {
              error = metaData->getLatestError();
+             iLatestError = error;
              XQSERVICE_DEBUG_PRINT("metadata error: %d", error); 
             }  
         
         delete metaData;
         metaData = NULL;
         res.Close();
+
+
+        // If only first found needed, quit the loop.
+        if (findFirst && firstUidPicked)
+            {
+            XQSERVICE_DEBUG_PRINT("First service returned UID3=%x", aAppUid.iUid);
+            break;
+            }
         
         } // for implArray ...
     
@@ -560,6 +653,166 @@ TInt XQServiceManagerPrivate::Discover( const TDesC& aService,
     if (!found)
         {
         error = KErrNotFound;
+        }
+    if (found)
+        {
+        error = KErrNone;
+        }
+    
+    XQSERVICE_DEBUG_PRINT("Discover error: %d", error);
+    
+    return error;
+    }
+
+
+TInt XQServiceManagerPrivate::Discover2( const TDesC& aService,
+                                      TUid& aAppUid, QList<XQAiwInterfaceDescriptor>& interfaces,
+                                      int matchMode, bool findFirst)
+    {
+    XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Discover2");
+        
+    CApaAppServiceInfoArray* apaInfo = NULL;
+    TInt error = KErrNone;
+    
+    TRAP(error, apaInfo = AvailableServiceImplementations2L());
+    XQSERVICE_DEBUG_PRINT("Discover status=%d", error);
+    
+    if (error)
+        {
+        return error;  // This is fatal as nothing found
+        }
+    TArray<TApaAppServiceInfo> implArray( apaInfo->Array() );
+    XQSERVICE_DEBUG_PRINT("implArray.Count(): %d", implArray.Count());
+    
+    if ( !implArray.Count() )
+        {
+        delete apaInfo;
+        return KErrNotFound;   // No services found
+        }
+    
+    TBool found( EFalse );
+    
+    QString serviceName = QString::fromUtf16(aService.Ptr(),aService.Length());
+    XQSERVICE_DEBUG_PRINT("serviceName: %s", qPrintable(serviceName));
+    TBool firstUidPicked(EFalse);
+
+    for ( TInt ii = 0; ii < implArray.Count(); ii++ )  
+        {
+        TUid uid = implArray[ii].Uid();
+        XQSERVICE_DEBUG_PRINT("implArray[%d].UID=%x", ii, uid);
+
+        QByteArray xmlConf ;
+
+        TPtrC8 opaque = implArray[ii].OpaqueData();
+        const TPtrC16 tmpXml((TText16*) opaque.Ptr(),(opaque.Length()+1)>>1);
+        QString strXml = XQConversions:: s60DescToQString( tmpXml ) ;
+        // XQSERVICE_DEBUG_PRINT("XML conf: %s", qPrintable(strXml));
+        XQSERVICE_DEBUG_PRINT("size of xml conf.: %d characters", strXml.size());
+        xmlConf.append(strXml.toAscii());
+        
+        XQSERVICE_DEBUG_PRINT("resource data: %s", xmlConf.constData());
+        QBuffer buf(&xmlConf);
+        ServiceMetaData* metaData = new ServiceMetaData(&buf);
+        if (metaData->extractMetadata()) 
+            {
+            ServiceMetaDataResults results=metaData->parseResults();
+
+            // Go through all interfaces and pick the UI for the first matching one.
+            // THIS NEED TO BE FIXED IF SOMEONE WANTS DEDICATED IMPLEMENTATION
+            // Fill in the implementationId for all interfaces
+            foreach (XQAiwInterfaceDescriptor interface,results.interfaces)
+                {
+                QString sn;
+                QString snDeprecated;
+                if (results.version == ServiceMetaDataResults::VERSION_1)
+                    {
+                    // Old version of the XML format. The parser took care of adaptation
+                    // discovery-name = service-name + interface name
+                    XQSERVICE_DEBUG_PRINT("version 1");
+                    }
+                else
+                    {
+                    // discovery-name = interface name
+                   XQSERVICE_DEBUG_PRINT("version 2");
+                    }
+
+                // Deprecated service name, if any
+                QString deprecatedServiceName = interface.customProperty("deprecatedsn");
+                bool deprNameExists = !deprecatedServiceName.isEmpty();
+                if (deprNameExists)
+                {
+                    XQSERVICE_DEBUG_PRINT("deprecatedServiceName: %s", qPrintable(deprecatedServiceName));
+                }
+                // This is the name used in match
+                // TODO: Version handling support: Take the latest version if multiple matches
+                switch (matchMode)
+                {
+                    case MatchInterfaceName :
+                        sn = interface.interfaceName();
+                        break;
+                    case MatchServiceAndInterfaceName :
+                        sn =interface.serviceName() + "." + interface.interfaceName();
+                        snDeprecated = deprecatedServiceName + "." + interface.interfaceName();
+                        break;
+                    default:
+                        sn = interface.interfaceName();
+                        break;
+                }
+
+                XQSERVICE_DEBUG_PRINT("compare name is: %s", qPrintable(sn));
+                XQSERVICE_DEBUG_PRINT("requested name: %s", qPrintable(serviceName));
+                if ((!serviceName.compare(sn,Qt::CaseInsensitive)) ||
+                    (deprNameExists && !serviceName.compare(snDeprecated,Qt::CaseInsensitive)))
+                    {
+                    TUid appUid = implArray[ii].Uid();
+                    if (!firstUidPicked)
+                        {
+                        aAppUid = appUid;
+                        firstUidPicked = ETrue;
+                        XQSERVICE_DEBUG_PRINT("First service found UID3=%x", appUid.iUid);
+                        }
+                    XQSERVICE_DEBUG_PRINT("Service found UID3=%x", appUid.iUid);
+                    //  Add impl. UID to interface
+                    interface.setProperty(XQAiwInterfaceDescriptor::ImplementationId, (int)aAppUid.iUid);
+                    found = ETrue;
+
+                    // Add the matched interface to result set
+                    interfaces.append(interface);
+                    }
+
+                    if (found)
+                    {
+                        error = KErrNone;
+                    }
+                } // forearch interface
+            }
+        else
+            {
+             error = metaData->getLatestError();
+             iLatestError = error;
+             XQSERVICE_DEBUG_PRINT("metadata error: %d", error); 
+            }  
+        
+        delete metaData;
+        metaData = NULL;
+
+        // If only first found needed, quit the loop.
+        if (findFirst && firstUidPicked)
+            {
+            XQSERVICE_DEBUG_PRINT("First service returned UID3=%x", aAppUid.iUid);
+            break;
+            }
+        } // for implArray ...
+    
+    delete apaInfo;
+    if (!found)
+        {
+        error = KErrNotFound;
+        }
+    
+    if (found)
+        {
+        error = KErrNone;
         }
     
     XQSERVICE_DEBUG_PRINT("Discover error: %d", error);

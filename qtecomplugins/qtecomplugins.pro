@@ -46,7 +46,7 @@ ecompluginprffile = "ecomplugin.prf"
 ecompluginprfdestdir = "$$[QMAKE_MKSPECS]\features"
 
 tooldir = "supplements\xqecom\\"
-toolfile = "xqecom.exe"
+toolfile = "xqecom.py"
 tooldestdir = "$$[QT_INSTALL_BINS]"
 
 installprf.commands += $${QMAKE_COPY} $$myNativePath($$ecompluginprfdir$$ecompluginprffile) $$myNativePath($$ecompluginprfdestdir)

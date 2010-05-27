@@ -57,6 +57,7 @@ XQServiceThreadData *XQServiceThreadData::instance()
 XQServiceThreadData::~XQServiceThreadData()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceThreadData::~XQServiceThreadData");
+    qDeleteAll(ipcConnMap);
     ipcConnMap.clear();
 }
 

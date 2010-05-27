@@ -23,7 +23,9 @@ CONFIG += ordered
 SUBDIRS = src/settingsmanager \
           src/sysinfo \
           src/utils \
-          src/keycapture
+          src/keycapture 
+# Excluded for build for now as dependencies are not met:
+#          src/systemtoneservice
 
 symbian {
 BLD_INF_RULES.prj_exports += "./src/settingsmanager/settingsmanager_global.h               $$MW_LAYER_PLATFORM_EXPORT_PATH(settingsmanager_global.h)"
@@ -51,5 +53,7 @@ BLD_INF_RULES.prj_exports += "./src/utils/xqconversions.h                       
 BLD_INF_RULES.prj_exports += "./include/XQConversions                                      $$MW_LAYER_PLATFORM_EXPORT_PATH(XQConversions)"
 BLD_INF_RULES.prj_exports += "./src/keycapture/xqkeycapture.h                              $$MW_LAYER_PLATFORM_EXPORT_PATH(xqkeycapture.h)"
 BLD_INF_RULES.prj_exports += "./include/XQKeyCapture                                       $$MW_LAYER_PLATFORM_EXPORT_PATH(XQKeyCapture)"
+BLD_INF_RULES.prj_exports += "./src/systemtoneservice/xqsystemtoneservice.h                $$MW_LAYER_PLATFORM_EXPORT_PATH(xqsystemtoneservice.h)"
+BLD_INF_RULES.prj_exports += "./include/XQSystemToneService                                $$MW_LAYER_PLATFORM_EXPORT_PATH(XQSystemToneService)"
 BLD_INF_RULES.prj_exports += "./rom/qtmobileextensions.iby                                 $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobileextensions.iby)"
 }

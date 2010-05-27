@@ -44,6 +44,38 @@
 #define XQI_RADIO_MONITOR QLatin1String("com.nokia.symbian.IRadioMonitor")
 #define XQOP_RADIO_MONITOR QLatin1String("requestNotifications(void)")
 
+/*!
+ WLAN sniffer interface and operations for
+ the WLAN Sniffer list view. 
+*/
+#define XQI_WLAN_SNIFFER  QLatin1String("com.nokia.symbian.IWlanSniffer")
+#define XQOP_WLAN_SNIFFER  QLatin1String("listView(void)")
+
+
+/*!
+ Incomplete list of interfaces.
+ To be completed with operation signatures and related declarations.
+*/
+#define XQI_EMAIL_INBOX_VIEW  QLatin1String("com.nokia.symbian.IEmailInboxView")
+#define XQOP_EMAIL_INBOX_VIEW  QLatin1String("displayInboxByMailboxId(QVariant)")
+
+#define XQI_EMAIL_MESSAGE_VIEW   QLatin1String("com.nokia.symbian.IEmailMessageView")
+#define XQOP_EMAIL_MESSAGE_VIEW   QLatin1String("viewMessage(QVariant,QVariant,QVariant)")
+
+#define XQI_EMAIL_MESSAGE_SEND   QLatin1String("com.nokia.symbian.IEmailMessageSend")
+#define XQOP_EMAIL_MESSAGE_SEND   QLatin1String("send(QMap)")
+
+#define XQI_EMAIL_REGISTER_ACCOUNT   QLatin1String("com.nokia.symbian.IEmailRegisterAccount")
+#define XQOP_EMAIL_REGISTER_ACCOUNT   QLatin1String("registerNewMailbox(quint64,QString,QString)")
+#define XQOP_EMAIL_UPDATE_MAILBOX   QLatin1String("updateMailboxName(quint64,QString)")
+#define XQOP_EMAIL_UNREGISTER_MAILBOX   QLatin1String("unregisterMailbox(quint64)")
+
+#define XQI_EMAIL_MAILBOX_CONFIGURE   QLatin1String("com.nokia.symbian.IEmailMailboxConfigure")
+#define XQOP_EMAIL_MAILBOX_CONFIGURE   QLatin1String("launchWizard(QVariant)")
+
+#define XQI_CALL_DIAL   QLatin1String("com.nokia.symbian.ICallDial")
+#define XQI_DTMF_PLAY   QLatin1String("com.nokia.symbian.IDtmfPlay ")
+
 // Platform service related constants
 
 #endif

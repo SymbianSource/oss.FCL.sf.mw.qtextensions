@@ -45,6 +45,8 @@
 
 #include <XQSharableFile.h>
 
+// Include declarations to see if any compilation issues
+#include <xqaiwdecl.h>
 #include <xqaiwdeclplat.h>
 
 #include "appmgrservices.h"
@@ -212,6 +214,7 @@ void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QStr
         *req = appmgr.create(interface, operation);
         if (!*req)
         {
+            qDebug() << mAppName << " Last error=" << appmgr.lastError();
             return;
         }
         connectSignals(*req);        

@@ -148,6 +148,10 @@ void ServiceApp::answerDial()
     {
         mDialService->complete(mNumber->text());
     }
+    if (mNewDialService && mNewDialService->asyncAnswer())
+    {
+        mNewDialService->complete(mNumber->text());
+    }
 }
 
 
@@ -158,6 +162,10 @@ void ServiceApp::answerUri()
     {
         mUriService->complete(true);
     }
+    if (mNewUriService && mNewUriService->asyncAnswer())
+    {
+        mNewUriService->complete(true);
+    }
 }
 
 void ServiceApp::answerFile()
@@ -166,6 +174,10 @@ void ServiceApp::answerFile()
     if (mFileService && mFileService->asyncAnswer())
     {
         mFileService->complete(true);
+    }
+    if (mNewFileService && mNewFileService->asyncAnswer())
+    {
+        mNewFileService->complete(true);
     }
 }
 
@@ -237,7 +249,7 @@ int DialerService::dial(const QString& number, bool asyncAnswer)
     int ret = 0;
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     else
@@ -453,7 +465,7 @@ int NewDialerService::dial(const QString& number, bool asyncAnswer)
     int ret = 0;
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     else
@@ -672,7 +684,7 @@ bool UriService::view(const QString& uri, bool retValue)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     
@@ -748,7 +760,7 @@ bool NewUriService::view(const QString& uri, bool retValue)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
 
@@ -816,7 +828,7 @@ bool FileService::view(QString file)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     
@@ -849,7 +861,7 @@ bool FileService::view(XQSharableFile sf)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     return true;
@@ -918,7 +930,7 @@ bool NewFileService::view(QString file)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
 
@@ -951,7 +963,7 @@ bool NewFileService::view(XQSharableFile sf)
     mServiceApp->setLabelNumber(label,param);
     if (asyncAnswer)
     {
-        mAsyncReqIds.insert(info.clientSecureId(), setCurrentRequestAsync());
+        mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
     return true;

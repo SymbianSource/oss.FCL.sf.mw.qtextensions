@@ -42,14 +42,14 @@
 #include <QtTest/QtTest>
 #include <QtCore>
 #include <QtGui>
- #include <QFile>
+#include <QFile>
 
-#include <QMediaPlayer>
-#include <QMediaPlayerControl>
-#include <QMediaPlaylist>
-#include <QMediaService>
-#include <QMediaStreamsControl>
-#include <QVideoWidget>
+#include <qmediaplayer.h>
+#include <qmediaplayercontrol.h>
+#include <qmediaplaylist.h>
+#include <qmediaservice.h>
+#include <qmediastreamscontrol.h>
+#include <qvideowidget.h>
 
 QT_USE_NAMESPACE
 

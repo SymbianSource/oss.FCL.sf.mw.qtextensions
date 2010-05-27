@@ -24,6 +24,6 @@ CONFIG += ordered
 SUBDIRS= settingsmanagerex \
          sysinfoex \
          utilsex \
-         keycaptureex
+         keycaptureex 
 
 symbian:BLD_INF_RULES.prj_exports += "./rom/qtmobileextensionsexamples.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(qtmobileextensionsexamples.iby)"

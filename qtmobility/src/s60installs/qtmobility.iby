@@ -36,24 +36,19 @@ file=ABI_DIR\BUILD_DIR\qtserviceframework.dll                                   
 file=ABI_DIR\BUILD_DIR\qsfwdatabasemanagerserver.exe                                     PROGRAMS_DIR\qsfwdatabasemanagerserver.exe PAGED
 file=ABI_DIR\BUILD_DIR\qtsysteminfo.dll                                                  SHARED_LIB_DIR\qtsysteminfo.dll PAGED
 file=ABI_DIR\BUILD_DIR\qtmessaging.dll                                                   SHARED_LIB_DIR\qtmessaging.dll PAGED
-
-/*
-file=ABI_DIR\BUILD_DIR\qtmedia.dll                                                       SHARED_LIB_DIR\qtmedia.dll PAGED
+//file=ABI_DIR\BUILD_DIR\qtmedia.dll                                                       SHARED_LIB_DIR\qtmedia.dll PAGED
 file=ABI_DIR\BUILD_DIR\qtsensors.dll                                                     SHARED_LIB_DIR\qtsensors.dll PAGED
-*/
 
 //Plugins
-/*
-file=ABI_DIR\BUILD_DIR\qtmedia_m3u.dll                                                   SHARED_LIB_DIR\qtmedia_m3u.dll PAGED
-data=\epoc32\data\z\resource\qt\plugins\playlistformats\qtmedia_m3u.qtplugin             resource\qt\plugins\playlistformats\qtmedia_m3u.qtplugin
-file=ABI_DIR\BUILD_DIR\qtmedia_xarecordservice.dll                                       SHARED_LIB_DIR\qtmedia_xarecordservice.dll PAGED
-data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmedia_xarecordservice.qtplugin    resource\qt\plugins\mediaservice\qtmedia_xarecordservice.qtplugin
-file=ABI_DIR\BUILD_DIR\qtmedia_mmfengine.dll                                             SHARED_LIB_DIR\qtmedia_mmfengine.dll PAGED
-data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmedia_mmfengine.qtplugin          resource\qt\plugins\mediaservice\qtmedia_mmfengine.qtplugin
+//file=ABI_DIR\BUILD_DIR\qtmedia_m3u.dll                                                   SHARED_LIB_DIR\qtmedia_m3u.dll PAGED
+//data=\epoc32\data\z\resource\qt\plugins\playlistformats\qtmedia_m3u.qtplugin             resource\qt\plugins\playlistformats\qtmedia_m3u.qtplugin
+//file=ABI_DIR\BUILD_DIR\qtmedia_xarecordservice.dll                                       SHARED_LIB_DIR\qtmedia_xarecordservice.dll PAGED
+//data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmedia_xarecordservice.qtplugin    resource\qt\plugins\mediaservice\qtmedia_xarecordservice.qtplugin
+//file=ABI_DIR\BUILD_DIR\qtmedia_mmfengine.dll                                             SHARED_LIB_DIR\qtmedia_mmfengine.dll PAGED
+//data=\epoc32\data\z\resource\qt\plugins\mediaservice\qtmedia_mmfengine.qtplugin          resource\qt\plugins\mediaservice\qtmedia_mmfengine.qtplugin
 file=ABI_DIR\BUILD_DIR\qtsensors_generic.dll                                             SHARED_LIB_DIR\qtsensors_generic.dll PAGED
 data=\epoc32\data\z\resource\qt\plugins\sensors\qtsensors_generic.qtplugin               resource\qt\plugins\sensors\qtsensors_generic.qtplugin
 file=ABI_DIR\BUILD_DIR\qtsensors_sym.dll                                                 SHARED_LIB_DIR\qtsensors_sym.dll PAGED
 data=\epoc32\data\z\resource\qt\plugins\sensors\qtsensors_sym.qtplugin                   resource\qt\plugins\sensors\qtsensors_sym.qtplugin
-*/
 
 #endif // __QT_MOBILITY_IBY__
