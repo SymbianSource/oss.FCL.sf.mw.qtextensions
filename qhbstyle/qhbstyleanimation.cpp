@@ -36,13 +36,11 @@ QHbStyleAnimation::QHbStyleAnimation(QWidget* target, QObject *parent) :
 
 QHbStyleAnimation::~QHbStyleAnimation()
 {
-    delete m_animationIcon;
-    delete m_mask;
 }
 
 const QWidget* QHbStyleAnimation::target()const
 {
-    return m_target;
+    return m_target.data();
 }
 
 QPoint QHbStyleAnimation::point()
@@ -69,11 +67,9 @@ void QHbStyleAnimation::createAnimationIcon(QStyle::ControlElement element, Qt::
         drawer.setFrameType(HbFrameDrawer::ThreePiecesVertical);
     }
     drawer.setFillWholeRect(true);
-    if (m_mask)
-        delete m_mask;
-    m_mask = new QPixmap(m_target->rect().size());
+    m_mask.reset(new QPixmap(m_target->rect().size()));
     m_mask->fill(Qt::transparent);
-    QPainter p(m_mask);
+    QPainter p(m_mask.data());
     drawer.paint(&p, m_target->rect());
     p.end();
 
@@ -92,7 +88,7 @@ void QHbStyleAnimation::createAnimationIcon(QStyle::ControlElement element, Qt::
     }
 
     if (!iconName.isNull() && !m_target->rect().isEmpty()) {
-        HbIcon* icon = q_check_ptr(new HbIcon(iconName));
+        HbIcon* icon = new HbIcon(iconName);
         if(orientation == Qt::Horizontal)
             icon->setSize(QSize(icon->width(), m_target->rect().height()));
         else
@@ -103,15 +99,12 @@ void QHbStyleAnimation::createAnimationIcon(QStyle::ControlElement element, Qt::
         const qreal rectHeight = m_target->rect().height();
         const qreal iconHeight = icon->height();
 
-        if (m_animationIcon)
-            delete m_animationIcon;
-
         const int animationWidth = (orientation == Qt::Horizontal) ?  int(rectWidth + iconWidth) : int(rectWidth);
         const int animationHeight = (orientation == Qt::Horizontal) ?  int(rectHeight) : int(rectHeight + iconHeight);
 
-        m_animationIcon = q_check_ptr(new QPixmap(animationWidth, animationHeight));
+        m_animationIcon.reset(new QPixmap(animationWidth, animationHeight));
         m_animationIcon->fill(Qt::transparent);
-        QPainter p(m_animationIcon);
+        QPainter p(m_animationIcon.data());
 
         if (orientation == Qt::Horizontal) {
             if (iconWidth > 0)

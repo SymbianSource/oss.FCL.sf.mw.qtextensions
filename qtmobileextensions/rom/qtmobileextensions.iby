@@ -28,6 +28,6 @@ file=ABI_DIR\BUILD_DIR\xqsettingsmanager.dll     SHARED_LIB_DIR\xqsettingsmanage
 file=ABI_DIR\BUILD_DIR\xqsysinfo.dll             SHARED_LIB_DIR\xqsysinfo.dll            PAGED
 file=ABI_DIR\BUILD_DIR\xqutils.dll               SHARED_LIB_DIR\xqutils.dll              PAGED
 file=ABI_DIR\BUILD_DIR\xqkeycapture.dll          SHARED_LIB_DIR\xqkeycapture.dll         PAGED
-/* file=ABI_DIR\BUILD_DIR\xqsystemtoneservice.dll   SHARED_LIB_DIR\xqsystemtoneservice.dll  PAGED */
+file=ABI_DIR\BUILD_DIR\xqsystemtoneservice.dll   SHARED_LIB_DIR\xqsystemtoneservice.dll  PAGED
 
 #endif // __QT_MOBILEEXTENSIONS_IBY__

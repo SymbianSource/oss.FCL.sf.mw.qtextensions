@@ -31,12 +31,6 @@
 :"Nokia"
 
 ;Files To Copy...<src> <destination>
-;"/epoc32/release/armv5/udeb/systemtoneservice.dll" -"!:/sys/bin/systemtoneservice.dll"
-;"/epoc32/release/armv5/udeb/stsserver.exe"         -"!:/sys/bin/stsserver.exe"
-
-"/epoc32/release/armv5/udeb/stsserver.exe"         -"!:/sys/bin/stsserver.exe"
-
-;"/epoc32/release/armv5/udeb/xqsystemtoneservice.dll"         -"!:/sys/bin/xqsystemtoneservice.dll"
-"/epoc32/release/armv5/udeb/sts_testapp.exe"         -"!:/sys/bin/sts_testapp.exe"
-"/epoc32/data/z/resource/apps/sts_testapp.rsc"    - "!:\resource\apps\sts_testapp.rsc"
-"/epoc32/data/z/private/10003a3f/import/apps/sts_testapp_reg.rsc"    - "!:\private\10003a3f\import\apps\sts_testapp_reg.rsc"
+"/epoc32/release/armv5/urel/SystemToneServiceEx2.exe"         -"!:/sys/bin/SystemToneServiceEx.exe"
+"/epoc32/data/z/resource/apps/SystemToneServiceEx2.rsc"    - "!:\resource\apps\SystemToneServiceEx2.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/SystemToneServiceEx2_reg.rsc"    - "!:\private\10003a3f\import\apps\SystemToneServiceEx2_reg.rsc"

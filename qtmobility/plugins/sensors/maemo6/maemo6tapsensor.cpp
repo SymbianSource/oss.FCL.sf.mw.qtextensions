@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -41,7 +41,7 @@
 
 #include "maemo6tapsensor.h"
 
-#include "sensord/filters/tapdata.h"
+#include <tapdata.h>
 
 const char *maemo6tapsensor::id("maemo6.tapsensor");
 bool maemo6tapsensor::m_initDone = false;
@@ -101,7 +101,6 @@ void maemo6tapsensor::slotDataAvailable(const Tap& data)
     }
     m_reading.setTapDirection(o);
 
-    //m_reading.setTimestamp(data.timestamp());
-    m_reading.setTimestamp(createTimestamp()); //TODO: use correct timestamp
+    m_reading.setTimestamp(data.tapData().timestamp_);
     newReadingAvailable();
 }

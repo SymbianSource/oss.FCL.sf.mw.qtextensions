@@ -40,7 +40,8 @@
 XQAiwServiceDriver::XQAiwServiceDriver(const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
     : XQAiwRequestDriver(),
       currentRequest(NULL),
-      asyncErrorSet(false)
+      completeSignalConnected(false),
+      errorSignalConnected(false)
     {
     mErrorMsg = "";
     mDescr = descriptor; 
@@ -58,10 +59,13 @@ XQAiwServiceDriver::~XQAiwServiceDriver()
 {
     XQSERVICE_DEBUG_PRINT("~XQAiwServiceDriver::XQAiwServiceDriver");
 
-    // Disconnect error
-    if (asyncErrorSet)
+    // Disconnect signals
+    if (completeSignalConnected)
     {
         disconnect(currentRequest, SIGNAL(requestCompleted(const QVariant&)), this, SLOT(handleAsyncResponse(const QVariant&)));
+    }
+    if (errorSignalConnected)
+    {
         disconnect(currentRequest, SIGNAL(requestError(int)), this, SLOT(handleAsyncError(int)));
     }
     
@@ -143,15 +147,19 @@ bool XQAiwServiceDriver::send(QVariant& retValue)
     
     QStringList list;
     bool res = true;
-    if (!currentRequest->isSynchronous() && !asyncErrorSet)
+    if (!currentRequest->isSynchronous() && !completeSignalConnected)
     {
-        // Async request 
+        // Async request. Connect signal only once
         XQSERVICE_DEBUG_PRINT("request::async send");
         connect(currentRequest, SIGNAL(requestCompleted(const QVariant&)), this, SLOT(handleAsyncResponse(const QVariant&)));
-        connect(currentRequest, SIGNAL(requestError(int)), this, SLOT(handleAsyncError(int)));
-        asyncErrorSet = true;
+        completeSignalConnected = true;
     }
-
+    if (!errorSignalConnected)
+    {
+        // Connect error signal only once
+        connect(currentRequest, SIGNAL(requestError(int)), this, SLOT(handleAsyncError(int)));
+        errorSignalConnected = true;
+    }
     
     XQSERVICE_DEBUG_PRINT("request::send>>>");
     res = currentRequest->send(retValue);  // Result is valid for sync request only

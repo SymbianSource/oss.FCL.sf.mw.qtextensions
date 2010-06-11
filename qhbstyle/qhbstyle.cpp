@@ -28,15 +28,12 @@
 //Qt widgets
 #include <QtGui/qgroupbox.h>
 #include <QtGui/qheaderview.h>
-#include <QtGui/qlistwidget.h>
 #include <QtGui/qlistview.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qscrollbar.h>
 #include <QtGui/qtabbar.h>
 #include <QtGui/qtableview.h>
-#include <QtGui/qtablewidget.h>
 #include <QtGui/qtreeview.h>
-#include <QtGui/qtreewidget.h>
 #include <QtGui/qtextedit.h>
 #include <QtGui/qtoolbar.h>
 #include <QtGui/qtoolbutton.h>
@@ -66,18 +63,14 @@
 
 QT_BEGIN_NAMESPACE
 
-QHbStylePrivate::QHbStylePrivate()
+QHbStylePrivate::QHbStylePrivate() : m_styleManager(0),
+    m_frameDrawer(new HbFrameDrawer),
+    m_animationGroup(new QParallelAnimationGroup)
 {
-    m_frameDrawer = 0;
-    m_styleManager = 0;
-
-    m_animationGroup = q_check_ptr(new QParallelAnimationGroup());
 }
 
 QHbStylePrivate::~QHbStylePrivate()
 {
-    delete m_frameDrawer;
-    delete m_animationGroup;
 }
 
 HbStyle* QHbStylePrivate::styleManager()
@@ -93,7 +86,7 @@ void QHbStylePrivate::setStyleManager(HbStyle* style)
 
 QParallelAnimationGroup* QHbStylePrivate::animationGroup()
 {
-    return m_animationGroup;
+    return m_animationGroup.data();
 }
 
 /*!
@@ -158,12 +151,11 @@ void QHbStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *optio
                 state |= SS_Focused;
             if (vopt->state & State_Sunken || vopt->state & State_Raised)
                 state |= SS_Pressed;
-#ifndef QT_NO_TREEVIEW
-                if (qobject_cast<const QTreeWidget*>(widget)) {
-                    if (option->state & State_Children) {
-                        m_private->drawMultiPartItem(SM_ListParent, painter, vopt->rect, state);
-                        break;
-                    }
+
+#ifndef QT_NO_TABLEVIEW
+                if (qobject_cast<const QTableView *>(widget)) {
+                    m_private->drawMultiPartItem(SM_TableItem, painter, vopt->rect, state);
+                    break;
                 }
 #endif
             if (vopt->features & QStyleOptionViewItemV2::Alternate)
@@ -219,7 +211,7 @@ void QHbStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *optio
 #ifndef QT_NO_LINEEDIT
         case PE_PanelLineEdit: {
 #ifndef QT_NO_COMBOBOX
-            if (widget && qobject_cast<const QComboBox *>(widget->parentWidget()))
+            if ( (widget && qobject_cast<const QComboBox *>(widget->parentWidget()) ) && (!widget->hasFocus()))
                 break;
 #endif
 #ifndef QT_NO_SPINBOX
@@ -280,16 +272,17 @@ void QHbStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *optio
             if (const QStyleOptionFocusRect *highlight = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
                 if (false
 #ifndef QT_NO_LISTVIEW
-                        || qobject_cast<const QListWidget *>(widget)
+                        || qobject_cast<const QListView *>(widget)
 #endif
 #ifndef QT_NO_TABLEVIEW
-                        || qobject_cast<const QTableWidget *>(widget)
+                        || qobject_cast<const QTableView *>(widget)
 #endif
 #ifndef QT_NO_TREEVIEW
-                        || qobject_cast<const QTreeWidget *>(widget)
+                        || qobject_cast<const QTreeView *>(widget)
 #endif
                     )
-                    m_private->drawMultiPartItem(SM_ItemViewHighlight, painter, highlight->rect);
+                    if (option->state & State_HasFocus)
+                        m_private->drawMultiPartItem(SM_ItemViewItem, painter, highlight->rect, SS_Focused);
             }
             break;
         }
@@ -373,13 +366,16 @@ void QHbStyle::drawControl(ControlElement element, const QStyleOption *option,
             break;
         }
         case CE_ItemViewItem: {
+        //@todo: headerviews and listviews should show selection tick at the beginning of the row (in place of checkbox rect)
+        //@todo: headerview should select also parent when child is selected
+        //@todo: headerview should draw highlight rect
             if (const QStyleOptionViewItemV4 *itemOption = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option)) {
                 const QRect checkRect = subElementRect(SE_ItemViewItemCheckIndicator, itemOption, widget);
                 const QRect iconRect = subElementRect(SE_ItemViewItemDecoration, itemOption, widget);
                 QRect textRect = subElementRect(SE_ItemViewItemText, itemOption, widget);
 
                 //background for list items (other itemviews use PE_PanelItemViewRow drawing)
-                if (qobject_cast<const QListWidget *>(widget))
+                if (qobject_cast<const QListView *>(widget))
                     proxy()->drawPrimitive(PE_PanelItemViewItem, itemOption, painter, widget);
 
                 //checkbox
@@ -393,7 +389,7 @@ void QHbStyle::drawControl(ControlElement element, const QStyleOption *option,
                 //selection indication
                 if (itemOption->state & State_Selected) {
                     const QAbstractItemView *itemView = qobject_cast<const QAbstractItemView *>(widget);
-                    if (itemView->selectionMode() != QAbstractItemView::SingleSelection) {
+                    if (itemView->selectionMode() != QAbstractItemView::NoSelection) {
                         QStyleOptionViewItemV4 selectOption;
                         selectOption.QStyleOption::operator=(*itemOption);
                         int iconSize = 0;
@@ -881,7 +877,43 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
         case CC_ComboBox: {
             if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
                 const QRect cmbxFrame = cmb->rect;
-                ItemStates state = SS_Active;
+
+                const bool isDisabled = !(cmb->state & State_Enabled);
+                ItemStates state = (isDisabled) ? SS_Disabled : SS_Active;
+
+                if (cmb->state & State_Active &&
+                    cmb->state & State_Enabled &&
+                    !cmb->state & State_HasFocus &&
+                    !cmb->state & State_MouseOver &&
+                    !cmb->state & State_Selected) {
+                    state |= SS_Active;
+                }
+                if (cmb->state & State_Active &&
+                    cmb->state & State_Enabled &&
+                    cmb->state & State_On &&
+                    !cmb->state & State_HasFocus &&
+                    !cmb->state & State_MouseOver &&
+                    !cmb->state & State_Selected) {
+                    state |= SS_Active;
+                }
+                else if (cmb->state & State_Active &&
+                         cmb->state & State_Enabled &&
+                         cmb->state & State_HasFocus &&
+                         cmb->state & State_MouseOver &&
+                         cmb->state & State_Selected) {
+                    state |= SS_Pressed;
+                }
+                else if (cmb->state & State_Active &&
+                         cmb->state & State_Enabled &&
+                         cmb->state & State_HasFocus &&
+                         cmb->state & State_MouseOver) {
+                    state |= SS_Pressed;
+                }
+               /* else if (cmb->state & State_Active &&
+                         cmb->state & State_Enabled &&
+                         cmb->state & State_Sunken) {
+                    state |= SS_Pressed;
+                }*/
 
                 // Button frame
                 QStyleOptionFrame  buttonOption;
@@ -891,42 +923,24 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
                 const int topLeftPoint = (cmb->direction == Qt::LeftToRight) ? (cmbxFrame.width() - buttonMaxWidth) : 0;
 
                 const QRect buttonRect(topLeftPoint, cmbxFrame.top(), buttonMaxHeight, buttonMaxWidth);
-                buttonOption.rect = buttonRect;
-                buttonOption.state = cmb->state;
-                ItemStates buttonState = (buttonOption.state & State_Sunken) ? ItemStates(SS_Pressed  | SS_Active) : ItemStates(SS_Active);
-                if (cmb->direction == Qt::RightToLeft)
-                    buttonState |= SS_Mirrored;
-                if (buttonOption.state & State_HasFocus) {
-                    buttonState |= SS_Selected;
-                    state |= SS_Selected; //set frame status to follow button status for highlight
+                if (cmb->direction == Qt::RightToLeft){
+
+                    state |= SS_Mirrored;
                 }
 
-                m_private->drawItem(SP_BoxButton, painter, buttonRect.adjusted(0, 1, 0, -1), buttonState); //@todo: remove magic
-
                 if (cmb->subControls & SC_ComboBoxFrame) {
-                    const bool isDisabled = !(cmb->state & State_Enabled);
-                    const bool isPressed = (cmb->state & State_Sunken);
-                    const bool isEditable = cmb->editable;
 
-                    if (isDisabled)
-                        state = SS_Disabled;
-                    else if (isPressed)
-                        state |= SS_Pressed;
-                    if (isEditable)
-                        state |= SS_Edited;
                     QRect frameRect = QRect(cmb->rect);
                     int frameWidth = pixelMetric(PM_DefaultFrameWidth);
                     int maxRight = cmb->rect.height() - 2 * frameWidth;
                     frameRect.adjust(0, 0, -maxRight, 0);
-                    int adjustX = 0;
-                    if (option->direction == Qt::RightToLeft) {
-                        adjustX = buttonOption.rect.topRight().x();
-                        state |= SS_Mirrored;
-                    }
+
                     const QRect frame = subControlRect(CC_ComboBox, option, SC_ComboBoxFrame, widget);
-                    // @todo: if SC_ComboBoxFrame needs adjusting, move that code to subControlRect
-                    m_private->drawMultiPartItem(SM_BoxFrame, painter, frame.adjusted(adjustX, 1, -4 + adjustX, -1), state);
+                    //Draw the frame
+                    m_private->drawMultiPartItem(SM_BoxFrame, painter, frame, state);
                 }
+                //Draw the dropdown button
+                m_private->drawItem(SP_BoxButton, painter, buttonRect, state); //@todo: remove magic
             }
             break;
         }
@@ -1008,32 +1022,75 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
                         v = nextInterval;
                     }
                 }
-                 QRect filledRect;
-                 if ( horizontal ){
-                    const int sliderPosition = sliderHandle.center().x();
-                    const int sliderWidth = sliderHandle.width()/2;
+
+                QRect filledRect;
+                QRect filledRectMask;
+                if ( horizontal ){
                     if (slider && (slider->layoutDirection() == Qt::LeftToRight) ^ slider->invertedAppearance()){
-                        filledRect = QRect(sliderGroove.x(), sliderGroove.y(), sliderPosition+sliderWidth, sliderGroove.height());
-                     } else {
-                        filledRect = QRect(sliderGroove.x()+sliderPosition-sliderWidth, sliderGroove.y(), sliderGroove.width()-sliderPosition+sliderWidth, sliderGroove.height());
-                     }
-                 } else {
-                    const int sliderPosition = sliderHandle.center().y();
-                    const int sliderHeight = sliderHandle.height()/2;
-                     if (slider && (slider->layoutDirection() == Qt::LeftToRight) ^ slider->invertedAppearance()){
-                        filledRect = QRect(sliderGroove.x(), sliderGroove.y()+sliderPosition-sliderHeight, sliderGroove.width(), sliderGroove.height()-sliderPosition+sliderHeight);
-                     } else {
-                        filledRect = QRect(sliderGroove.x(), sliderGroove.y(), sliderGroove.width(), sliderPosition+sliderHeight);
-                     }
-                  }
+                        filledRect = QRect( sliderGroove.x(),
+                                            sliderGroove.y(),
+                                            qMax(sliderGroove.width()-sliderHandle.right(), sliderHandle.right()),
+                                            sliderGroove.height());
 
-                //Groove
-                m_private->drawMultiPartItem(SM_SliderGroove, painter, sliderGroove, grooveState);
+                        int x = qMin(sliderHandle.left(), sliderGroove.x() + sliderGroove.width()-sliderHandle.right());
+                        filledRectMask = QRect(x,
+                                               sliderGroove.y(),
+                                               sliderGroove.width()-x,
+                                               sliderGroove.height());
+                    } else {
+                        filledRect = QRect( qMin(sliderGroove.width()-sliderHandle.left(),sliderHandle.left()),
+                                            sliderGroove.y(),
+                                            qMax(sliderGroove.width()-sliderHandle.left(), sliderHandle.left()),
+                                            sliderGroove.height());
 
-                //Progress
-                m_private->drawMultiPartItem(SM_SliderProgress, painter, filledRect, grooveState | SS_Filled);
+                        filledRectMask = QRect( sliderGroove.x(),
+                                                sliderGroove.y(),
+                                                qMax(sliderGroove.width()-sliderHandle.right(), sliderHandle.right()),
+                                                sliderGroove.height());
 
-                 //handle
+                    }
+                } else {
+                    if (slider && (slider->layoutDirection() == Qt::LeftToRight) ^ slider->invertedAppearance()){
+                        filledRect = QRect(sliderGroove.x(),
+                                           qMin(sliderGroove.height()-sliderHandle.top(), sliderHandle.top()),
+                                           sliderGroove.width(),
+                                           qMax(sliderGroove.height()-sliderHandle.top(), sliderHandle.top()));
+
+                        filledRectMask = QRect(sliderGroove.x(),
+                                               sliderGroove.y(),
+                                               sliderGroove.width(),
+                                               qMax(sliderGroove.height()-sliderHandle.bottom(), sliderHandle.bottom()));
+                    } else {
+                        filledRect = QRect(sliderGroove.x(),
+                                           sliderGroove.y(),
+                                           sliderGroove.width(),
+                                           qMax(sliderGroove.height()-sliderHandle.bottom(),sliderHandle.bottom()));
+
+                        int y = qMin(sliderHandle.top(), sliderGroove.y() + sliderGroove.height()-sliderHandle.bottom());
+                        filledRectMask = QRect( sliderGroove.x(),
+                                                y,
+                                                sliderGroove.width(),
+                                                sliderGroove.height()-y );
+                    }
+                }
+
+                if (filledRect.width() <  filledRectMask.width() || filledRect.height() <  filledRectMask.height()){
+                    // Progress + groove
+                    m_private->drawMultiPartItem(SM_SliderGroove, painter, filledRect, grooveState );
+                    m_private->drawMultiPartItem(SM_SliderProgress, painter, filledRect, grooveState | SS_Filled);
+
+                    // Groove
+                    m_private->drawMultiPartItem(SM_SliderGroove, painter, filledRectMask, grooveState);
+                } else {
+                    // Groove
+                    m_private->drawMultiPartItem(SM_SliderGroove, painter, filledRectMask, grooveState);
+
+                    // Progess + groove
+                    m_private->drawMultiPartItem(SM_SliderGroove, painter, filledRect, grooveState );
+                    m_private->drawMultiPartItem(SM_SliderProgress, painter, filledRect, grooveState | SS_Filled);
+                }
+
+                //handle
                 m_private->drawItem(SP_SliderHandle, painter, sliderHandle, handleState);
             }
             break;
@@ -1194,28 +1251,29 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
                 const QRect spinboxButtonDownRect = subControlRect(control, optionSpinbox, SC_SpinBoxDown, widget);
                 const QRect spinboxEditorRect = subControlRect(control, optionSpinbox, SC_SpinBoxEditField, widget);
 
-                QStyleOptionSpinBox copy = *optionSpinbox;
-
                 //Frame & background
                 const bool isDisabled = !(optionSpinbox->state & State_Enabled);
                 ItemStates state = (isDisabled) ? SS_Disabled : SS_Active;
                 if (optionSpinbox->state & State_HasFocus)
                     state |= SS_Selected;
-                m_private->drawMultiPartItem(SM_BoxFrame, painter, spinboxEditorRect, state);
+                //Draw the rounded border of edit field frame under button, half spin button width
+                //Label drawn to spinboxEditorRect
+                m_private->drawMultiPartItem(SM_BoxFrame, painter, spinboxEditorRect.adjusted((-0.5*spinboxButtonDownRect.width()),0,0,0), state);
 
+
+                QStyle::State buttonState;
                 //Buttons
                 if (optionSpinbox->subControls & SC_SpinBoxUp) {
-                    copy.subControls = SC_SpinBoxUp;
                     if (!(optionSpinbox->stepEnabled & QAbstractSpinBox::StepUpEnabled))
-                        copy.state &= ~State_Enabled;
+                        buttonState &= ~State_Enabled;
                     if (optionSpinbox->activeSubControls == SC_SpinBoxUp && (optionSpinbox->state & State_Sunken)) {
-                        copy.state |= State_On;
-                        copy.state |= State_Sunken;
+                        buttonState |= State_On;
+                        buttonState |= State_Sunken;
                     } else {
-                        copy.state |= State_Raised;
-                        copy.state &= ~State_Sunken;
+                        buttonState |= State_Raised;
+                        buttonState &= ~State_Sunken;
                     }
-                    const bool isPressed = (copy.state & State_Sunken);
+                    const bool isPressed = (buttonState & State_Sunken);
                     ItemStates upButtonState = (isPressed) ? ItemStates(SS_Pressed  | SS_Active) : ItemStates(SS_Active);
                     if (optionSpinbox->direction == Qt::RightToLeft)
                         upButtonState = upButtonState | SS_Flipped;
@@ -1223,23 +1281,22 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
                         upButtonState = upButtonState | SS_Flipped | SS_Mirrored;
                     if (optionSpinbox->state & State_HasFocus)
                         upButtonState |= SS_Selected;
-                    if (!(copy.state & State_Enabled))
+                    if (!(optionSpinbox->stepEnabled & QAbstractSpinBox::StepUpEnabled))
                         upButtonState |= SS_Disabled;
                     m_private->drawItem(SP_BoxButton, painter, spinboxButtonUpRect, upButtonState);
                 }
 
                 if (optionSpinbox->subControls & SC_SpinBoxDown) {
-                    copy.subControls = SC_SpinBoxDown;
                     if (!(optionSpinbox->stepEnabled & QAbstractSpinBox::StepDownEnabled))
-                        copy.state &= ~State_Enabled;
+                        buttonState &= ~State_Enabled;
                     if (optionSpinbox->activeSubControls == SC_SpinBoxDown && (optionSpinbox->state & State_Sunken)) {
-                        copy.state |= State_On;
-                        copy.state |= State_Sunken;
+                        buttonState |= State_On;
+                        buttonState |= State_Sunken;
                     } else {
-                        copy.state |= State_Raised;
-                        copy.state &= ~State_Sunken;
+                        buttonState |= State_Raised;
+                        buttonState &= ~State_Sunken;
                     }
-                    const bool isPressed = (copy.state & State_Sunken);
+                    const bool isPressed = (buttonState & State_Sunken);
                     ItemStates downButtonState = (isPressed) ? ItemStates(SS_Pressed  | SS_Active) : ItemStates(SS_Active);
                     if (optionSpinbox->direction == Qt::RightToLeft)
                         downButtonState = downButtonState;
@@ -1247,7 +1304,7 @@ void QHbStyle::drawComplexControl(ComplexControl control, const QStyleOptionComp
                         downButtonState = downButtonState | SS_Mirrored;
                     if (optionSpinbox->state & State_HasFocus)
                         downButtonState |= SS_Selected;
-                    if (!(copy.state & State_Enabled))
+                    if (!(optionSpinbox->stepEnabled & QAbstractSpinBox::StepDownEnabled))
                         downButtonState |= SS_Disabled;
                     m_private->drawItem(SP_BoxButton, painter, spinboxButtonDownRect, downButtonState);
                 }
@@ -1301,6 +1358,14 @@ QRect QHbStyle::subElementRect(SubElement element, const QStyleOption *option, c
     const QRect baseSize = QCommonStyle::subElementRect(element, option, widget);
     QRect elementSize = baseSize;
     switch (element) {
+        case SE_LineEditContents: {
+            qreal metric = 0;
+            m_private->styleManager()->parameter(QLatin1String("hb-param-margin-gene-middle-horizontal"), metric);
+            const int metricValue = metric + 0.5;
+            elementSize = visualRect(
+                option->direction, option->rect, option->rect.adjusted(metricValue, 0, 0, 0));
+            }
+            break;
         case SE_ItemViewItemText: {
             if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
                 elementSize = menuItem->rect;
@@ -1316,17 +1381,27 @@ QRect QHbStyle::subElementRect(SubElement element, const QStyleOption *option, c
                 elementSize.setWidth(menuItem->rect.width() - widthMod);
             } else if (const QStyleOptionViewItemV4 *itemView = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option)) {
                 elementSize = itemView->rect;
-                const QRect iconRect = subElementRect(SE_ItemViewItemDecoration, option, widget);
-                const QRect checkBoxRect = subElementRect(SE_ViewItemCheckIndicator, option, widget);
-                const int indicatorSpacing = proxy()->pixelMetric(PM_LayoutHorizontalSpacing, option, widget);
-                int totalXMod = qMax(0, qMax((checkBoxRect.isValid() ? checkBoxRect.topRight().x() : 0),
-                                     (iconRect.isValid() ? iconRect.topRight().x() : 0)));
-                const int widthMod = checkBoxRect.width() + iconRect.width() + indicatorSpacing;
-                totalXMod = (itemView->direction == Qt::LeftToRight) ? qMax(0, totalXMod - elementSize.topLeft().x()): 0;
-                totalXMod += indicatorSpacing;
-                elementSize.translate(totalXMod, 0);
-                elementSize.setWidth(itemView->rect.width() - widthMod);
-                elementSize = visualRect(itemView->direction, itemView->rect, elementSize);
+                if (itemView->decorationPosition == QStyleOptionViewItem::Left ||
+                    itemView->decorationPosition == QStyleOptionViewItem::Right) {
+                    const QRect iconRect = subElementRect(SE_ItemViewItemDecoration, option, widget);
+                    const QRect checkBoxRect = subElementRect(SE_ViewItemCheckIndicator, option, widget);
+                    const int indicatorSpacing = proxy()->pixelMetric(PM_LayoutHorizontalSpacing, option, widget);
+                    int totalXMod = qMax(0, qMax((checkBoxRect.isValid() ? checkBoxRect.topRight().x() : 0),
+                                         (iconRect.isValid() ? iconRect.topRight().x() : 0)));
+                    const int widthMod = checkBoxRect.width() + iconRect.width() + indicatorSpacing;
+                    totalXMod = (itemView->direction == Qt::LeftToRight) ? qMax(0, totalXMod - elementSize.topLeft().x()): 0;
+                    totalXMod += indicatorSpacing;
+                    elementSize.translate(totalXMod, 0);
+                    elementSize.setWidth(itemView->rect.width() - widthMod);
+                    elementSize = visualRect(itemView->direction, itemView->rect, elementSize);
+                } else {
+                    const QRect iconRect = subElementRect(SE_ItemViewItemDecoration, option, widget);
+                    const bool decoratorOnTop = (itemView->decorationPosition == QStyleOptionViewItem::Top);
+                    if (decoratorOnTop)
+                        elementSize.translate(0, iconRect.height());
+                    else
+                        elementSize.translate(0, -iconRect.height());
+                }
             }
             break;
         }
@@ -1423,16 +1498,28 @@ QRect QHbStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt
                         QRect frameRect = QRect(cmb->rect);
                         int frameWidth = pixelMetric(PM_DefaultFrameWidth, cmb, widget);
                         int maxRight = cmb->rect.height() - 2 * frameWidth;
-                        frameRect.adjust(0, 0, -maxRight, 0);
+                        if(cmb->direction == Qt::RightToLeft) {
+                            frameRect.adjust(+ 0.25 * buttonWidth, 0, -0.25 * buttonWidth, 0);
+                        }else{
+                            frameRect.adjust(0, 0, -maxRight-4, 0);
+                        }
                         elementSize = frameRect;
                         break;
                     }
                     case SC_ComboBoxEditField: {
-                        const int withFrameX = cmb->rect.x() + cmb->rect.width() - frameThickness - buttonSize.width();
+                        int withFrameX = 0;
+                        int offSet = 0;
+                        if(cmb->direction == Qt::RightToLeft) {
+                            withFrameX = cmb->rect.x() + cmb->rect.width() - frameThickness;
+                            offSet = buttonWidth;
+                        }
+                        else{
+                            withFrameX = cmb->rect.x() + cmb->rect.width() - frameThickness - buttonSize.width();
+                        }
                         elementSize = QRect(
-                            frameThickness,
+                            frameThickness + offSet,
                             frameThickness - 2,
-                            withFrameX - frameThickness,
+                            withFrameX - frameThickness - offSet,
                             cmb->rect.height() - 2 * frameThickness );
                         break;
                     }
@@ -1648,27 +1735,32 @@ QRect QHbStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt
         case CC_SpinBox: {
             if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
                 const int buttonIconSize = pixelMetric(PM_ButtonIconSize);
-                const int buttonWidth = qMax(spinbox->rect.height(), buttonIconSize);
+                // Spinbox buttons should be no larger than one fourth of total width.
+                const int maxSize = qMax(spinbox->rect.width() / 4, buttonIconSize + 4); //@magic
+                QSize buttonSize;
+                buttonSize.setHeight(qMin(maxSize, qMax(8, spinbox->rect.height())));
+                buttonSize.setWidth(buttonSize.height()); //make buttons square
+
                 switch (sc) {
                     case SC_SpinBoxFrame:
-                         elementSize = option->rect.adjusted(0, 0, -buttonWidth + 5, 0);
+                         elementSize = option->rect.adjusted(0, 0, -buttonSize.width() + 5, 0); //@magic
                          break;
                     case SC_SpinBoxDown: {
                         if (option->direction == Qt::RightToLeft)
-                            elementSize = QRect(option->rect.right() - buttonWidth, option->rect.y(),buttonWidth, option->rect.height());
+                            elementSize = QRect(option->rect.right() - buttonSize.width(), option->rect.y(), buttonSize.width(), option->rect.height());
                         else
-                            elementSize = QRect( option->rect.x(), option->rect.y(), buttonWidth,option->rect.height());
+                            elementSize = QRect(option->rect.x(), option->rect.y(), buttonSize.width(), option->rect.height());
                     }
                     break;
                     case SC_SpinBoxUp: {
                         if (option->direction == Qt::RightToLeft)
-                            elementSize = QRect( option->rect.x(), option->rect.y(), buttonWidth,option->rect.height());
+                            elementSize = QRect(option->rect.x(), option->rect.y(), buttonSize.width(), option->rect.height());
                         else
-                            elementSize = QRect(option->rect.right() - buttonWidth,option->rect.y(),buttonWidth,option->rect.height());
+                            elementSize = QRect(option->rect.right() - buttonSize.width(), option->rect.y(), buttonSize.width(), option->rect.height());
                     }
                     break;
                     case SC_SpinBoxEditField:
-                        elementSize = option->rect.adjusted(buttonWidth, 0, -buttonWidth, 0);
+                        elementSize = option->rect.adjusted(buttonSize.width(), 0, -buttonSize.width(), 0);
                         break;
                     default:
                         break;
@@ -2195,6 +2287,8 @@ QPixmap QHbStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpti
 
 void QHbStyle::polish(QWidget *widget)
 {
+    QCommonStyle::polish(widget);
+
     if (!widget)
         return;
 
@@ -2211,8 +2305,7 @@ void QHbStyle::polish(QWidget *widget)
     }
 
     m_private->polishFont(widget);
-
-    QCommonStyle::polish(widget);
+    m_private->polishPalette(widget);
 
 #ifndef QT_NO_PROGRESSBAR
     if (qobject_cast<QProgressBar *>(widget))
@@ -2228,66 +2321,6 @@ void QHbStyle::polish(QApplication *app)
 void QHbStyle::polish(QPalette &palette)
 {
     QCommonStyle::polish(palette);
-
-    palette.setBrush(QPalette::Disabled, QPalette::WindowText, QColor(QRgb(0xff808080)));
-    palette.setBrush(QPalette::Disabled, QPalette::Button, QColor(QRgb(0xffdddfe4)));
-    palette.setBrush(QPalette::Disabled, QPalette::Light, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::Midlight, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Disabled, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Disabled, QPalette::BrightText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::ButtonText, QColor(QRgb(0xff808080)));
-    palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffefefef)));
-    palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).darker(110));
-    palette.setBrush(QPalette::Disabled, QPalette::Window, QColor(QRgb(0xffefefef)));
-    palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
-    palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::Link, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
-    palette.setBrush(QPalette::Disabled, QPalette::ToolTipBase, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Disabled, QPalette::ToolTipText, QColor(QRgb(0xff52188b)));
-
-    palette.setBrush(QPalette::Active, QPalette::WindowText, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Button, QColor(QRgb(0xffdddfe4)));
-    palette.setBrush(QPalette::Active, QPalette::Light, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::Midlight, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Active, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Active, QPalette::Text, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::ButtonText, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xE4E4E4)));
-    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).darker(110));
-    palette.setBrush(QPalette::Active, QPalette::Window, QColor(QRgb(0xffefefef)));
-    palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xffE4E4E4)));
-    palette.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
-    palette.setBrush(QPalette::Active, QPalette::ToolTipBase, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Active, QPalette::ToolTipText, QColor(QRgb(0xff52188b)));
-
-    palette.setBrush(QPalette::Inactive, QPalette::WindowText, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Button, QColor(QRgb(0xffdddfe4)));
-    palette.setBrush(QPalette::Inactive, QPalette::Light, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Midlight, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Inactive, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Inactive, QPalette::Text, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::ButtonText, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).darker(110));
-    palette.setBrush(QPalette::Inactive, QPalette::Window, QColor(QRgb(0xffefefef)));
-    palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
-    palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Link, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
-    palette.setBrush(QPalette::Inactive, QPalette::ToolTipBase, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Inactive, QPalette::ToolTipText, QColor(QRgb(0xff52188b)));
 }
 
 void QHbStyle::unpolish(QWidget *widget)
@@ -2391,19 +2424,14 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
             break;
         }
         case SP_ComputerIcon: {
-            iconName = QLatin1String("qtg_mono_mobile");
+            iconName = QLatin1String("qtg_small_mobile");
             break;
         }
-        case SP_DriveFDIcon: {
-            break;
-        }
-        case SP_DriveHDIcon: {
-            break;
-        }
-        case SP_DriveCDIcon: {
-            break;
-        }
+        case SP_DriveFDIcon:
+        case SP_DriveHDIcon:
+        case SP_DriveCDIcon:
         case SP_DriveDVDIcon: {
+            iconName = QLatin1String("qtg_large_mmc");
             break;
         }
         case SP_DriveNetIcon: {
@@ -2419,15 +2447,18 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
             break;
         }
         case SP_FileIcon: {
+            iconName = QLatin1String("qtg_large_notes");
             break;
         }
         case SP_FileLinkIcon: {
             break;
         }
         case SP_ToolBarHorizontalExtensionButton: {
+            iconName = QLatin1String("qtg_mono_more");
             break;
         }
         case SP_ToolBarVerticalExtensionButton: {
+            iconName = QLatin1String("qtg_mono_more");
             break;
         }
         case SP_FileDialogStart: {
@@ -2446,6 +2477,7 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
             break;
         }
         case SP_FileDialogInfoView: {
+            iconName = QLatin1String("qtg_large_info");
             break;
         }
         case SP_FileDialogContentsView: {
@@ -2461,12 +2493,14 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
             break;
         }
         case SP_DialogOkButton: {
+            iconName = QLatin1String("qtg_large_ok");
             break;
         }
         case SP_DialogCancelButton: {
             break;
         }
         case SP_DialogHelpButton: {
+            iconName = QLatin1String("qtg_large_help");
             break;
         }
         case SP_DialogOpenButton: {
@@ -2479,12 +2513,14 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
             break;
         }
         case SP_DialogApplyButton: {
+            iconName = QLatin1String("qtg_large_ok");
             break;
         }
         case SP_DialogResetButton: {
             break;
         }
         case SP_DialogDiscardButton: {
+            iconName = QLatin1String("qtg_small_fail");
             break;
         }
         case SP_DialogYesButton: {
@@ -2564,7 +2600,7 @@ QIcon QHbStyle::standardIconImplementation(StandardPixmap standardIcon, const QS
 
     QIcon icon;
     if (!iconName.isNull()) {
-        HbIcon* hbicon = q_check_ptr(new HbIcon(iconName));
+        HbIcon* hbicon = new HbIcon(iconName);
         hbicon->setSize(iconRect.size());
         icon =  QIcon(hbicon->qicon());
         delete hbicon;
@@ -2645,9 +2681,9 @@ void QHbStyle::animateControl(ControlElement element, const QStyleOption *option
                          }
                      }
                      if (!alreadyAnimated) {
-                         QHbStyleAnimation* target = q_check_ptr(new QHbStyleAnimation(const_cast<QProgressBar*>(bar)));
+                         QHbStyleAnimation* target = new QHbStyleAnimation(const_cast<QProgressBar*>(bar));
                          target->createAnimationIcon(CE_ProgressBarContents, bar->orientation());
-                         QPropertyAnimation* animation = q_check_ptr(new QPropertyAnimation(target, "point"));
+                         QPropertyAnimation* animation = new QPropertyAnimation(target, "point");
                          animation->setLoopCount(-1); //run until stopped
                          const int chunk = pixelMetric(PM_ProgressBarChunkWidth, option, widget)-1;
                          if (bar->orientation()== Qt::Horizontal) {
@@ -2769,11 +2805,11 @@ bool QHbStylePrivate::drawItem(Item part, QPainter *painter, const QRect &rect, 
             break;
         }
         case SP_TreeViewExpanded: {
-            iconName = QLatin1String("qtg_small_hl_opened");
+            iconName = QLatin1String("qtg_small_expand");
             break;
         }
         case SP_TreeViewCollapsed: {
-            iconName = QLatin1String("qtg_small_hl_closed");
+            iconName = QLatin1String("qtg_small_collapse");
             break;
         }
         case SP_SubMenuIndicator:
@@ -2782,7 +2818,7 @@ bool QHbStylePrivate::drawItem(Item part, QPainter *painter, const QRect &rect, 
         }
     }
     if (!iconName.isNull() && !rect.isEmpty()) {
-        HbIcon *icon = q_check_ptr(new HbIcon(iconName));
+        HbIcon *icon = new HbIcon(iconName);
         icon->setSize(rect.size());
         if (color.spec() != QColor::Invalid)
             icon->setColor(color);
@@ -2809,8 +2845,8 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
 {
     //Q_Q(QHbStyle);
 
-    if (!m_frameDrawer)
-        m_frameDrawer = q_check_ptr(new HbFrameDrawer());
+    if (m_frameDrawer.isNull())
+        m_frameDrawer.reset(new HbFrameDrawer());
 
     HbFrameDrawer::FrameType frameType = HbFrameDrawer::Undefined;
     QString frameName;
@@ -2858,28 +2894,22 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             frameType = HbFrameDrawer::NinePieces;
             break;
         }
-        case SM_ItemViewHighlight: {
-            frameName = QLatin1String("qtg_fr_list_highlight");
-            frameType = HbFrameDrawer::NinePieces;
-            break;
-        }
         case SM_ItemViewItem: {
             if (state & SS_Pressed)
                 frameName = QLatin1String("qtg_fr_list_pressed");
             else if (state & SS_Focused)
                 frameName = QLatin1String("qtg_fr_list_highlight");
-            else
-                frameName = QLatin1String("qtg_fr_list_normal");
             frameType = HbFrameDrawer::NinePieces;
             styleManager()->parameter(QLatin1String("hb-param-background-list-main"), border);
             break;
         }
+        case SM_TextEdit: //@todo: fallthrough for now, since no specific graphic for editors in releases
         case SM_LineEdit: {
             styleManager()->parameter(QLatin1String("hb-param-background-editor"), border);
             if (state & SS_Selected)
-                frameName = QLatin1String("qtg_fr_editor_highlight");
+                frameName = QLatin1String("qtg_fr_lineedit_highlight");
             else
-                frameName = QLatin1String("qtg_fr_editor_normal");
+                frameName = QLatin1String("qtg_fr_lineedit_normal");
             frameType = HbFrameDrawer::NinePieces;
             break;
         }
@@ -2918,7 +2948,7 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             break;
         }
         case SM_Panel: {
-            frameName = QLatin1String("qtg_fr_settingform");
+            frameName = QLatin1String("qtg_fr_groupbox_normal");
             frameType = HbFrameDrawer::NinePieces;
             styleManager()->parameter(QLatin1String("hb-param-background-list-main"), border);
             break;
@@ -2945,6 +2975,16 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             }
             break;
         }
+        //@todo: enable separate graphic for texteditor. Graphic was not included in the wk12 release.
+        /*case SM_TextEdit: {
+            styleManager()->parameter(QLatin1String("hb-param-background-editor"), border);
+            if (state & SS_Selected)
+                frameName = QLatin1String("qtg_fr_textedit_highlight");
+            else
+                frameName = QLatin1String("qtg_fr_textedit_normal");
+            frameType = HbFrameDrawer::NinePieces;
+            break;
+        }*/
         case SM_ToolButton: {
             frameType = HbFrameDrawer::ThreePiecesHorizontal;
             frameGraphicsHeader = QLatin1String("qtg_fr_tb_h_");
@@ -3040,6 +3080,15 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             }
             break;
         }
+        case SM_TableItem: {
+            if (state & SS_Pressed)
+                frameName = QLatin1String("qtg_fr_grid_pressed");
+            else if (state & SS_Focused)
+                frameName = QLatin1String("qtg_fr_grid_highlight");
+            frameType = HbFrameDrawer::NinePieces;
+            styleManager()->parameter(QLatin1String("hb-param-background-list-main"), border);
+            break;
+        }
         case SM_TabShape: {
             if (state & SS_Horizontal) {
                 frameType = HbFrameDrawer::ThreePiecesHorizontal;
@@ -3075,12 +3124,6 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
                 frameGraphicsFooter = QLatin1String("normal");
             break;
         }
-        case SM_TextEdit: { //@todo: combine this and  case SM_LineEdit to "case SM_TextEditor"?
-            styleManager()->parameter(QLatin1String("hb-param-background-editor"), border);
-            frameName = QLatin1String("qtg_fr_editor");
-            frameType = HbFrameDrawer::NinePieces;
-            break;
-        }
         case SM_ToolBarButton: {
             if (state & SS_Horizontal) {
                 frameType = HbFrameDrawer::ThreePiecesHorizontal;
@@ -3110,6 +3153,13 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             styleManager()->parameter(QLatin1String("hb-param-background-button"), border);
             break;
         }
+        case SM_ToolBarExtension:{
+//            fillRect = true;
+//            styleManager()->parameter(QLatin1String("hb-param-background-editor"), border);
+            frameName = QLatin1String("qtg_fr_tb_ext");
+            frameType = HbFrameDrawer::NinePieces;
+            }
+            break;
         case SM_ToolTip: {
             fillRect = true;
             frameType = HbFrameDrawer::NinePieces;
@@ -3117,7 +3167,6 @@ bool QHbStylePrivate::drawMultiPartItem(MultiPartItem multiPart, QPainter *paint
             break;
         }
         case SM_HeaderItem:
-        case SM_TableItem:
         case SM_ThemeBackground:
         case SM_ToolBar:
         default: {
@@ -3277,7 +3326,7 @@ void QHbStylePrivate::polishFont(QWidget *widget)
         valueFound = styleManager()->parameter(QLatin1String("hb-param-text-height-tiny"), fontSize);
     }
 
-    HbFontSpec *fontSpec = q_check_ptr(new HbFontSpec(fontRole));
+    HbFontSpec *fontSpec = new HbFontSpec(fontRole);
     if (valueFound) {
         fontSpec->setTextHeight(fontSize);
         QFont widgetFont = fontSpec->font();
@@ -3285,6 +3334,31 @@ void QHbStylePrivate::polishFont(QWidget *widget)
         widget->setFont(widgetFont);
     }
     delete fontSpec;
+}
+
+void QHbStylePrivate::polishPalette(QWidget *widget)
+{
+    QPalette widgetPalette = widget->palette();
+    if (false
+#ifndef QT_NO_TEXTEDIT
+        || qobject_cast<QTextEdit *>(widget)
+#endif
+    ) {
+        widgetPalette.setColor(QPalette::Active, QPalette::Highlight, HbColorScheme::color("qtc_lineedit_marker_normal"));
+        widgetPalette.setColor(QPalette::Active, QPalette::HighlightedText, HbColorScheme::color("qtc_lineedit_selected"));
+        widgetPalette.setColor(QPalette::Active, QPalette::Text, HbColorScheme::color("qtc_lineedit_normal"));
+        //QTextEdits have specific graphic in QHbStyle for background
+        widgetPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
+    } else if (false
+#ifndef QT_NO_LINEEDIT
+        || qobject_cast<QLineEdit *>(widget)
+#endif
+        ) {
+        widgetPalette.setColor(QPalette::Active, QPalette::Highlight, HbColorScheme::color("qtc_lineedit_marker_normal"));
+        widgetPalette.setColor(QPalette::Active, QPalette::HighlightedText, HbColorScheme::color("qtc_lineedit_selected"));
+        widgetPalette.setColor(QPalette::Active, QPalette::Text, HbColorScheme::color("qtc_lineedit_normal"));
+    }
+    widget->setPalette(widgetPalette);
 }
 
 QT_END_NAMESPACE

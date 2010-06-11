@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -62,7 +62,7 @@ maemo6magnetometer::maemo6magnetometer(QSensor *sensor)
         addDataRate(43, 43); // 43Hz
         sensor->setDataRate(43);
         addOutputRange(-0.000614, 0.000614, 0.0000003); // -600 ... 600 mikroteslas, 0.3 uT resolution
-        setDescription(QLatin1String("Magnetic flux density measured in teslas"));
+        setDescription(QLatin1String("Measures magnetic flux density measured in teslas"));
 
         m_initDone = true;
     }
@@ -82,7 +82,6 @@ void maemo6magnetometer::slotDataAvailable(const MagneticField& data)
         m_reading.setZ( 0.0000003 * data.rz() );
         m_reading.setCalibrationLevel(1);
     }
-    //m_reading.setTimestamp(data.timestamp());
-    m_reading.setTimestamp(createTimestamp()); //TODO: use correct timestamp
+    m_reading.setTimestamp(data.timestamp());
     newReadingAvailable();
 }

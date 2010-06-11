@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -43,8 +43,8 @@
 #define MAEMO6SENSORBASE_H
 
 #include <qsensorbackend.h>
-#include "sensord/sensormanagerinterface.h"
-#include "sensord/abstractsensor_i.h"
+#include <sensormanagerinterface.h>
+#include <abstractsensor_i.h>
 
 QTM_USE_NAMESPACE
 
@@ -75,8 +75,6 @@ protected:
             m_sensorInterface = const_cast<T*>(T::listenInterface(sensorName));
         }
     }
-
-    qtimestamp createTimestamp();
 };
 
 #endif

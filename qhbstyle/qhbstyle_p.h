@@ -65,7 +65,6 @@ enum MultiPartItem {
     SM_GroupBox,
     SM_GroupBoxTitle,
     SM_HeaderItem,
-    SM_ItemViewHighlight,
     SM_ItemViewItem,
     SM_LineEdit,
     SM_ListParent,
@@ -88,6 +87,7 @@ enum MultiPartItem {
     SM_ToolBarButton,
     SM_ToolButton,
     SM_ToolTip,
+    SM_ToolBarExtension,
 };
 
 enum ItemState {
@@ -140,13 +140,12 @@ public:
     bool isDialog(const QWidget *widget);
     bool hbParameter(const QString &parameterName, int &value);
     void polishFont(QWidget *widget);
+    void polishPalette(QWidget *widget);
 
 private:
     HbStyle *m_styleManager;
-    HbFrameDrawer *m_frameDrawer;
-    QParallelAnimationGroup* m_animationGroup;
-
-    //QHbStyle *q_ptr;
+    QScopedPointer<HbFrameDrawer> m_frameDrawer;
+    QScopedPointer<QParallelAnimationGroup> m_animationGroup;
 };
 
 QT_END_NAMESPACE

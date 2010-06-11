@@ -185,8 +185,7 @@ bool XQAiwUriDriver::hasCustomHandler(const QUrl &uri)
     QString scheme = uri.scheme();
     return  (scheme.compare(XQURI_SCHEME_ACTIVITY,Qt::CaseInsensitive) == 0 ||
             scheme.compare(XQURI_SCHEME_HTTP,Qt::CaseInsensitive) == 0 ||
-            scheme.compare(XQURI_SCHEME_HTTPS,Qt::CaseInsensitive) == 0 || 
-            scheme.compare(QLatin1String(XQURI_SCHEME_FILE),Qt::CaseInsensitive) == 0);
+            scheme.compare(XQURI_SCHEME_HTTPS,Qt::CaseInsensitive) == 0);
 }
 
 

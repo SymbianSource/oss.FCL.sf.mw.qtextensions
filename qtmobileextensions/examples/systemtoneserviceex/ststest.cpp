@@ -51,16 +51,16 @@ sts(new XQSystemToneService())
     callbackCleanTimer.setSingleShot(true);
     connect(&callbackCleanTimer, SIGNAL(timeout()), this, SLOT(cleanCallback()));
     
-    QPushButton *quitButton = new QPushButton(tr("QUIT"));
+    QPushButton *quitButton = new QPushButton("QUIT");
     connect(quitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QPushButton *playToneButton = new QPushButton(tr("Play Tone"));
+    QPushButton *playToneButton = new QPushButton("Play Tone");
     connect(playToneButton, SIGNAL(clicked()), this, SLOT(playTone()));
 
-    QPushButton *playAlarmButton = new QPushButton(tr("Play Alarm"));
+    QPushButton *playAlarmButton = new QPushButton("Play Alarm");
     connect(playAlarmButton, SIGNAL(clicked()), this, SLOT(playAlarm()));
 
-    QPushButton *stopAlarmButton = new QPushButton(tr("Stop Alarm"));
+    QPushButton *stopAlarmButton = new QPushButton("Stop Alarm");
     connect(stopAlarmButton, SIGNAL(clicked()), this, SLOT(stopAlarm()));
     
 

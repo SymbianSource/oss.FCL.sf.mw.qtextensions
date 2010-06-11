@@ -145,7 +145,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     mSynchronous->setCheckState(Qt::Checked);
     mGenericSend->setCheckState(Qt::Checked);  // Apply one send() for both embedded/non-embedded
     
-    mReqArg = new QLineEdit("0");
+    mReqArg = new QLineEdit("?");
     
     mTextRetValue = new QLineEdit("no ret value set");
 
@@ -408,12 +408,6 @@ void AppMgrClient::test1()
 
     qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning("com.nokia.services.serviceapp", IDIAL));
     
-    
-    /*
-    mReqArg->setText("77777"); 
-    qDebug() << mAppName <<  " test1 second call";
-    test(&req1, IDIAL, OPERATION1);
-    */
 }
 
 
@@ -475,8 +469,8 @@ void AppMgrClient::test3()
     qDebug() << mAppName << " test3 START";
     
     test(&req3,IDIAL,ERR_OPERATION1);
-    test(&req3,ERR_IDIAL,ERR_OPERATION1);
-    test(&req3,ERR_IDIAL,ERR_OPERATION1);
+    // test(&req3,ERR_IDIAL,ERR_OPERATION1);
+    // test(&req3,ERR_IDIAL,ERR_OPERATION1);
     
     qDebug() << mAppName << " test3 END";
     
@@ -595,10 +589,17 @@ void AppMgrClient::test6()
 {
     qDebug() << mAppName << " test6 START";
 
-    QUrl uri("testto://authority?param1=value1&param1=value2"); 
+    QUrl uri("test2to://authority?param1=value1&param1=value2"); 
+    // QUrl uri(mReqArg->text()); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();
+    
+    if (!uri.isValid())
+    {
+        qDebug() << mAppName << " Invalid URI " << mReqArg->text();
+        return;
+    }
 
     QList<XQAiwInterfaceDescriptor> uriHandlers = appmgr.list(uri);
     // Note : Only services supporting custom property are returned
@@ -613,7 +614,7 @@ void AppMgrClient::test6()
     if (!req6)
     {
         req6 = appmgr.create(uri);
-        connectSignals(req6); 
+        connectSignals(req6);
     }
 
     test(&req6, uri.toString());
@@ -630,8 +631,8 @@ void AppMgrClient::test7()
     // Create test file
     createTestFile("C:/data/Others", "test.txt");
 
-    
-    QFile file("C:/data/Others/test.txt");
+    // Copy files from DrmTestFiles.zip into correct location
+    QFile file("C:/data/Others/one.jpg");
     qDebug() << mAppName << " File=" << file.fileName();
     qDebug() << mAppName << " exists=" << file.exists();
 
@@ -660,7 +661,12 @@ void AppMgrClient::test8()
     qDebug() << mAppName << " test8 START";
 
     // E0022E73 == ServiceApp
-    QUrl uri("http://www.nokia.com"); 
+    QUrl uri("http://www.nokia.com");
+    
+    // Copy files from DrmTestFiles.zip into correct location
+    // Uncomment for "file" scheme testing
+    // QUrl uri("file:///C:/data/Others/one.jpg");
+    
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();

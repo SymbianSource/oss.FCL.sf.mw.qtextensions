@@ -107,9 +107,9 @@ symbian {
     TARGET.CAPABILITY = ALL -TCB
     TARGET.UID3 = 0x2002AC83
 
-#    INCLUDEPATH += $${EPOCROOT}epoc32\include\osextensions \
-#                   $${EPOCROOT}epoc32\include\LBTHeaders \
-#                   $${EPOCROOT}epoc32\include\platform
+    INCLUDEPATH += $${EPOCROOT}epoc32\include\osextensions \
+                   $${EPOCROOT}epoc32\include\LBTHeaders \
+                   $${EPOCROOT}epoc32\include\platform
     LIBS += -llbs
     contains(lbt_enabled, yes) {
         LIBS += -llbt

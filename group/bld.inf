@@ -27,6 +27,7 @@ TOOLS2
 PRJ_EXPORTS
 qtextensionsconfig.xml  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
 qtextensions_pre_targetdep.flm /epoc32/tools/makefile_templates/qt/qtextensions_pre_targetdep.flm
+qtmobilityheaders.flm /epoc32/tools/makefile_templates/qt/qtmobilityheaders.flm
 
 ../qtecomplugins/mkspecs/features/ecomplugin.prf /epoc32/tools/qt/mkspecs/features/symbian/ecomplugin.prf
 ../qtecomplugins/supplements/xqecom/xqecom.py    /epoc32/tools/xqecom.py
@@ -42,4 +43,6 @@ PRJ_TESTMMPFILES
 
 
 PRJ_EXTENSIONS
-
+START EXTENSION qt/qtmobilityheaders
+OPTION MODULES bearer location serviceframework publishsubscribe systeminfo messaging sensors
+END

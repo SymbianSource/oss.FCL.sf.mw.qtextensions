@@ -33,6 +33,7 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QMessageBox>
+#include <QUrl>
 #include <xqsharablefile.h>
 
 #include "serviceapp.h"
@@ -741,7 +742,18 @@ void NewUriService::complete(bool ok)
 bool NewUriService::view(const QString& uri)
 {
     XQSERVICE_DEBUG_PRINT("NewUriService::view(1)");
-    return view(uri, true);
+    QUrl url(uri);
+    XQSERVICE_DEBUG_PRINT("NewUriService::scheme=%s", qPrintable(url.scheme()));
+    if (url.scheme() == QLatin1String("testto"))
+    {
+        XQSERVICE_DEBUG_PRINT("NewUriService::return true");
+        return view(uri, true);
+    }
+    else
+    {
+        XQSERVICE_DEBUG_PRINT("NewUriService::return false");
+        return view(uri, false);
+    }
 }
 
 bool NewUriService::view(const QString& uri, bool retValue)
@@ -763,8 +775,10 @@ bool NewUriService::view(const QString& uri, bool retValue)
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
-
-    return retValue;
+    else
+    {
+        return retValue;
+    }
 }
 
 void NewUriService::handleClientDisconnect()

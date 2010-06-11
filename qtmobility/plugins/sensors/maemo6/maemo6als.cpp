@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -52,7 +52,7 @@ maemo6als::maemo6als(QSensor *sensor)
         initSensor<ALSSensorChannelInterface>("alssensor");
 
         if (m_sensorInterface)
-            QObject::connect(static_cast<const ALSSensorChannelInterface*>(m_sensorInterface), SIGNAL(ALSChanged(const int&)), this, SLOT(slotDataAvailable(const int&)));
+            QObject::connect(static_cast<const ALSSensorChannelInterface*>(m_sensorInterface), SIGNAL(ALSChanged(const Unsigned&)), this, SLOT(slotDataAvailable(const Unsigned&)));
         else
             qWarning() << "Unable to initialize ambient light sensor.";
 
@@ -60,35 +60,34 @@ maemo6als::maemo6als(QSensor *sensor)
         addDataRate(1, 1); // 1Hz
         sensor->setDataRate(1);
         addOutputRange(0, 5, 1);
-        setDescription(QLatin1String("Ambient light intensity given as 5 pre-defined levels"));
+        setDescription(QLatin1String("Measures ambient light intensity given as 5 pre-defined levels"));
 
         m_initDone = true;
     }
 }
 
-void maemo6als::slotDataAvailable(const int& data)
+void maemo6als::slotDataAvailable(const Unsigned& data)
 {
     // Convert from integer to fixed levels
     // TODO: verify levels
     QAmbientLightReading::LightLevel level;
-    if (data < 0) {
+    int x = data.x();
+    if (x < 0) {
         level = QAmbientLightReading::Undefined;
-    } else if (data < 10) {
+    } else if (x < 10) {
         level = QAmbientLightReading::Dark;
-    } else if (data < 50) {
+    } else if (x < 50) {
         level = QAmbientLightReading::Twilight;
-    } else if (data < 100) {
+    } else if (x < 100) {
         level = QAmbientLightReading::Light;
-    } else if (data < 150) {
+    } else if (x < 150) {
         level = QAmbientLightReading::Bright;
     } else {
         level = QAmbientLightReading::Sunny;
     }
-
     if (level != m_reading.lightLevel()) {
         m_reading.setLightLevel(level);
-        //m_reading.setTimestamp(data.timestamp());
-        m_reading.setTimestamp(createTimestamp()); //TODO: use correct timestamp
+        m_reading.setTimestamp(data.UnsignedData().timestamp_);
         newReadingAvailable();
     }
 }

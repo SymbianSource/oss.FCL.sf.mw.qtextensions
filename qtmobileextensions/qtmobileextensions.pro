@@ -23,9 +23,8 @@ CONFIG += ordered
 SUBDIRS = src/settingsmanager \
           src/sysinfo \
           src/utils \
-          src/keycapture 
-# Excluded for build for now as dependencies are not met:
-#          src/systemtoneservice
+          src/keycapture \
+          src/systemtoneservice
 
 symbian {
 BLD_INF_RULES.prj_exports += "./src/settingsmanager/settingsmanager_global.h               $$MW_LAYER_PLATFORM_EXPORT_PATH(settingsmanager_global.h)"
