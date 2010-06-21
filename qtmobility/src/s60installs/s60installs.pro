@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-symbian: {
+isEmpty(QT_LIBINFIX):symbian {
     include(../../staticconfig.pri)
     load(data_caging_paths)
     include($$QT_MOBILITY_BUILD_TREE/config.pri)
@@ -8,11 +8,8 @@ symbian: {
     SUBDIRS =
     TARGET = "QtMobility"
     TARGET.UID3 = 0x2002AC89
-    # TP preview 0.1.0
-    # Beta 0.2.0
-    # Final 1.0.0
 
-    VERSION = 1.0.0
+    VERSION = 1.0.1
 
     vendorinfo = \
         "; Localised Vendor name" \
@@ -59,9 +56,14 @@ symbian: {
         qtmobilitydeployment.pkg_postrules += bearer
     }
     
+    !isEmpty(pluginstubs):qtmobilitydeployment.pkg_postrules += pluginstubs
+
     qtmobilitydeployment.path = /sys/bin
 
     DEPLOYMENT += qtmobilitydeployment
     
     #BLD_INF_RULES.prj_exports += "./qtmobility.iby           $$CORE_MW_LAYER_IBY_EXPORT_PATH(qtmobility.iby)"
+
+} else {
+    message(Deployment of infixed library names not supported)
 }

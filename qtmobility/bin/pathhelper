@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/perl
 #############################################################################
 ##
 ## Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
@@ -40,25 +40,20 @@
 ##
 #############################################################################
 
-#convenient script to execute all unit tests
+use strict;
+use warnings;
+use Cwd;
+use Cwd "abs_path";
 
-shell=`readlink -f "$0"`;
-shell_path=`dirname $shell`;
+my $path = shift(@ARGV) or usage();
+my $resolvedpath = abs_path($path);
+print "$resolvedpath\n";
 
-SAVED_PWD=$PWD;
-if [ ! -d "$shell_path/../build/tests/bin" ]; then
-    echo -e 'Unit tests have not been built.'
-    echo -e 'Please run configure with the -tests switch.'
-    exit
-fi
-cd $shell_path/../build/tests/bin
+exit 0;
 
-#LD_LIBRARY_PATH=$shell_path/../lib:$LD_LIBRARY_PATH
-
-#BearerManagement
-./tst_qnetworkconfiguration
-./tst_qnetworkconfigurationmanager
-./tst_qnetworksession
-
-cd $SAVED_PWD
-
+sub usage
+{
+    warn " Usage:  pathhelper <path>\n";
+    warn "         Converts <path> to an absolute path and returns it to the caller\n";
+    exit 2;
+}

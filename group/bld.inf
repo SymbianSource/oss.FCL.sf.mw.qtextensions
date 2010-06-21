@@ -25,7 +25,10 @@ PRJ_PLATFORMS
 TOOLS2
 
 PRJ_EXPORTS
+qtextensionsconfig.xml  /epoc32/tools/makefile_templates/qt/qtextensionsconfig.xml
+qtmobilityheaders.flm /epoc32/tools/makefile_templates/qt/qtmobilityheaders.flm
 ../qtmobility/features/mobility.prf            /epoc32/tools/qt/mkspecs/features/mobility.prf
+../qtmobility/features/mobilityconfig.prf        /epoc32/tools/qt/mkspecs/features/mobilityconfig.prf
 
 //For UDA image
 ../qtmobility/confml/qtmobility.confml         CONFML_EXPORT_PATH(qtmobility.confml,uda_content)
@@ -40,4 +43,6 @@ PRJ_TESTMMPFILES
 
 
 PRJ_EXTENSIONS
-
+START EXTENSION qt/qtmobilityheaders
+OPTION MODULES bearer
+END

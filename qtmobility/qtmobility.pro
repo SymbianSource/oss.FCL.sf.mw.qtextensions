@@ -1,45 +1,10 @@
-
-#This is a temporary workaround for internal Symbian builds
-#QT_MAJOR_VERSION et al are not set
-symbian {
-    isEmpty(QT_MAJOR_VERSION)  {
-         exists($${EPOCROOT}epoc32/data/z/system/install/Series60v5.2.sis) {
-           QT_MAJOR_VERSION=4;
-           QT_MINOR_VERSION=6;
-           QT_PATCH_VERSION=0;
-        }
-    }
-}
-
-# config.pri specifies the configure options
+# config.pri specifies the configure options and is pulled in via staticconfig.pri
 include(staticconfig.pri)
 !include($$QT_MOBILITY_BUILD_TREE/config.pri) {
     error("Please run configure script");
     #also fails if .qmake.cache was not generated which may
     #happen if we are trying to shadow build w/o running configure
 }
-
-#creating qbuildcfg header
-!exists($$QT_MOBILITY_BUILD_TREE/src/global){
-	message("creating qbuildcfg header")
-	symbian|win32|wince*{
-		system($$QMAKE_MKDIR $$QT_MOBILITY_BUILD_TREE\src\global)
-	}
-	else{
-		system($$QMAKE_MKDIR $$QT_MOBILITY_BUILD_TREE/src/global)
-	}
-}
-	
-QCFGH_OUTPUT=$$QT_MOBILITY_BUILD_TREE/src/global/qbuildcfg.h
-mobilityprefixpath = $$QT_MOBILITY_PREFIX
-symbian|win32|wince*{
-	mobilityprefixpath = $$replace(mobilityprefixpath, \\\, \\\\)
-	system(echo static const char qt_mobility_configure_prefix_path_str [512 + 12] = \"$$mobilityprefixpath\\0\"; > $$QCFGH_OUTPUT)
-}
-else{
-	system(echo static const char qt_mobility_configure_prefix_path_str [512 + 12] = '\\\"$$mobilityprefixpath\\\0\\\"\;' > $$QCFGH_OUTPUT)
-}
-
 
 #don't build QtMobility if chosen config mismatches Qt's config
 win32:!contains(CONFIG_WIN32,build_all) {
@@ -78,17 +43,25 @@ contains(QT_MAJOR_VERSION, 4):lessThan(QT_MINOR_VERSION, 6) {
     win32:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
     symbian:system(type $${QT_MOBILITY_SOURCE_TREE}\features\mobility.prf.template >> $$PRF_OUTPUT)
 
+    PRF_CONFIG=$${QT_MOBILITY_BUILD_TREE}/features/mobilityconfig.prf
+    system(echo MOBILITY_CONFIG=$${mobility_modules} > $$PRF_CONFIG)
+
     #symbian does not generate make install rule. we have to copy prf manually 
     symbian {
         FORMATDIR=$$[QT_INSTALL_DATA]\mkspecs\features
         FORMATDIR=$$replace(FORMATDIR,/,\\ )
         system(copy "$${QT_MOBILITY_BUILD_TREE}\features\mobility.prf $$FORMATDIR")
+        system(copy "$${QT_MOBILITY_BUILD_TREE}\features\mobilityconfig.prf $$FORMATDIR")
     }
+
+    # install config file
+    config.path = $$[QT_INSTALL_DATA]/mkspecs/features
+    config.files = $$QT_MOBILITY_BUILD_TREE/features/mobilityconfig.prf
 
     # install feature file
     feature.path = $$[QT_INSTALL_DATA]/mkspecs/features
     feature.files = $$QT_MOBILITY_BUILD_TREE/features/mobility.prf
-    INSTALLS += feature
+    INSTALLS += feature config
 }
 
 TEMPLATE = subdirs
@@ -99,8 +72,60 @@ SUBDIRS += src
 contains(build_unit_tests, yes):SUBDIRS+=tests
 contains(build_examples, yes):SUBDIRS+=examples
 
+#updating and deployment of translations requires Qt 4.6.3/qtPrepareTool
+!symbian:defined(qtPrepareTool):SUBDIRS += translations
+
 # install Qt style headers
 qtmheaders.path = $${QT_MOBILITY_INCLUDE}
-qtmheaders.files = $${QT_MOBILITY_BUILD_TREE}/include/*
 
-INSTALLS += qtmheaders
+!symbian {
+    qtmheaders.files = $${QT_MOBILITY_BUILD_TREE}/include/QtmBearer/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmContacts/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmLocation/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmMessaging/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtMultimedia/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmPubSub/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmServiceFramework/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmVersit/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmSystemInfo/* \
+                         $${QT_MOBILITY_BUILD_TREE}/include/QtmSensors/*
+    INSTALLS += qtmheaders
+} else {
+    #absolute path does not work and so is shadow building for Symbian
+    qtmAppHeaders = include/QtmContacts/* \
+                          include/QtmVersit/*
+
+    qtmMwHeaders = include/QtmBearer/* \
+                       include/QtmLocation/* \
+                       include/QtmMessaging/* \
+                       include/QtMultimedia/* \
+                       include/QtmPubSub/* \
+                       include/QtmServiceFramework/* \
+                       include/QtmSystemInfo/* \
+                       include/QtmSensors/*
+
+    contains(mobility_modules,contacts|versit) {
+        for(api, qtmAppHeaders) {
+            INCLUDEFILES=$$files($$api);
+            #files() attaches a ';' at the end which we need to remove
+            cleanedFiles=$$replace(INCLUDEFILES, ;,)
+            for(header, cleanedFiles) {
+                exists($$header):
+                    BLD_INF_RULES.prj_exports += "$$header $$APP_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
+            }
+        }
+    }
+
+    contains(mobility_modules,serviceframework|location|bearer|publishsubscribe|systeminfo|multimedia|messaging) {
+        for(api, qtmMwHeaders) {
+            INCLUDEFILES=$$files($$api);
+            #files() attaches a ';' at the end which we need to remove
+            cleanedFiles=$$replace(INCLUDEFILES, ;,)
+            for(header, cleanedFiles) {
+                exists($$header):
+                    BLD_INF_RULES.prj_exports += "$$header $$MW_LAYER_PUBLIC_EXPORT_PATH($$basename(header))"
+            }
+        }
+    }
+}
+

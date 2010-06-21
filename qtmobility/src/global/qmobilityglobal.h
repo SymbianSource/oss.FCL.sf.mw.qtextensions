@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -42,13 +42,13 @@
 #define QMOBILITYGLOBAL_H
 
 
-#define QTM_VERSION_STR   "1.0.0"
+#define QTM_VERSION_STR   "1.0.1"
 /*
    QTM_VERSION is (major << 16) + (minor << 8) + patch.
 */
-#define QTM_VERSION 0x010000
+#define QTM_VERSION 0x010001
 /*
-   can be used like #if (QTM_VERSION >= QTM_VERSION_CHECK(1, 0, 0))
+   can be used like #if (QTM_VERSION >= QTM_VERSION_CHECK(1, 0, 1))
 */
 #define QTM_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
@@ -105,10 +105,10 @@
 #      else
 #        define Q_MESSAGING_EXPORT Q_DECL_IMPORT
 #      endif
-#      if defined(QT_BUILD_MEDIA_LIB)
-#        define Q_MEDIA_EXPORT Q_DECL_EXPORT
+#      if defined(QT_BUILD_MULTIMEDIA_LIB)
+#        define Q_MULTIMEDIA_EXPORT Q_DECL_EXPORT
 #      else
-#        define Q_MEDIA_EXPORT Q_DECL_IMPORT
+#        define Q_MULTIMEDIA_EXPORT Q_DECL_IMPORT
 #      endif
 #      if defined(QT_BUILD_SFW_LIB)
 #        define Q_SERVICEFW_EXPORT Q_DECL_EXPORT
@@ -131,7 +131,7 @@
 #      define Q_CONTACTS_EXPORT Q_DECL_IMPORT
 #      define Q_VERSIT_EXPORT Q_DECL_IMPORT
 #      define Q_LOCATION_EXPORT Q_DECL_IMPORT
-#      define Q_MEDIA_EXPORT Q_DECL_IMPORT
+#      define Q_MULTIMEDIA_EXPORT Q_DECL_IMPORT
 #      define Q_MESSAGING_EXPORT Q_DECL_IMPORT
 #      define Q_SERVICEFW_EXPORT Q_DECL_IMPORT
 #      define Q_SYSINFO_EXPORT Q_DECL_IMPORT
@@ -146,7 +146,7 @@
 #      define Q_CONTACTS_EXPORT Q_DECL_EXPORT
 #      define Q_VERSIT_EXPORT Q_DECL_EXPORT
 #      define Q_LOCATION_EXPORT Q_DECL_EXPORT
-#      define Q_MEDIA_EXPORT Q_DECL_EXPORT
+#      define Q_MULTIMEDIA_EXPORT Q_DECL_EXPORT
 #      define Q_MESSAGING_EXPORT Q_DECL_EXPORT
 #      define Q_SERVICEFW_EXPORT Q_DECL_EXPORT
 #      define Q_SYSINFO_EXPORT Q_DECL_EXPORT
@@ -157,7 +157,7 @@
 #      define Q_CONTACTS_EXPORT
 #      define Q_VERSIT_EXPORT
 #      define Q_LOCATION_EXPORT
-#      define Q_MEDIA_EXPORT
+#      define Q_MULTIMEDIA_EXPORT
 #      define Q_MESSAGING_EXPORT
 #      define Q_SERVICEFW_EXPORT
 #      define Q_SYSINFO_EXPORT
