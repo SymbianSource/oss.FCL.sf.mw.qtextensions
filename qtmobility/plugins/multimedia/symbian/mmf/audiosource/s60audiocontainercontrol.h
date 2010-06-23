@@ -42,7 +42,7 @@
 #ifndef S60AUDIOFORMATCONTROL_H
 #define S60AUDIOFORMATCONTROL_H
 
-#include <qmediacontainercontrol.h>
+#include "QMediaContainerControl"
 #include <QtCore/qstringlist.h>
 
 

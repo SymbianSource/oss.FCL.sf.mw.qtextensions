@@ -63,7 +63,7 @@
 #define XQOP_EMAIL_MESSAGE_VIEW   QLatin1String("viewMessage(QVariant,QVariant,QVariant)")
 
 #define XQI_EMAIL_MESSAGE_SEND   QLatin1String("com.nokia.symbian.IEmailMessageSend")
-#define XQOP_EMAIL_MESSAGE_SEND   QLatin1String("send(QMap)")
+#define XQOP_EMAIL_MESSAGE_SEND   QLatin1String("send(QVariant)")
 
 #define XQI_EMAIL_REGISTER_ACCOUNT   QLatin1String("com.nokia.symbian.IEmailRegisterAccount")
 #define XQOP_EMAIL_REGISTER_ACCOUNT   QLatin1String("registerNewMailbox(quint64,QString,QString)")

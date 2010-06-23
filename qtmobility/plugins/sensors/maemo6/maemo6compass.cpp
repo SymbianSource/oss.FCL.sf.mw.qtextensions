@@ -41,34 +41,31 @@
 
 #include "maemo6compass.h"
 
-const char *maemo6compass::id("maemo6.compass");
+char const * const maemo6compass::id("maemo6.compass");
 bool maemo6compass::m_initDone = false;
 
 maemo6compass::maemo6compass(QSensor *sensor)
     : maemo6sensorbase(sensor)
 {
-    setReading<QCompassReading>(&m_reading);
+    const QString sensorName = "compasssensor";
+    initSensor<CompassSensorChannelInterface>(sensorName, m_initDone);
 
-    if (!m_initDone) {
-        initSensor<CompassSensorChannelInterface>("compasssensor");
-
-        if (m_sensorInterface) {
-            QObject::connect(static_cast<CompassSensorChannelInterface*>(m_sensorInterface), SIGNAL(dataAvailable(const Compass&)), this, SLOT(dataAvailable(const Compass&)));
-        } else {
-            qWarning() << "Unable to initialize compass sensor.";            
-        }
-
-        // metadata TODO accuracy
-        addDataRate(43, 43); // 43Hz
-        sensor->setDataRate(43);
-        addOutputRange(0, 359, 1);
-        setDescription(QLatin1String("Measures compass north in degrees"));
- 
-        m_initDone = true;
+    if (m_sensorInterface){
+        if (!(QObject::connect(m_sensorInterface, SIGNAL(dataAvailable(const Compass&)),
+                               this, SLOT(slotDataAvailable(const Compass&)))))
+            qWarning() << "Unable to connect "<< sensorName;
     }
+    else
+        qWarning() << "Unable to initialize "<<sensorName;
+
+    setReading<QCompassReading>(&m_reading);
+    // metadata
+    addDataRate(1, 130); // 43 Hz
+    addOutputRange(0, 359, 1);
+    setDescription(QLatin1String("Measures compass north in degrees"));
 }
 
-void maemo6compass::dataAvailable(const Compass& data)
+void maemo6compass::slotDataAvailable(const Compass& data)
 {
     // The scale for level is [0,3], where 3 is the best
     // Qt: Measured as a value from 0 to 1 with higher values being better.

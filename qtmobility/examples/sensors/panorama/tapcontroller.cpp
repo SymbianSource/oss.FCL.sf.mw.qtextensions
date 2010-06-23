@@ -1,28 +1,30 @@
 
 
 #include "tapcontroller.h"
+#include <QDebug>
+
 
 const qreal TapController::m_timewindow=1000;
 
 
-TapController::TapController(): m_step(20){}
+TapController::TapController(): TimedController(), m_step(20){
+    m_accelerometer.connectToBackend();
+    m_accelerometer.start();
+    connect(&m_accelerometer, SIGNAL(readingChanged()), this, SLOT(updateAcce()));
 
-
-void TapController::startSensor()
-{
     m_tap.connectToBackend();
     m_tap.start();
     connect(&m_tap, SIGNAL(readingChanged()), this, SLOT(update()));
-    m_accelerometer.connectToBackend();
-    m_accelerometer.start();
-    connect(&m_tap, SIGNAL(readingChanged()), this, SLOT(updateAcce()));
+
 }
 
-
-void TapController::stopSensor(){
+TapController::~TapController(){
     m_tap.stop();
+    disconnect(&m_tap);
     m_accelerometer.stop();
+    disconnect(&m_accelerometer);
 }
+
 
 
 void TapController::update()
@@ -46,6 +48,7 @@ void TapController::update()
     case QTapReading::Z_Pos:
     case QTapReading::Z_Neg:
     default:
+        m_dx = 0; m_dy = 0;
         return;
     }    
 
@@ -126,3 +129,4 @@ void TapController::setDy(int direction){
         break;
     }
 }
+

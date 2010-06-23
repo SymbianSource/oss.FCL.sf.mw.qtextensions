@@ -38,10 +38,10 @@ public:
         Qt::KeyboardModifiers aModifier);
     
     bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
     
     bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
     
     bool captureKeyUpAndDowns(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
@@ -57,11 +57,11 @@ public:
     
     bool cancelCaptureLongKey(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType);
+        XQKeyCapture::LongFlags aLongType);
     
     bool cancelCaptureLongKey(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType);
+        XQKeyCapture::LongFlags aLongType);
     
     bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);

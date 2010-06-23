@@ -32,9 +32,9 @@ qtmobilityheaders.flm /epoc32/tools/makefile_templates/qt/qtmobilityheaders.flm
 ../qtecomplugins/mkspecs/features/ecomplugin.prf /epoc32/tools/qt/mkspecs/features/symbian/ecomplugin.prf
 ../qtecomplugins/supplements/xqecom/xqecom.py    /epoc32/tools/xqecom.py
 ../qthighway/bin/service.prf                     /epoc32/tools/qt/mkspecs/features/symbian/service.prf
-../qthighway/bin/xqsreg.exe                      /epoc32/tools/xqsreg.exe
 
 ../qtmobility/features/mobility.prf              /epoc32/tools/qt/mkspecs/features/mobility.prf
+../qtmobility/features/mobilityconfig.prf        /epoc32/tools/qt/mkspecs/features/mobilityconfig.prf
 
 PRJ_MMPFILES
 

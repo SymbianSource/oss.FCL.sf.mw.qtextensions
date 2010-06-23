@@ -1,38 +1,21 @@
-######################################################################
-# XQService Feature
-######################################################################
+!exists($$_PRO_FILE_PWD_/$$SERVICE.FILE) {
+    error("Missing service configuration file '$$_PRO_FILE_PWD_/$$SERVICE.FILE'")
+} else {
+    XQSRESOURCE_FILE_TAIL = _reg.rss
+    XQSRESOURCE_FILE = $$TARGET$$XQSRESOURCE_FILE_TAIL
 
-isEmpty(SERVICE.FILE) {
-	error("Missing service configuration file")
-}
-else {
-	XQSREG = xqsreg.exe
-	XQSRESOURCE_FILE_TAIL=_reg.rss
-	XQSRESOURCE_FILE=$$TARGET$$XQSRESOURCE_FILE_TAIL
-	
-	
-symbian-sbsv2{
+    SERVICE_DETAILS = $$cat( $$_PRO_FILE_PWD_/$$SERVICE.FILE)
+    SERVICE_DETAILS = $$escape_expand($$SERVICE_DETAILS)
+    SERVICE_DETAILS ~= s/\"/\\\"/
 
-	
- myextension = \
-    "START EXTENSION qt/qtextensions_pre_targetdep.export" \
-    "OPTION PREDEP_TARGET $$XQSRESOURCE_FILE" \
-    "OPTION COMMAND $$XQSREG $$TARGET $${TARGET.UID3} $$SERVICE.FILE $$XQSRESOURCE_FILE $$SERVICE.OPTIONS" \
-    "END"
- BLD_INF_RULES.prj_extensions += myextension
-}
+    # The below four section will be removed in the nearest future
+    contains (SERVICE.OPTIONS, embeddable) { RSS_RULES *= "embeddability = KAppEmbeddable;" }	
+    contains (SERVICE.OPTIONS, hidden)     { RSS_RULES *= "hidden = KAppIsHidden;" }
 
-symbian-abld{
+    RSS_RULES *= "newfile = KAppDoesNotSupportNewFile;"
 
-
-  DUMMY = xqs_dummy
-	xqs.output = $$DUMMY
-	XQS_INPUT = .
-	xqs.input = XQS_INPUT
-	xqs.CONFIG = no_link explicit_dependencies
-	xqs.variable_out = SOURCES
-	xqs.commands = $$XQSREG $$TARGET $${TARGET.UID3} $$SERVICE.FILE $$XQSRESOURCE_FILE $$SERVICE.OPTIONS
-	QMAKE_EXTRA_COMPILERS += xqs
-}
-
+    RSS_RULES.header *= "$${LITERAL_HASH}include <xqserviceipcconst.h>"
+    RSS_RULES.header *= "$${LITERAL_HASH}include <eikon.rh>"
+    RSS_RULES.service_list += "uid = KXQServiceUid2; datatype_list = {}; opaque_data = r_service_configuration_reg;"
+    RSS_RULES.footer += "RESOURCE TBUF r_service_configuration_reg " {" buf = \"$$SERVICE_DETAILS\""; " }" 
 }

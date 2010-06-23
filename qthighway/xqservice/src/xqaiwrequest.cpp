@@ -104,8 +104,8 @@ XQAiwRequest::XQAiwRequest(
    }
    else 
    {
-       // This means descriptor is incompete and created for carrying implementation information only.
-       // See XQApplicationManagerPrivate::getAppDescriptor or XQApplicationManagerPrivate::listMimeHandlers
+       // The is no service provider for the file.
+       // So as backup plan, apply file driver to handle non-service file launches
        XQSERVICE_DEBUG_PRINT("Apply file driver");
        currentRequest = new XQAiwFileDriver(file, descriptor, operation);
    }
@@ -133,8 +133,13 @@ XQAiwRequest::XQAiwRequest(
         XQSERVICE_DEBUG_PRINT("Apply service driver");
         currentRequest = new XQAiwServiceDriver(descriptor, operation);
     }
-
-    // No other way to pass sharable file as via service request
+    else 
+    {
+       // The is no service provider for the file.
+       // So as backup plan, apply file driver to handle non-service file launches
+        XQSERVICE_DEBUG_PRINT("Apply file driver");
+        currentRequest = new XQAiwFileDriver(file, descriptor, operation);
+    }
 
 }
 

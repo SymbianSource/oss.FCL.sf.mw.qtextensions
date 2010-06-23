@@ -25,12 +25,12 @@
 
 #include <QFile>
 
-class TestXqKeyCapture : public QObject
+class TestXQKeyCapture : public QObject
 {
     Q_OBJECT
 
 public:
-    TestXqKeyCapture(): QObject(), keyCapture(0) {};
+    TestXQKeyCapture(): QObject(), keyCapture(0) {};
 
 
 private slots:
@@ -122,7 +122,7 @@ private:
 	QString clearString(const QString& line, const QString& prefix, const QString& comment);
     
 private:
-    XqKeyCapture* keyCapture;
+    XQKeyCapture* keyCapture;
 
     Qt::Key aKey;
     Qt::KeyboardModifiers aModifiersMap;
@@ -150,7 +150,7 @@ public slots:
 };
 
 // ======== MEMBER FUNCTIONS ========
-void TestXqKeyCapture::initTestCase()
+void TestXQKeyCapture::initTestCase()
 {
     bool ret = connect( MyTestWindowGroup::Instance(), SIGNAL( windowGroupAction( WindowGroupActionType, QList<unsigned int> )),
             this, SLOT( windowGroupAction( WindowGroupActionType, QList<unsigned int> ) ) );
@@ -161,22 +161,22 @@ void TestXqKeyCapture::initTestCase()
     
 }
 
-void TestXqKeyCapture::cleanupTestCase()
+void TestXQKeyCapture::cleanupTestCase()
 {
     //delete MyTestWindowGroup::Instance();
 }
 
-void TestXqKeyCapture::init()
+void TestXQKeyCapture::init()
 {
-    keyCapture = new XqKeyCapture();
+    keyCapture = new XQKeyCapture();
 }
 
-void TestXqKeyCapture::cleanup()
+void TestXQKeyCapture::cleanup()
 {
     delete keyCapture;
 }
 
-void TestXqKeyCapture::testCreateAndDestroy()
+void TestXQKeyCapture::testCreateAndDestroy()
 {
     //empty, all done in init and cleanup
 }
@@ -185,7 +185,7 @@ void TestXqKeyCapture::testCreateAndDestroy()
 // CAPTURE
 //Capture Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCaptureKey_data()
+void TestXQKeyCapture::testCaptureKey_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -263,7 +263,7 @@ void TestXqKeyCapture::testCaptureKey_data()
 
 }
 
-void TestXqKeyCapture::testCaptureKey()
+void TestXQKeyCapture::testCaptureKey()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKey;
@@ -298,12 +298,12 @@ void TestXqKeyCapture::testCaptureKey()
 //    keyCapture->captureKey( QList<Qt::Key>() << static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCaptureKeyList_data() 
+void TestXQKeyCapture::testCaptureKeyList_data() 
 {
     testCaptureKey_data();
 }
 
-void TestXqKeyCapture::testCaptureKeyList()
+void TestXQKeyCapture::testCaptureKeyList()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKey;
@@ -340,7 +340,7 @@ void TestXqKeyCapture::testCaptureKeyList()
 //Capture Key Up And Downs
 ////////////////////////////////////////////////////////////////
 
-void TestXqKeyCapture::testCaptureKey_S60_data()
+void TestXQKeyCapture::testCaptureKey_S60_data()
 {
     QTest::addColumn<unsigned int>("s60Key");
     QTest::addColumn<unsigned int>("qtMask");
@@ -418,7 +418,7 @@ void TestXqKeyCapture::testCaptureKey_S60_data()
 
 }
 
-void TestXqKeyCapture::testCaptureKey_S60()
+void TestXQKeyCapture::testCaptureKey_S60()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKey;
@@ -450,12 +450,12 @@ void TestXqKeyCapture::testCaptureKey_S60()
     keyCapture->captureKey( static_cast<TUint> (s60Key), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCaptureKeyList_S60_data()
+void TestXQKeyCapture::testCaptureKeyList_S60_data()
 {
     testCaptureKey_S60_data();
 }
 
-void TestXqKeyCapture::testCaptureKeyList_S60()
+void TestXQKeyCapture::testCaptureKeyList_S60()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKey;
@@ -490,7 +490,7 @@ void TestXqKeyCapture::testCaptureKeyList_S60()
 ////////////////////////////////////////////////////////////////
 //Capture Key Up And Downs
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCaptureKeyUpAndDowns_data()
+void TestXQKeyCapture::testCaptureKeyUpAndDowns_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -516,7 +516,7 @@ void TestXqKeyCapture::testCaptureKeyUpAndDowns_data()
                             << static_cast<unsigned int> ( 0 );
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDowns()
+void TestXQKeyCapture::testCaptureKeyUpAndDowns()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKeyUpAndDowns;
@@ -548,12 +548,12 @@ void TestXqKeyCapture::testCaptureKeyUpAndDowns()
     keyCapture->captureKeyUpAndDowns( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDownsList_data()
+void TestXQKeyCapture::testCaptureKeyUpAndDownsList_data()
 {
     testCaptureKeyUpAndDowns_data();
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDownsList()
+void TestXQKeyCapture::testCaptureKeyUpAndDownsList()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKeyUpAndDowns;
@@ -588,7 +588,7 @@ void TestXqKeyCapture::testCaptureKeyUpAndDownsList()
 ////////////////////////////////////////////////////////////////
 //Capture Key Up And Downs
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCaptureKeyUpAndDowns_S60_data()
+void TestXQKeyCapture::testCaptureKeyUpAndDowns_S60_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -614,7 +614,7 @@ void TestXqKeyCapture::testCaptureKeyUpAndDowns_S60_data()
                             << static_cast<unsigned int> ( 0 );
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDowns_S60()
+void TestXQKeyCapture::testCaptureKeyUpAndDowns_S60()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKeyUpAndDowns;
@@ -646,12 +646,12 @@ void TestXqKeyCapture::testCaptureKeyUpAndDowns_S60()
     keyCapture->captureKeyUpAndDowns( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDownsList_S60_data()
+void TestXQKeyCapture::testCaptureKeyUpAndDownsList_S60_data()
 {
     testCaptureKeyUpAndDowns_S60_data();
 }
 
-void TestXqKeyCapture::testCaptureKeyUpAndDownsList_S60()
+void TestXQKeyCapture::testCaptureKeyUpAndDownsList_S60()
 {
     numOfArgs = 3;
     actionType = WGATCaptureKeyUpAndDowns;
@@ -686,7 +686,7 @@ void TestXqKeyCapture::testCaptureKeyUpAndDownsList_S60()
 ////////////////////////////////////////////////////////////////
 //Capture Long Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCaptureLongKey_data()
+void TestXQKeyCapture::testCaptureLongKey_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -708,19 +708,19 @@ void TestXqKeyCapture::testCaptureLongKey_data()
     QTest::newRow("esc_key") << static_cast<unsigned int> ( Qt::Key_Escape ) 
                             << static_cast<unsigned int> ( Qt::NoModifier )
                             << static_cast<unsigned int> ( Qt::NoModifier ) 
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<unsigned int> ( EKeyEscape )
                             << static_cast<unsigned int> ( 0 )
                             << static_cast<unsigned int> ( 0 )
                             << static_cast<int> ( 0 ) //priority
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<long int> ( 12 )
                             << false
                             << static_cast<unsigned int> ( 0 );
 
 }
 
-void TestXqKeyCapture::testCaptureLongKey()
+void TestXQKeyCapture::testCaptureLongKey()
 {
     numOfArgs = 6;
     actionType = WGATCaptureLongKey;
@@ -752,15 +752,15 @@ void TestXqKeyCapture::testCaptureLongKey()
     additionalResults << additionalSymbianKey << symbianMask << symbianModifier << symbianPriority << symbianLongFlags;
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
-    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
-void TestXqKeyCapture::testCaptureLongKeyList_data()
+void TestXQKeyCapture::testCaptureLongKeyList_data()
 {
     testCaptureLongKey_data();
 }
 
-void TestXqKeyCapture::testCaptureLongKeyList()
+void TestXQKeyCapture::testCaptureLongKeyList()
 {
     numOfArgs = 6;
     actionType = WGATCaptureLongKey;
@@ -792,13 +792,13 @@ void TestXqKeyCapture::testCaptureLongKeyList()
     additionalResults << additionalSymbianKey << symbianMask << symbianModifier << symbianPriority << symbianLongFlags;
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
-    keyCapture->captureLongKey( QList<Qt::Key>() << static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( QList<Qt::Key>() << static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
 ////////////////////////////////////////////////////////////////
 //Capture Long Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCaptureLongKey_S60_data()
+void TestXQKeyCapture::testCaptureLongKey_S60_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -820,19 +820,19 @@ void TestXqKeyCapture::testCaptureLongKey_S60_data()
     QTest::newRow("esc_key") << static_cast<unsigned int> ( EKeyEscape ) 
                             << static_cast<unsigned int> ( Qt::NoModifier )
                             << static_cast<unsigned int> ( Qt::NoModifier ) 
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<unsigned int> ( EKeyEscape )
                             << static_cast<unsigned int> ( 0 )
                             << static_cast<unsigned int> ( 0 )
                             << static_cast<int> ( 0 ) //priority
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<long int> ( 12 )
                             << false
                             << static_cast<unsigned int> ( 0 );
 
 }
 
-void TestXqKeyCapture::testCaptureLongKey_S60()
+void TestXQKeyCapture::testCaptureLongKey_S60()
 {
     numOfArgs = 6;
     actionType = WGATCaptureLongKey;
@@ -864,15 +864,15 @@ void TestXqKeyCapture::testCaptureLongKey_S60()
     additionalResults << additionalSymbianKey << symbianMask << symbianModifier << symbianPriority << symbianLongFlags;
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
-    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
-void TestXqKeyCapture::testCaptureLongKeyList_S60_data()
+void TestXQKeyCapture::testCaptureLongKeyList_S60_data()
 {
     testCaptureLongKey_S60_data();
 }
 
-void TestXqKeyCapture::testCaptureLongKeyList_S60()
+void TestXQKeyCapture::testCaptureLongKeyList_S60()
 {
     numOfArgs = 6;
     actionType = WGATCaptureLongKey;
@@ -904,14 +904,14 @@ void TestXqKeyCapture::testCaptureLongKeyList_S60()
     additionalResults << additionalSymbianKey << symbianMask << symbianModifier << symbianPriority << symbianLongFlags;
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
-    keyCapture->captureLongKey( QList<TUint>() << static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( QList<TUint>() << static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
 ////////////////////////////////////////////////////////////////
 // CANCEL
 //Cancel Capture Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureKey_data()
+void TestXQKeyCapture::testCancelCaptureKey_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -967,7 +967,7 @@ void TestXqKeyCapture::testCancelCaptureKey_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureKey()
+void TestXQKeyCapture::testCancelCaptureKey()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKey;
@@ -999,12 +999,12 @@ void TestXqKeyCapture::testCancelCaptureKey()
     keyCapture->cancelCaptureKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyList_data()
+void TestXQKeyCapture::testCancelCaptureKeyList_data()
 {
     testCancelCaptureKey_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyList()
+void TestXQKeyCapture::testCancelCaptureKeyList()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKey;
@@ -1040,7 +1040,7 @@ void TestXqKeyCapture::testCancelCaptureKeyList()
 // CANCEL
 //Cancel Capture Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureKey_S60_data()
+void TestXQKeyCapture::testCancelCaptureKey_S60_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -1096,7 +1096,7 @@ void TestXqKeyCapture::testCancelCaptureKey_S60_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureKey_S60()
+void TestXQKeyCapture::testCancelCaptureKey_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKey;
@@ -1128,12 +1128,12 @@ void TestXqKeyCapture::testCancelCaptureKey_S60()
     keyCapture->cancelCaptureKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyList_S60_data()
+void TestXQKeyCapture::testCancelCaptureKeyList_S60_data()
 {
     testCancelCaptureKey_S60_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyList_S60()
+void TestXQKeyCapture::testCancelCaptureKeyList_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKey;
@@ -1168,7 +1168,7 @@ void TestXqKeyCapture::testCancelCaptureKeyList_S60()
 ////////////////////////////////////////////////////////////////
 //Cancel Capture Key Up And Downs
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_data()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDowns_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -1188,7 +1188,7 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDowns()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKeyUpAndDowns;
@@ -1220,12 +1220,12 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns()
     keyCapture->cancelCaptureKeyUpAndDowns( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList_data()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDownsList_data()
 {
     testCancelCaptureKeyUpAndDowns_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDownsList()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKeyUpAndDowns;
@@ -1260,7 +1260,7 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList()
 ////////////////////////////////////////////////////////////////
 //Cancel Capture Key Up And Downs
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_S60_data()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDowns_S60_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -1280,7 +1280,7 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_S60_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_S60()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDowns_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKeyUpAndDowns;
@@ -1312,12 +1312,12 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDowns_S60()
     keyCapture->cancelCaptureKeyUpAndDowns( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ) );
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList_S60_data()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDownsList_S60_data()
 {
     testCancelCaptureKeyUpAndDowns_S60_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList_S60()
+void TestXQKeyCapture::testCancelCaptureKeyUpAndDownsList_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureKeyUpAndDowns;
@@ -1352,7 +1352,7 @@ void TestXqKeyCapture::testCancelCaptureKeyUpAndDownsList_S60()
 ////////////////////////////////////////////////////////////////
 //Cancel Capture Long Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureLongKey_data()
+void TestXQKeyCapture::testCancelCaptureLongKey_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -1367,7 +1367,7 @@ void TestXqKeyCapture::testCancelCaptureLongKey_data()
     QTest::newRow("esc_key") << static_cast<unsigned int> ( Qt::Key_Escape ) 
                             << static_cast<unsigned int> ( Qt::NoModifier )
                             << static_cast<unsigned int> ( Qt::NoModifier )
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<long int> ( 22 )
                             << false
                             << static_cast<long int> ( 23 );
@@ -1378,7 +1378,7 @@ void TestXqKeyCapture::testCancelCaptureLongKey_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKey()
+void TestXQKeyCapture::testCancelCaptureLongKey()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureLongKey;
@@ -1405,18 +1405,18 @@ void TestXqKeyCapture::testCancelCaptureLongKey()
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
     ignoreWindowGroupAction = true;
-    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
     ignoreWindowGroupAction = false;
     willBeAdditionalRequest = additional;
-    keyCapture->cancelCaptureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->cancelCaptureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKeyList_data()
+void TestXQKeyCapture::testCancelCaptureLongKeyList_data()
 {
     testCancelCaptureLongKey_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKeyList()
+void TestXQKeyCapture::testCancelCaptureLongKeyList()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureLongKey;
@@ -1443,16 +1443,16 @@ void TestXqKeyCapture::testCancelCaptureLongKeyList()
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
     ignoreWindowGroupAction = true;
-    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
     ignoreWindowGroupAction = false;
     willBeAdditionalRequest = additional;
-    keyCapture->cancelCaptureLongKey( QList<Qt::Key>() << static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->cancelCaptureLongKey( QList<Qt::Key>() << static_cast<Qt::Key> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
 ////////////////////////////////////////////////////////////////
 //Cancel Capture Long Key
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testCancelCaptureLongKey_S60_data()
+void TestXQKeyCapture::testCancelCaptureLongKey_S60_data()
 {
     QTest::addColumn<unsigned int>("qtKey");
     QTest::addColumn<unsigned int>("qtMask");
@@ -1467,7 +1467,7 @@ void TestXqKeyCapture::testCancelCaptureLongKey_S60_data()
     QTest::newRow("esc_key") << static_cast<unsigned int> ( EKeyEscape ) 
                             << static_cast<unsigned int> ( Qt::NoModifier )
                             << static_cast<unsigned int> ( Qt::NoModifier )
-                            << static_cast<int> ( XqKeyCapture::LongNormal ) 
+                            << static_cast<int> ( XQKeyCapture::LongNormal ) 
                             << static_cast<long int> ( 22 )
                             << false
                             << static_cast<long int> ( 23 );
@@ -1478,7 +1478,7 @@ void TestXqKeyCapture::testCancelCaptureLongKey_S60_data()
 
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKey_S60()
+void TestXQKeyCapture::testCancelCaptureLongKey_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureLongKey;
@@ -1505,18 +1505,18 @@ void TestXqKeyCapture::testCancelCaptureLongKey_S60()
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
     ignoreWindowGroupAction = true;
-    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
     ignoreWindowGroupAction = false;
     willBeAdditionalRequest = additional;
-    keyCapture->cancelCaptureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->cancelCaptureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKeyList_S60_data()
+void TestXQKeyCapture::testCancelCaptureLongKeyList_S60_data()
 {
     testCancelCaptureLongKey_S60_data();
 }
 
-void TestXqKeyCapture::testCancelCaptureLongKeyList_S60()
+void TestXQKeyCapture::testCancelCaptureLongKeyList_S60()
 {
     numOfArgs = 1;
     actionType = WGATCancelCaptureLongKey;
@@ -1543,10 +1543,10 @@ void TestXqKeyCapture::testCancelCaptureLongKeyList_S60()
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
     ignoreWindowGroupAction = true;
-    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->captureLongKey( static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
     ignoreWindowGroupAction = false;
     willBeAdditionalRequest = additional;
-    keyCapture->cancelCaptureLongKey(QList<TUint>() << static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XqKeyCapture::LongFlags> (longFlags) );
+    keyCapture->cancelCaptureLongKey(QList<TUint>() << static_cast<TUint> (qtKey), Qt::KeyboardModifier( qtMask ), Qt::KeyboardModifier( qtModifier ), static_cast<XQKeyCapture::LongFlags> (longFlags) );
 }
 
 
@@ -1555,7 +1555,7 @@ void TestXqKeyCapture::testCancelCaptureLongKeyList_S60()
 // ERRORS
 //errorString
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testErrorString()
+void TestXQKeyCapture::testErrorString()
 {
     keyCapture->errorString();
 }
@@ -1564,12 +1564,12 @@ void TestXqKeyCapture::testErrorString()
 // ERRORS
 //errorId
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testErrorId()
+void TestXQKeyCapture::testErrorId()
 {
     keyCapture->errorId();
 }
 
-QString TestXqKeyCapture::clearString(const QString& line, const QString& prefix, const QString& comment) {
+QString TestXQKeyCapture::clearString(const QString& line, const QString& prefix, const QString& comment) {
     QString s(line);
     s.replace(prefix, comment);
     s.replace(" ", "");
@@ -1580,7 +1580,7 @@ QString TestXqKeyCapture::clearString(const QString& line, const QString& prefix
 ////////////////////////////////////////////////////////////////
 // TEST KEY MAPPER FILE
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::testKeyMapperFile()
+void TestXQKeyCapture::testKeyMapperFile()
 {
     QString prefix("    keyMapping.append(KeyMapping(");
     QString comment("//");
@@ -1628,7 +1628,7 @@ void TestXqKeyCapture::testKeyMapperFile()
 // REQUEST SLOT
 //windowGroupAction
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::windowGroupAction( WindowGroupActionType wgat, QList<unsigned int> paramList )
+void TestXQKeyCapture::windowGroupAction( WindowGroupActionType wgat, QList<unsigned int> paramList )
 {
     if( !ignoreWindowGroupAction )
     {
@@ -1652,7 +1652,7 @@ void TestXqKeyCapture::windowGroupAction( WindowGroupActionType wgat, QList<unsi
 ////////////////////////////////////////////////////////////////
 //windowGroupActionCancel
 ////////////////////////////////////////////////////////////////
-void TestXqKeyCapture::windowGroupActionCancel( WindowGroupActionType wgat, QList<long int> paramList )
+void TestXQKeyCapture::windowGroupActionCancel( WindowGroupActionType wgat, QList<long int> paramList )
 {
     QVERIFY( wgat == actionType );
     QVERIFY( paramList.count() == numOfArgs );
@@ -1679,13 +1679,13 @@ void TestXqKeyCapture::windowGroupActionCancel( WindowGroupActionType wgat, QLis
     main (int argc, char* argv[]) 
     {
         QApplication app(argc, argv);
-        TestXqKeyCapture tc;
+        TestXQKeyCapture tc;
         int c = 3;
         char* v[] = {argv[0], "-o", "c:/test.txt"};
         return QTest::qExec(&tc, c, v);
     }
 #else
-    QTEST_MAIN(TestXqKeyCapture)
+    QTEST_MAIN(TestXQKeyCapture)
 #endif
 
 #include "test_xqkeycapture.moc"

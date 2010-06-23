@@ -45,7 +45,7 @@ XQSharableFile::~XQSharableFile()
 
 bool XQSharableFile::setHandle(RFile &file)
 {
-    XQSERVICE_DEBUG_PRINT("XQSharableFile::setNativeHandle");
+    XQSERVICE_DEBUG_PRINT("XQSharableFile::setHandle");
     
     TFileName name;
     TInt err = file.FullName(name);
@@ -67,10 +67,10 @@ bool XQSharableFile::setHandle(RFile &file)
 
 bool XQSharableFile::getHandle(RFile &handle) const
 {
-    XQSERVICE_DEBUG_PRINT("XQSharableFile::nativeHandle");
+    XQSERVICE_DEBUG_PRINT("XQSharableFile::getHandle");
+    QString s = QString("File handle is %1").arg(mHandle);
     if (mHandle == 0)
         return false;
-    
     handle = *((RFile *)&mHandle);
     return true;
 }

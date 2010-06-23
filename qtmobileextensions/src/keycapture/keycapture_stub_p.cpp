@@ -60,7 +60,7 @@ bool KeyCapturePrivate::captureKey(TUint aKey,
 bool KeyCapturePrivate::captureLongKey(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
+        XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);
@@ -70,7 +70,7 @@ bool KeyCapturePrivate::captureLongKey(Qt::Key aKey,
 bool KeyCapturePrivate::captureLongKey(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
+        XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);
@@ -116,7 +116,7 @@ bool KeyCapturePrivate::cancelCaptureKey(TUint aKey,
 bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
+        XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);
@@ -126,7 +126,7 @@ bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey,
 bool KeyCapturePrivate::cancelCaptureLongKey(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
+        XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);

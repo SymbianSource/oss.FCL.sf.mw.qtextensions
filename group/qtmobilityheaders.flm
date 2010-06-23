@@ -13,7 +13,7 @@ QTMOBILITY_BEARER_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmBearer
 QTMOBILITY_CONTACTS_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmContacts
 QTMOBILITY_LOCATION_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmLocation
 QTMOBILITY_MESSAGING_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmMessaging
-QTMOBILITY_MULTIMEDIA_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmMedia
+QTMOBILITY_MULTIMEDIA_INCLUDE := $(QTMOBILITY_INCLUDE)/QtMultimedia
 QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmPubSub
 QTMOBILITY_SYSTEMINFO_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmSystemInfo
 QTMOBILITY_SERVICEFRAMEWORK_INCLUDE := $(QTMOBILITY_INCLUDE)/QtmServiceFramework
@@ -32,110 +32,77 @@ QTMOBILITY_SERVICEFRAMEWORK_SRC := $(QTMOBILITY_SRC)/serviceframework
 QTMOBILITY_VERSIT_SRC := $(QTMOBILITY_SRC)/versit
 QTMOBILITY_SENSORS_SRC := $(QTMOBILITY_SRC)/sensors
 
-CLEANTARGETS := 
-CREATABLEPATHS := 
-
 define generate_module_headers
+
 EXPORT::
 	$(call startrule,generate_module_headers,FORCESUCCESS) \
 	cd $(QTMOBILITY_ROOT) && \
 	$(PERL) -S $(QTMOBILITY_BIN)/$(SYNCHEADERS) $(1) $(2) \
 	$(call endrule,generate_module_headers)
-endef
 
-define generate_clean_target
-CLEANTARGETS := $(CLEANTARGETS) $(1)/$(call strip, $(2))
+CLEAN::
+	$(call startrule,clean) \
+	$(GNURM) -rf $(1)  \
+	$(call endrule,clean)
+
+WHAT::
+	@(echo "<whatlog bldinf='$(COMPONENT_META)' mmp='$(PROJECT_META)' config='$(SBS_CONFIGURATION)'>"; \
+	$(GNUFIND) $(1) -type f -print | (read LINE; \
+	while [ $$$$? -eq 0 ]; do \
+		echo "<build>$$$$LINE</build>"; \
+		read LINE; \
+	done); \
+	echo "</whatlog>") $(if $(DESCRAMBLE),2>&1 | $(DESCRAMBLE))
+
 endef
 
 GUARD:=done_$(call sanitise,$(QTMOBILITY_INCLUDE))
 ifeq ($($(GUARD)),)
 $(GUARD) := 1
-$(call makepath,$(QTMOBILITY_INCLUDE))
-CREATABLEPATHS := $(QTMOBILITY_INCLUDE)
 
 ifneq (,$(findstring bearer,$(MODULES)))
-$(call makepath,$(QTMOBILITY_BEARER_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_BEARER_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_BEARER_INCLUDE), $(QTMOBILITY_BEARER_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_BEARER_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_BEARER_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring contacts,$(MODULES)))
-$(call makepath,$(QTMOBILITY_CONTACTS_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_CONTACTS_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_CONTACTS_INCLUDE), $(QTMOBILITY_CONTACTS_SRC)))
 $(eval $(call generate_module_headers, $(QTMOBILITY_CONTACTS_INCLUDE), $(QTMOBILITY_CONTACTS_SRC)/requests))
 $(eval $(call generate_module_headers, $(QTMOBILITY_CONTACTS_INCLUDE), $(QTMOBILITY_CONTACTS_SRC)/filters))
 $(eval $(call generate_module_headers, $(QTMOBILITY_CONTACTS_INCLUDE), $(QTMOBILITY_CONTACTS_SRC)/details))
-#HEADERS := $(shell ls $(QTMOBILITY_CONTACTS_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_CONTACTS_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring location,$(MODULES)))
-$(call makepath,$(QTMOBILITY_LOCATION_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_LOCATION_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_LOCATION_INCLUDE), $(QTMOBILITY_LOCATION_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_LOCATION_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_LOCATION_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring messaging,$(MODULES)))
-$(call makepath,$(QTMOBILITY_MESSAGING_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_MESSAGING_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_MESSAGING_INCLUDE), $(QTMOBILITY_MESSAGING_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_MESSAGING_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_MESSAGING_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring multimedia,$(MODULES)))
-$(call makepath,$(QTMOBILITY_MULTIMEDIA_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_MULTIMEDIA_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_MULTIMEDIA_INCLUDE), $(QTMOBILITY_MULTIMEDIA_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_MULTIMEDIA_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_MULTIMEDIA_INCLUDE), $(HEADER))))
+$(eval $(call generate_module_headers, $(QTMOBILITY_MULTIMEDIA_INCLUDE), $(QTMOBILITY_MULTIMEDIA_SRC)/audio))
+$(eval $(call generate_module_headers, $(QTMOBILITY_MULTIMEDIA_INCLUDE), $(QTMOBILITY_MULTIMEDIA_SRC)/video))
 endif
 
 ifneq (,$(findstring publishsubscribe,$(MODULES)))
-$(call makepath,$(QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE), $(QTMOBILITY_PUBLISHSUBSCRIBE_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_PUBLISHSUBSCRIBE_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring systeminfo,$(MODULES)))
-$(call makepath,$(QTMOBILITY_SYSTEMINFO_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_SYSTEMINFO_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_SYSTEMINFO_INCLUDE), $(QTMOBILITY_SYSTEMINFO_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_SYSTEMINFO_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_SYSTEMINFO_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring serviceframework,$(MODULES)))
-$(call makepath,$(QTMOBILITY_SERVICEFRAMEWORK_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_SERVICEFRAMEWORK_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_SERVICEFRAMEWORK_INCLUDE), $(QTMOBILITY_SERVICEFRAMEWORK_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_SERVICEFRAMEWORK_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_SERVICEFRAMEWORK_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring versit,$(MODULES)))
-$(call makepath,$(QTMOBILITY_VERSIT_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_VERSIT_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_VERSIT_INCLUDE), $(QTMOBILITY_VERSIT_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_VERSIT_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_VERSIT_INCLUDE), $(HEADER))))
 endif
 
 ifneq (,$(findstring sensors,$(MODULES)))
-$(call makepath,$(QTMOBILITY_SENSORS_INCLUDE))
-CREATABLEPATHS := $(CREATABLEPATHS) $(QTMOBILITY_SENSORS_INCLUDE)
 $(eval $(call generate_module_headers, $(QTMOBILITY_SENSORS_INCLUDE), $(QTMOBILITY_SENSORS_SRC)))
-#HEADERS := $(shell ls $(QTMOBILITY_SENSORS_INCLUDE))
-#$(foreach HEADER,$(HEADERS), $(eval $(call generate_clean_target, $(QTMOBILITY_SENSORS_INCLUDE), $(HEADER))))
 endif
 
-$(eval $(call GenerateStandardCleanTarget, $(CLEANTARGETS), $(CREATABLEPATHS)))
-$(eval $(call whatmacro, $(CLEANTARGETS)))
 endif	

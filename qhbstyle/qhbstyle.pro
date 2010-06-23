@@ -27,7 +27,7 @@ win32 {
     DESTDIR = $$[QT_INSTALL_PLUGINS]/styles
 }
 
-CONFIG += hb
+symbian:BLD_INF_RULES.prj_exports += "./rom/qhbstyle.iby $$CORE_MW_LAYER_IBY_EXPORT_PATH(qhbstyle.iby)"
 
 include(qhbstyle.pri)
 
@@ -39,4 +39,9 @@ symbian: {
     DEPLOYMENT += styleplugin
 }
 
-symbian:TARGET.EPOCALLOWDLLDATA = 1
+symbian {
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.UID3 = 0x2002FF8B
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = ALL -TCB
+}

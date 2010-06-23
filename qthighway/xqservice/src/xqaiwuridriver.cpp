@@ -95,35 +95,11 @@ bool XQAiwUriDriver::send(QVariant& retValue)
     //
     // The rest
     //
-    if (mUtilities == NULL)
-        mUtilities = new XQAiwUtils();
-    if (mUtilities == NULL)
-    {
-        XQSERVICE_DEBUG_PRINT("XQAiwUriDriver::Can not create aiw utils");
-        return false;
-    }
-
-    int applicationId = 0;
-    if (mUtilities->findApplication(mUri, applicationId) != XQService::ENoError)
-    {
-        // Not found
-        mErrorCode = XQService::EServerNotFound;
-        mErrorMsg = XQAiwUtils::createErrorMessage(mErrorCode, "XQAiwUriDriver", mUri.toString());
-        return false;  // No application registered for uri
-    }
-    XQSERVICE_DEBUG_PRINT("Application id %x", applicationId);
+    mErrorCode = XQService::EArgumentError;
+    mErrorMsg = XQAiwUtils::createErrorMessage(mErrorCode, "XQAiwUriDriver:Not custom handler for", mUri.toString());
     
-    // Create space separated command line args
-    QString args = mUtilities->createCmdlineArgs(mArguments);
-    XQSERVICE_DEBUG_PRINT("args %s", qPrintable(args));
+    return false;
     
-    mErrorCode = mUtilities->launchApplication(applicationId, args);
-    XQSERVICE_DEBUG_PRINT("XQAiwUriDriver::errorCode %d", mErrorCode);
-    
-    QVariant ret(!mErrorCode);
-    retValue = ret;
-    
-    return (!mErrorCode);
 }
 
 const QString& XQAiwUriDriver::lastErrorMessage() const
@@ -250,7 +226,7 @@ bool XQAiwUriDriver::handleApptoUri(const QUrl &uri)
        return false;
     }
     
-    QMetaObject::invokeMethod(activityManager, "launchActivity", Q_ARG(QString, uri.toString()));
+    QMetaObject::invokeMethod(activityManager, "launchActivity", Q_ARG(QUrl,uri));
     mErrorCode = serviceManager.error();
     
     XQSERVICE_DEBUG_PRINT("\tinvokeMethod=%d", mErrorCode);

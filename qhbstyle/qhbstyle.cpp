@@ -64,8 +64,8 @@
 QT_BEGIN_NAMESPACE
 
 QHbStylePrivate::QHbStylePrivate() : m_styleManager(0),
-    m_frameDrawer(new HbFrameDrawer),
-    m_animationGroup(new QParallelAnimationGroup)
+    m_frameDrawer(0),
+    m_animationGroup(0)
 {
 }
 
@@ -75,6 +75,11 @@ QHbStylePrivate::~QHbStylePrivate()
 
 HbStyle* QHbStylePrivate::styleManager()
 {
+    if (!m_styleManager) {
+        HbInstance *instance = HbInstance::instance();
+        setStyleManager(instance->style());
+    }
+    
     return m_styleManager;
 }
 
@@ -86,6 +91,8 @@ void QHbStylePrivate::setStyleManager(HbStyle* style)
 
 QParallelAnimationGroup* QHbStylePrivate::animationGroup()
 {
+    if (m_animationGroup.isNull())
+        m_animationGroup.reset(new QParallelAnimationGroup());
     return m_animationGroup.data();
 }
 
@@ -95,9 +102,6 @@ QParallelAnimationGroup* QHbStylePrivate::animationGroup()
 QHbStyle::QHbStyle() : QCommonStyle()
 {
     m_private = new QHbStylePrivate();
-    HbInstance *instance = HbInstance::instance();
-
-    m_private->setStyleManager(instance->style());
 }
 
 /*!

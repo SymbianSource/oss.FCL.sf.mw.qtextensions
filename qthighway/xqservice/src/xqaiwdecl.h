@@ -75,10 +75,17 @@
 #define XQI_VIDEO_BROWSE QLatin1String("com.nokia.symbian.IVideoBrowse")
 #define XQOP_VIDEO_BROWSE QLatin1String("browseVideos(int, int)")
 
+/*!
+ Video player interface and related operations
+*/
+#define XQI_VIDEO_PLAY QLatin1String("com.nokia.symbian.IVideoView")
+#define XQOP_VIDEO_PLAY QLatin1String("playMedia(QString)")
+#define XQOP_VIDEO_PLAY_PD QLatin1String("playMedia(QString, int)")
+#define XQOP_VIDEO_CLOSE QLatin1String("closePlayer()")
 
 /*!
  Camera capture interface and related operations
- Operation: capture(int mode, const QVariantMap &parameters)
+ Operation: capture(int mode, QVariantMap parameters)
   mode: image = 0, video = 1
   parameters: 
    CameraIndex: int:  primary = 0, secondary = 1
@@ -88,7 +95,7 @@
    allow_quality_change: bool
 */
 #define XQI_CAMERA_CAPTURE QLatin1String("com.nokia.symbian.ICameraCapture")
-#define XQOP_CAMERA_CAPTURE QLatin1String("capture(int, const QVariantMap &)")
+#define XQOP_CAMERA_CAPTURE QLatin1String("capture(int,QVariantMap)")
 #define XQCAMERA_INDEX QLatin1String("CameraIndex")
 #define XQCAMERA_QUALITY QLatin1String("Quality")
 #define XQCAMERA_MODE_SWITCH QLatin1String("AllowModeSwitch")
@@ -99,7 +106,7 @@
  Incomplete list of interfaces.
  To be completed with operation signatures and related declarations.
 */
-#define XQI_LOG_VIEW QLatin1String("com.nokia.symbian.ILogView")
+#define XQI_LOG_VIEW QLatin1String("com.nokia.symbian.ILogsView")
 #define XQI_CONTACT_VIEW QLatin1String("com.nokia.symbian.IContactView")
 #define XQI_CONTACT_FETCH QLatin1String("com.nokia.symbian.IContactFetch")
 #define XQI_FILE_FETCH QLatin1String("com.nokia.symbian.IFileFetch")

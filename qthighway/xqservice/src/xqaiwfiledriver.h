@@ -44,6 +44,7 @@ class XQAiwFileDriver : public XQAiwRequestDriver
 public:
 
     XQAiwFileDriver(const QFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation);
+    XQAiwFileDriver(const XQSharableFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation);
     
     virtual ~XQAiwFileDriver();
     
@@ -77,7 +78,7 @@ private slots:
    void handleAsyncError(int err);
     
 private:
-    QFile mFile;
+    QVariant mFile;
     XQAiwUtils * mUtilities;
     };
 

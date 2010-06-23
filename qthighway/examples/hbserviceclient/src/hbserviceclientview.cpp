@@ -196,10 +196,11 @@ void HbServiceClientView::showAddresses()
             QString tmp = QString::number(++count) + " : " + cnt.mLabel + " " + cnt.mNumber + "\n";
             data.append(tmp) ;
         }
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Return value");
-        msgBox.setText(data);
-        msgBox.exec();
+        HbMessageBox::information(data);
+        // QMessageBox msgBox;
+        // msgBox.setWindowTitle("Return value");
+        // msgBox.setText(data);
+        // msgBox.exec();
         //mRetMapValue->setText(QString::number(retValue));
     }
 }
@@ -234,11 +235,11 @@ void HbServiceClientView::addSelectedRecipients(const QVariant &value)
     }    
 
     if (list.count() == 0) {
-        HbMessageBox note;
-        note.setTimeout(10000);
+        HbMessageBox::information(tr("Nothing returned"));
+        // note.setTimeout(10000);
         // "Nothing returned" will be replaced by a hbTrId when it is ready
-        note.setText(tr("Nothing returned"));
-        note.exec();
+        // note.setText(tr("Nothing returned"));
+        // note.information();
     }
     else {
         QString data;
@@ -247,10 +248,11 @@ void HbServiceClientView::addSelectedRecipients(const QVariant &value)
             QString recipientName = cnt.mDisplayName;
             data += recipientName + "\n";
         }
-        HbMessageBox msgBox;
-        msgBox.setWindowTitle("Returned value");
-        msgBox.setText(data);
-        msgBox.exec();
+        HbMessageBox::information(data);
+        //HbMessageBox msgBox;
+        //msgBox.setWindowTitle("Returned value");
+        //msgBox.setText(data);
+        //msgBox.information();
     }
 }
     

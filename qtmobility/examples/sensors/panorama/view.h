@@ -10,8 +10,9 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QTime>
+#include <qproximitysensor.h>
+#include <qambientlightsensor.h>
 #include "inputcontroller.h"
-
 
 
 class View : public QGraphicsView
@@ -23,14 +24,19 @@ public:
     virtual ~View();
     static int m_imageWidth;
 
+
+public slots:
+    void update();
+
+
 protected:
-    QPixmap m_pix;
 
     virtual void resizeEvent(QResizeEvent *event);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void mousePressEvent ( QMouseEvent * event );
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
+
 
 private slots:
     void startAccelerometer();
@@ -40,7 +46,8 @@ private slots:
     void startOrientationSensor();
     void startCompass();
     void startKeys();
-    void update();
+    void handleProximity();
+    void handleALS();
 
 private:
     int checkX(int x);
@@ -48,7 +55,13 @@ private:
     void switchController(QString sensor);
     void createActions();
     void handleAction(QString oldSensor, QString newSensor);
+    void setupWindow();
+
     static int m_imageHeight;
+    static int m_scaledHeight[];
+    static bool m_isToBeZoomed;
+    static int m_lightLevel;
+    static int m_index;
 
     static QString m_currentSensor;
     QList<QString> m_sensors;
@@ -59,9 +72,13 @@ private:
     QTime m_mousePressTime;
     QMenu* m_menu;
     bool m_mouseMode;
-    int m_x, m_y;
     int m_eventX, m_eventY;
     int m_dx, m_dy;
+    QTime m_zoomTime;
+    QTM_NAMESPACE::QAmbientLightSensor m_ambientLightSensor;
+    QTM_NAMESPACE::QProximitySensor m_proximitySensor;
+    QPixmap m_pix;
+
 
 };
 

@@ -528,5 +528,10 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::listFileHandlers(
         }
     }
 
+    if (result.isEmpty())
+    {
+        // No service support present, try using the MIME handlers via old way
+        return mimeHandlers;
+    }
     return result;
 }

@@ -3,7 +3,7 @@ headers.path = $$QT_MOBILITY_INCLUDE
 
 contains(TEMPLATE,.*lib) {
     target.path=$$QT_MOBILITY_LIB
-    TARGET = $$qtLibraryTarget($${TARGET})
+    TARGET = $$qtLibraryTarget($${TARGET}$${QT_LIBINFIX})
  
     symbian {
         middleware {  path=$$MW_LAYER_PUBLIC_EXPORT_PATH("") }
@@ -36,3 +36,5 @@ mac:contains(QT_CONFIG,qt_framework) {
     FRAMEWORK_HEADERS.path = Headers
     QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
 }
+
+CONFIG+= create_prl

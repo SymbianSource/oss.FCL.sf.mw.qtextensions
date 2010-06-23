@@ -622,7 +622,8 @@ bool ServiceMetaData::processInterfaceElementPrevVersion(QXmlStreamReader &aXMLR
                 aInterface.d->major = majorVer;
                 aInterface.d->minor = minorVer;
                 dupITags[1]++;
-                
+
+                tmp.clear();  // Rememember to clear
                 if (getAttributeValue(aXMLReader, INTERFACE_CAPABILITY, tmp)) {
                     XQSERVICE_DEBUG_PRINT("Interface capability value");
                     aInterface.d->properties[XQAiwInterfaceDescriptor::Capabilities] = tmp.split(",", QString::SkipEmptyParts);

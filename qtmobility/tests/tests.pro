@@ -11,5 +11,5 @@ contains(mobility_modules,bearer) {
 symbian {
     contains(mobility_modules,messaging): SUBDIRS += messagingex
     contains(mobility_modules,publishsubscribe): SUBDIRS += publishsubscribeex
-    SUBDIRS += s60installs/s60installs.pro
+    SUBDIRS += s60installs
 }

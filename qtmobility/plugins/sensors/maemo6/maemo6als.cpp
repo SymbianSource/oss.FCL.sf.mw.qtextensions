@@ -41,29 +41,28 @@
 
 #include "maemo6als.h"
 
-const char *maemo6als::id("maemo6.als");
+char const * const maemo6als::id("maemo6.als");
 bool maemo6als::m_initDone = false;
 
 maemo6als::maemo6als(QSensor *sensor)
     : maemo6sensorbase(sensor)
 {
-    setReading<QAmbientLightReading>(&m_reading);
-    if (!m_initDone) {
-        initSensor<ALSSensorChannelInterface>("alssensor");
+    const QString sensorName = "alssensor";
+    initSensor<ALSSensorChannelInterface>(sensorName, m_initDone);
 
-        if (m_sensorInterface)
-            QObject::connect(static_cast<const ALSSensorChannelInterface*>(m_sensorInterface), SIGNAL(ALSChanged(const Unsigned&)), this, SLOT(slotDataAvailable(const Unsigned&)));
-        else
-            qWarning() << "Unable to initialize ambient light sensor.";
 
-        // metadata
-        addDataRate(1, 1); // 1Hz
-        sensor->setDataRate(1);
-        addOutputRange(0, 5, 1);
-        setDescription(QLatin1String("Measures ambient light intensity given as 5 pre-defined levels"));
-
-        m_initDone = true;
+    if (m_sensorInterface){
+        if (!(QObject::connect(m_sensorInterface, SIGNAL(ALSChanged(const Unsigned&)),
+                               this, SLOT(slotDataAvailable(const Unsigned&)))))
+            qWarning() << "Unable to connect "<< sensorName;
     }
+    else
+        qWarning() << "Unable to initialize "<<sensorName;
+    setReading<QAmbientLightReading>(&m_reading);
+    // metadata
+    addDataRate(1, 1); // 1 Hz
+    addOutputRange(0, 5, 1);
+    setDescription(QLatin1String("Measures ambient light intensity given as 5 pre-defined levels"));
 }
 
 void maemo6als::slotDataAvailable(const Unsigned& data)

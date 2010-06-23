@@ -44,6 +44,7 @@ class XQAiwUtilsPrivate : public QObject
         virtual ~XQAiwUtilsPrivate();
         
         void launchApplicationL(int applicationId, const QString &cmdArguments);
+        int launchFile(const QVariant &file);
         int findApplicationFromApa(const QString &file, int &applicationId, QString &mimeType);
         int findApplicationFromApa(const XQSharableFile &file, int &applicationId, QString &mimeType);
         bool applicationExists(int applicationId);
@@ -69,12 +70,26 @@ XQAiwUtils::~XQAiwUtils()
     delete d;
 };
 
-int XQAiwUtils::launchApplication(int applicationId, const QString &cmdArguments)
+int XQAiwUtils::launchApplication(int applicationId, const QList<QVariant> &arguments)
 {
     TInt error = KErrNone;
-    TRAP(error, d->launchApplicationL(applicationId, cmdArguments));
+    
+    // Create space separated command line args
+    QString args = createCmdlineArgs(arguments);
+    XQSERVICE_DEBUG_PRINT("args %s", qPrintable(args));
+    
+    TRAP(error, d->launchApplicationL(applicationId, args));
     return mapError(error);
 }
+
+int XQAiwUtils::launchFile(int applicationId, const QVariant &file)
+{
+    Q_UNUSED(applicationId);
+    TInt error = KErrNone;
+    error=d->launchFile(file);
+    return mapError(error);
+}
+
 
 int XQAiwUtils::mapError(int symbianError)
 {
@@ -390,6 +405,43 @@ void XQAiwUtilsPrivate::launchApplicationL(int applicationId, const QString &cmd
     XQSERVICE_DEBUG_PRINT("application started");
 
 }
+
+
+int  XQAiwUtilsPrivate::launchFile(const QVariant &file)
+{
+    XQSERVICE_DEBUG_PRINT("XQAiwUtils::launchFile");
+
+    TThreadId startedApp;
+    TInt err=KErrNone;
+    if (file.typeName() == QString("XQSharableFile"))
+    {
+        XQSharableFile sharableFile = file.value<XQSharableFile>();
+        RFile fileHandle;
+        XQSERVICE_DEBUG_PRINT("\tStarting file by handle %s", qPrintable(sharableFile.fileName()));
+        if (!sharableFile.getHandle(fileHandle))
+        {
+            err=KErrArgument;
+        }
+        else
+        {
+            err = apaSession.StartDocument(fileHandle, startedApp);
+        }
+    }
+    else
+    {
+        QString fileName = file.toString();
+        fileName.replace("/", "\\");  // Normalize just-in case
+        XQSERVICE_DEBUG_PRINT("\tStarting file %s", qPrintable(fileName));
+        TPtrC fname( reinterpret_cast<const TUint16*>(fileName.utf16()) );
+        err=apaSession.StartDocument(fname, startedApp);
+    }
+
+    XQSERVICE_DEBUG_PRINT("XQAiwUtils::launchFile status=%d", err);
+    return err;
+
+}
+
+
 
 
 int XQAiwUtilsPrivate::findApplicationFromApa(const QString &file, int &applicationId, QString &mimeType)
