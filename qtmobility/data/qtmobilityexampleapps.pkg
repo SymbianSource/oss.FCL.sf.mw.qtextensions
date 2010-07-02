@@ -2,7 +2,7 @@
 &EN
 
 ; SIS header: name, uid, version
-#{"QtMobilityExamples"},(0xE001E61D),1,0,0,TYPE=SA
+#{"QtMobilityExamples"},(0xE001E61D),1,0,1,TYPE=SA
  
 ; Localised Vendor name
 %{"Nokia, Qt"}

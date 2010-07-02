@@ -8,17 +8,17 @@ load(data_caging_paths)
 #BearerManagement examples
 contains(mobility_modules, bearer) {
     SUBDIRS += ../bearermonitor \
-        ../../tests/bearerex
+                ../bearercloud
     executables.sources += \
         bearermonitor.exe \
-        BearerEx.exe
+        bearercloud.exe
 
     reg_resource.sources += \
-         $${EPOCROOT}$$HW_ZDIR$$REG_RESOURCE_IMPORT_DIR/bearermonitor_reg.rsc \
-         $${EPOCROOT}$$HW_ZDIR$$REG_RESOURCE_IMPORT_DIR/BearerEx_reg.rsc
+        $${EPOCROOT}$$HW_ZDIR$$REG_RESOURCE_IMPORT_DIR/bearermonitor_reg.rsc \
+        $${EPOCROOT}$$HW_ZDIR$$REG_RESOURCE_IMPORT_DIR/bearercloud_reg.rsc
     resource.sources += \
-         $${EPOCROOT}$$HW_ZDIR$$APP_RESOURCE_DIR/bearermonitor.rsc \
-         $${EPOCROOT}$$HW_ZDIR$$APP_RESOURCE_DIR/BearerEx.rsc
+        $${EPOCROOT}$$HW_ZDIR$$APP_RESOURCE_DIR/bearermonitor.rsc \
+        $${EPOCROOT}$$HW_ZDIR$$APP_RESOURCE_DIR/bearercloud.rsc
 }
 
 executables.path = /sys/bin
