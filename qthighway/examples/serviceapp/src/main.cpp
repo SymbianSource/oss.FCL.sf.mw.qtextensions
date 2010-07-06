@@ -27,8 +27,16 @@
 int main(int argc, char **argv)
 {
     // qInstallMsgHandler(XQSERVICEMESSAGEHANDLER);
-    XQSERVICE_DEBUG_PRINT("ServiceApp::main");
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main1");
+    int len=0;
+    for (int i=0; i < argc; i++)
+    {
+        XQSERVICE_DEBUG_PRINT("ServiceApp::arg[%d]=%s", i, argv[i]);
+        len += strlen(argv[i]);
+    }
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main2, cmdarg len=%d", len);
     QApplication a( argc, argv );
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main3");
     ServiceApp *cl = new ServiceApp();
     cl->show();
     int rv = a.exec();

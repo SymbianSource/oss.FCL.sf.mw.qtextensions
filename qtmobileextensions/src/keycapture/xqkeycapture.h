@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QList>
 #include <QFlag>
+#include <QEvent>
 
 #include <w32std.h>
 
@@ -55,8 +56,10 @@ public:
     enum CapturingFlag {
       CaptureNone = 0x0,
       CaptureBasic = 0x1,
-      CaptureCallHandlingExt = 0x2
+      CaptureCallHandlingExt = 0x2,
+      CaptureEnableRemoteExtEvents = 0x4
     };
+    
     Q_DECLARE_FLAGS(CapturingFlags, CapturingFlag)
     
 public:
@@ -171,6 +174,10 @@ public:
 	bool captureRemoteKeys(CapturingFlags flags = CaptureNone);
     
     bool cancelCaptureRemoteKeys(CapturingFlags flags = CaptureNone);
+    
+    static QEvent::Type remoteEventType_KeyPress();
+    
+    static QEvent::Type remoteEventType_KeyRelease();
 			
     QString errorString() const;
 

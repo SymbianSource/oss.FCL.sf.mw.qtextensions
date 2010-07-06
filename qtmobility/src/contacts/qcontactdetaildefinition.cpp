@@ -158,4 +158,5 @@ void QContactDetailDefinition::removeField(const QString& key)
     d->m_fields.remove(key);
 }
 
+
 QTM_END_NAMESPACE

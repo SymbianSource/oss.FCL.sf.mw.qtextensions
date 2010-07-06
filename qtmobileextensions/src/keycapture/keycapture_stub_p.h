@@ -31,6 +31,10 @@ public:
     KeyCapturePrivate();
     ~KeyCapturePrivate();
 
+    bool initRemote(XQKeyCapture::CapturingFlags, XQKeyCapture::HandlingEvents);
+        
+    bool closeRemote(XQKeyCapture::CapturingFlags, XQKeyCapture::HandlingEvents);
+    
     bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
     
@@ -72,6 +76,12 @@ public:
     QString errorString() const;
 
     int errorId() const;
+
+private:
+    static int mRemoteEventType_KeyPress;
+    static int mRemoteEventType_KeyRelease;
+    
+    friend class XQKeyCapture;
 };
 
 #endif /* KEYCAPTUREPRIVATE_STUB_H */

@@ -61,4 +61,6 @@ EXPORTS
 	_ZNK12XQKeyCapture7errorIdEv @ 60 NONAME
 	_ZN12XQKeyCapture17captureRemoteKeysE6QFlagsINS_13CapturingFlagEE @ 61 NONAME
 	_ZN12XQKeyCapture23cancelCaptureRemoteKeysE6QFlagsINS_13CapturingFlagEE @ 62 NONAME
+	_ZN12XQKeyCapture24remoteEventType_KeyPressEv @ 63 NONAME
+	_ZN12XQKeyCapture26remoteEventType_KeyReleaseEv @ 64 NONAME
 

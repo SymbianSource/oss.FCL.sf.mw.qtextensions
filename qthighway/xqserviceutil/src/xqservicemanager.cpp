@@ -773,7 +773,7 @@ TInt XQServiceManagerPrivate::Discover2( const TDesC& aService,
                         }
                     XQSERVICE_DEBUG_PRINT("Service found UID3=%x", appUid.iUid);
                     //  Add impl. UID to interface
-                    interface.setProperty(XQAiwInterfaceDescriptor::ImplementationId, (int)aAppUid.iUid);
+                    interface.setProperty(XQAiwInterfaceDescriptor::ImplementationId, (int)appUid.iUid);
                     found = ETrue;
 
                     // Add the matched interface to result set

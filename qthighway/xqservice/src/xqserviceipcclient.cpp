@@ -595,10 +595,15 @@ void XQServiceIpcClient::readyRead()
 */
 void XQServiceIpcClient::readDone()
     {
-    XQSERVICE_DEBUG_PRINT("retData: %s", iRetData.constData());
+    XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::readDone");
     QVariant retValue = XQServiceThreadData::deserializeRetData(iRetData);
 
-    XQSERVICE_DEBUG_PRINT("retValue: %s", qPrintable(retValue.toString()));
+#ifdef XQSERVICE_DEBUG
+    QString s = retValue.toString();
+    int len=s.length();
+    XQSERVICE_DEBUG_PRINT("retValue: type=%s,len=%d,value(max.1024)=%s",
+                          retValue.typeName(),len,qPrintable(s.left(1024)));
+#endif
     int err = XQService::serviceThreadData()->latestError();
     XQSERVICE_DEBUG_PRINT("err: %d", err);
 
@@ -690,7 +695,12 @@ bool XQServiceIpcClient::completeRequest(int index, const QVariant& retValue)
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::completeRequest START");
     XQSERVICE_DEBUG_PRINT("\t isServer=%d", server);
     XQSERVICE_DEBUG_PRINT("\t index=%d", index);
-    XQSERVICE_DEBUG_PRINT("\t retValue: %s", qPrintable(retValue.toString()));
+#ifdef XQSERVICE_DEBUG
+    QString s = retValue.toString();
+    int len=s.length();
+    XQSERVICE_DEBUG_PRINT("retValue: type=%s,len=%d,value(max.1024)=%s",
+                          retValue.typeName(),len,qPrintable(s.left(1024)));
+#endif
 
     ServiceIPCRequest* request = requestPtr(index);
     if (!request){

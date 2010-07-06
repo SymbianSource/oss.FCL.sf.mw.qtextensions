@@ -57,4 +57,6 @@ EXPORTS
 	?cancelCaptureLongKey@XQKeyCapture@@QAE_NV?$QList@I@@V?$QFlags@W4KeyboardModifier@Qt@@@@1W4LongFlags@1@@Z @ 56 NONAME ; bool XQKeyCapture::cancelCaptureLongKey(class QList<unsigned int>, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>, enum XQKeyCapture::LongFlags)
 	?cancelCaptureKeyUpAndDowns@XQKeyCapture@@QAE_NW4Key@Qt@@V?$QFlags@W4KeyboardModifier@Qt@@@@1@Z @ 57 NONAME ; bool XQKeyCapture::cancelCaptureKeyUpAndDowns(enum Qt::Key, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>)
 	?cancelCaptureLongKey@XQKeyCapture@@QAE_NIV?$QFlags@W4KeyboardModifier@Qt@@@@0W4LongFlags@1@@Z @ 58 NONAME ; bool XQKeyCapture::cancelCaptureLongKey(unsigned int, class QFlags<enum Qt::KeyboardModifier>, class QFlags<enum Qt::KeyboardModifier>, enum XQKeyCapture::LongFlags)
+	?remoteEventType_KeyRelease@XQKeyCapture@@SA?AW4Type@QEvent@@XZ @ 59 NONAME ; enum QEvent::Type XQKeyCapture::remoteEventType_KeyRelease(void)
+	?remoteEventType_KeyPress@XQKeyCapture@@SA?AW4Type@QEvent@@XZ @ 60 NONAME ; enum QEvent::Type XQKeyCapture::remoteEventType_KeyPress(void)
 

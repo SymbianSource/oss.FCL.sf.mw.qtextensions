@@ -120,4 +120,14 @@ EXPORTS
 	??_EQVersitResourceHandler@QtMobility@@UAE@I@Z @ 119 NONAME ; QtMobility::QVersitResourceHandler::~QVersitResourceHandler(unsigned int)
 	?state@QVersitReader@QtMobility@@QBE?AW4State@12@XZ @ 120 NONAME ; enum QtMobility::QVersitReader::State QtMobility::QVersitReader::state(void) const
 	??_EQVersitContactExporterDetailHandler@QtMobility@@UAE@I@Z @ 121 NONAME ; QtMobility::QVersitContactExporterDetailHandler::~QVersitContactExporterDetailHandler(unsigned int)
+	?version@QVersitContactExporterDetailHandlerV2@QtMobility@@UBEHXZ @ 122 NONAME ; int QtMobility::QVersitContactExporterDetailHandlerV2::version(void) const
+	??_EQVersitContactExporterDetailHandlerV2@QtMobility@@UAE@I@Z @ 123 NONAME ; QtMobility::QVersitContactExporterDetailHandlerV2::~QVersitContactExporterDetailHandlerV2(unsigned int)
+	?setPropertyHandler@QVersitContactImporter@QtMobility@@QAEXPAVQVersitContactImporterPropertyHandlerV2@2@@Z @ 124 NONAME ; void QtMobility::QVersitContactImporter::setPropertyHandler(class QtMobility::QVersitContactImporterPropertyHandlerV2 *)
+	??1QVersitContactImporterPropertyHandlerV2@QtMobility@@UAE@XZ @ 125 NONAME ; QtMobility::QVersitContactImporterPropertyHandlerV2::~QVersitContactImporterPropertyHandlerV2(void)
+	??_EQVersitContactImporterPropertyHandlerV2@QtMobility@@UAE@I@Z @ 126 NONAME ; QtMobility::QVersitContactImporterPropertyHandlerV2::~QVersitContactImporterPropertyHandlerV2(unsigned int)
+	?version@QVersitContactImporterPropertyHandlerV2@QtMobility@@UBEHXZ @ 127 NONAME ; int QtMobility::QVersitContactImporterPropertyHandlerV2::version(void) const
+	?createBackupHandler@QVersitContactExporterDetailHandlerV2@QtMobility@@SAPAV12@XZ @ 128 NONAME ; class QtMobility::QVersitContactExporterDetailHandlerV2 * QtMobility::QVersitContactExporterDetailHandlerV2::createBackupHandler(void)
+	??1QVersitContactExporterDetailHandlerV2@QtMobility@@UAE@XZ @ 129 NONAME ; QtMobility::QVersitContactExporterDetailHandlerV2::~QVersitContactExporterDetailHandlerV2(void)
+	?createBackupHandler@QVersitContactImporterPropertyHandlerV2@QtMobility@@SAPAV12@XZ @ 130 NONAME ; class QtMobility::QVersitContactImporterPropertyHandlerV2 * QtMobility::QVersitContactImporterPropertyHandlerV2::createBackupHandler(void)
+	?setDetailHandler@QVersitContactExporter@QtMobility@@QAEXPAVQVersitContactExporterDetailHandlerV2@2@@Z @ 131 NONAME ; void QtMobility::QVersitContactExporter::setDetailHandler(class QtMobility::QVersitContactExporterDetailHandlerV2 *)
 

@@ -162,4 +162,13 @@
 */
 #define XQCUSTOM_PROP_AIW_SERVICE_STATUS QLatin1String("aiw_status")
 
+/*!
+ A key name for XQRequestInfo object to pass a window title
+ to be shown in service application instead of the default title.
+ Service application is responsible to handle the key value.
+ \see XQApplicationMgr::XQRequestInfo::setInfo()
+*/
+#define XQINFO_KEY_WINDOW_TITLE QLatin1String("WindowTitle")
+
+
 #endif

@@ -66,6 +66,21 @@ QContactDetailDefinitionRemoveRequest::QContactDetailDefinitionRemoveRequest(QOb
 {
 }
 
+/*! Frees any memory used by this request */
+QContactDetailDefinitionRemoveRequest::~QContactDetailDefinitionRemoveRequest()
+{
+    QContactAbstractRequestPrivate::notifyEngine(this);
+}
+
+/*!
+  \deprecated
+*/
+void QContactDetailDefinitionRemoveRequest::setDefinitionNames(const QString& contactType, const QStringList& definitionNames)
+{
+    setDefinitionNames(definitionNames);
+    setContactType(contactType);
+}
+
 /*!
   Sets the name of the detail definition to remove from the manager to \a definitionName.
   Managers may store different definitions which are valid for different contact types, and so attempting to remove definitions with certain names may fail if no such

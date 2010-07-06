@@ -114,7 +114,7 @@ contains(mobility_modules,multimedia) {
         qmediacontent \
         qradiotuner \
 #        qpaintervideosurface \
-        qvideowidget \
+#        qvideowidget \
         qmediatimerange \
         qaudiodeviceinfo \
         qaudiooutput \

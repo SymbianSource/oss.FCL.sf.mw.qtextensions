@@ -101,7 +101,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     connect(test1, SIGNAL(triggered()), this, SLOT(test1()));
     QAction *test2 = new QAction("2:Descriptor", this);
     connect(test2, SIGNAL(triggered()), this, SLOT(test2()));
-    QAction *test3 = new QAction("3:Errors", this);
+    QAction *test3 = new QAction("3:Big data", this);
     connect(test3, SIGNAL(triggered()), this, SLOT(test3()));
     QAction *test4 = new QAction("4:QAction", this);
     connect(test4, SIGNAL(triggered()), this, SLOT(test4()));
@@ -116,7 +116,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     QAction *test9 = new QAction("9:XQSharableFile", this);
     connect(test9, SIGNAL(triggered()), this, SLOT(test9()));
     QAction *test10 = new QAction("10:Select contact", this);
-    connect(test10, SIGNAL(triggered()), this, SLOT(test10()));
+    connect(test10,  SIGNAL(triggered()), this, SLOT(test10()));
     QAction *test11 = new QAction("11:getDrmAttr", this);
     connect(test11, SIGNAL(triggered()), this, SLOT(test11()));
 
@@ -144,9 +144,16 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     mCheckEmbedded->setCheckState(Qt::Checked);
     mSynchronous->setCheckState(Qt::Checked);
     mGenericSend->setCheckState(Qt::Checked);  // Apply one send() for both embedded/non-embedded
-    
-    mReqArg = new QLineEdit("?");
-    
+
+
+    QLabel *inputData = new QLabel(tr("Data size"));
+    mDataSpinBox = new QSpinBox;
+    mDataSpinBox->setMinimum(0);
+    mDataSpinBox->setMaximum(1024*1024);
+    mDataSpinBox->setValue(1024);
+    mDataSpinBox->setSingleStep(1024*10);
+       
+    mReqArg = new QLineEdit("0");
     mTextRetValue = new QLineEdit("no ret value set");
 
     QFileInfo appinfo (qApp->applicationFilePath());
@@ -165,6 +172,8 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     vl->addWidget(mForeground);
     vl->addWidget(mCheckDeleteRequest);
     vl->addWidget(mGenericSend);
+    vl->addWidget(inputData);
+    vl->addWidget(mDataSpinBox);
     vl->addWidget(mReqArg);
     vl->addWidget(mTextRetValue);
     vl->addWidget(new QLabel(" "));
@@ -408,6 +417,12 @@ void AppMgrClient::test1()
 
     qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning("com.nokia.services.serviceapp", IDIAL));
     
+    
+    /*
+    mReqArg->setText("77777"); 
+    qDebug() << mAppName <<  " test1 second call";
+    test(&req1, IDIAL, OPERATION1);
+    */
 }
 
 
@@ -466,12 +481,51 @@ void AppMgrClient::test2()
 
 void AppMgrClient::test3()
 {
+
     qDebug() << mAppName << " test3 START";
     
-    test(&req3,IDIAL,ERR_OPERATION1);
-    // test(&req3,ERR_IDIAL,ERR_OPERATION1);
-    // test(&req3,ERR_IDIAL,ERR_OPERATION1);
-    
+    QByteArray data;
+    qDebug() << mAppName << "Data size=" << mDataSpinBox->value();
+    data.fill('X', mDataSpinBox->value());
+
+    bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
+    bool sync = (mSynchronous->checkState() == Qt::Checked);
+    bool background = (mBackground->checkState() == Qt::Checked);
+
+    XQAiwRequest *req=0;
+    req = appmgr.create(QLatin1String("serviceapp"), IDIAL, QLatin1String(""));
+
+    if (!req)
+    {
+        qDebug() << mAppName << " AIW-ERROR NULL request";
+        return;
+    }
+
+    // Apply this operation
+    req->setOperation(QLatin1String("testVariant(QVariant)"));
+
+    connectSignals(req);        
+
+    // Set request attributes
+    req->setEmbedded(embed);
+    req->setSynchronous(sync);
+    req->setBackground(background);
+
+    QList<QVariant> args;
+
+    args.clear();
+    args << qVariantFromValue(data);
+    req->setArguments(args);
+
+    req->send();
+
+    bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
+    if (deleteRequest)
+    {
+        delete req;
+        req = 0;
+    }
+   
     qDebug() << mAppName << " test3 END";
     
 }
@@ -589,17 +643,10 @@ void AppMgrClient::test6()
 {
     qDebug() << mAppName << " test6 START";
 
-    QUrl uri("test2to://authority?param1=value1&param1=value2"); 
-    // QUrl uri(mReqArg->text()); 
+    QUrl uri("testto://authority?param1=value1&param1=value2"); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();
-    
-    if (!uri.isValid())
-    {
-        qDebug() << mAppName << " Invalid URI " << mReqArg->text();
-        return;
-    }
 
     QList<XQAiwInterfaceDescriptor> uriHandlers = appmgr.list(uri);
     // Note : Only services supporting custom property are returned
@@ -614,7 +661,7 @@ void AppMgrClient::test6()
     if (!req6)
     {
         req6 = appmgr.create(uri);
-        connectSignals(req6);
+        connectSignals(req6); 
     }
 
     test(&req6, uri.toString());
@@ -631,8 +678,8 @@ void AppMgrClient::test7()
     // Create test file
     createTestFile("C:/data/Others", "test.txt");
 
-    // Copy files from DrmTestFiles.zip into correct location
-    QFile file("C:/data/Others/one.jpg");
+    
+    QFile file("C:/data/Others/test.txt");
     qDebug() << mAppName << " File=" << file.fileName();
     qDebug() << mAppName << " exists=" << file.exists();
 
@@ -661,12 +708,7 @@ void AppMgrClient::test8()
     qDebug() << mAppName << " test8 START";
 
     // E0022E73 == ServiceApp
-    QUrl uri("http://www.nokia.com");
-    
-    // Copy files from DrmTestFiles.zip into correct location
-    // Uncomment for "file" scheme testing
-    // QUrl uri("file:///C:/data/Others/one.jpg");
-    
+    QUrl uri("http://www.nokia.com"); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();
@@ -911,14 +953,12 @@ void AppMgrClient::showRecipients(const QVariant &value)
 void AppMgrClient::anyTest()
 {
 
-    qDebug() << mAppName << " anyTest START";
-
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
 
     XQAiwRequest *req=0;
-    req = appmgr.create(QLatin1String("com.nokia.services.serviceapp"), IDIAL, QLatin1String("testContactList(CntServicesContactList)"));
+    req = appmgr.create(QLatin1String("serviceapp"), IDIAL, QLatin1String(""));
 
     if (!req)
     {
@@ -926,7 +966,7 @@ void AppMgrClient::anyTest()
         return;
     }
 
-    // Comment next line  if using the operation signature given in the "create"
+    // Apply this operation
     req->setOperation(QLatin1String("testVariant(QVariant)"));
     
     connectSignals(req);        
@@ -937,11 +977,15 @@ void AppMgrClient::anyTest()
     req->setBackground(background);
 
     QList<QVariant> args;
-    
+
+    /*
     // Just construct dummies
     MetaDummy1 dummy1;
     MetaDummy2 dummy2;
-    
+    */
+
+    /*
+    // THIS WORKS
     CntServicesContact cnt1;
     cnt1.mDisplayName = "Test1";
     cnt1.mPhoneNumber = "050-1111111";
@@ -955,6 +999,24 @@ void AppMgrClient::anyTest()
     CntServicesContactList list;
     list.append(cnt1);
     list.append(cnt2);
+    */
+
+    //
+    // THIS DOES NOT WORK ???
+    //
+    QVariant v1;
+    QVariant v2;
+    QVariant v3;
+    v1.setValue((int)-99);
+    v2.setValue((bool)true);
+    v3.setValue(QString("Variant3"));
+    TestServiceData data1(1, v1);
+    TestServiceData data2(2, v2);
+    TestServiceData data3(3, v3);
+    TestServiceDataList list;
+    list.append(data1);
+    list.append(data2);
+    list.append(data3);
     
     args.clear();
     args << qVariantFromValue(list);
@@ -1041,6 +1103,16 @@ void AppMgrClient::handleOk(const QVariant& result)
     {
         showRecipients(result);
     }
+    else if (result.canConvert<TestServiceDataList>())
+    {
+        TestServiceDataList list = qVariantValue<TestServiceDataList>(result);
+        for (int i = 0; i < list.count(); ++i)
+        {
+            qDebug() << "AppMgrClient::handleOk[" << i << "]=" << list[i].mType;
+            qDebug() << "AppMgrClient::handleOk[" << i << "]=" << list[i].mData.toString();
+        }
+        
+    }
     else if (result.canConvert<QString>())
     {
         qDebug("%s::handleOk from [%s.%s,%x]=(%s,%s)",
@@ -1089,3 +1161,5 @@ Q_IMPLEMENT_USER_METATYPE(MetaDummy1)
 Q_IMPLEMENT_USER_METATYPE(MetaDummy2)
 Q_IMPLEMENT_USER_METATYPE(CntServicesContact)
 Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(CntServicesContactList)
+Q_IMPLEMENT_USER_METATYPE(TestServiceData)
+Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(TestServiceDataList)

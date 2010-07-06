@@ -52,7 +52,6 @@
 QTM_BEGIN_NAMESPACE
 
 /* Leaf class */
-// replaces the below
 class Q_CONTACTS_EXPORT QContactGeoLocation : public QContactDetail
 {
 public:

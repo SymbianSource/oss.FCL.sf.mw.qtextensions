@@ -21,6 +21,7 @@
 TEMPLATE = lib
 TARGET = xqsystemtoneservice
 
+symbian:defFilePath=..
 symbian:TARGET.UID3=0x2002EA83
 
 TARGET.CAPABILITY = CAP_GENERAL_DLL

@@ -35,6 +35,9 @@
     #include "tsrc\mytestwindowgroup.h"
 #endif
 
+int KeyCapturePrivate::mRemoteEventType_KeyPress = 0;
+int KeyCapturePrivate::mRemoteEventType_KeyRelease = 0;
+
 KeyCapturePrivate::KeyCapturePrivate() :
     mLastError(KErrNone), mLastErrorString(QString("OK")),
 #ifndef _XQKEYCAPTURE_UNITTEST_
@@ -223,30 +226,18 @@ void KeyCapturePrivate::regenerateError()
 
 bool KeyCapturePrivate::initRemote(XQKeyCapture::CapturingFlags flags)
 {
-    if (flags & XQKeyCapture::CaptureBasic)
-        tgWrapper->setBasicApi(true);
-    
-    if (flags & XQKeyCapture::CaptureCallHandlingExt)
-        tgWrapper->setCallHandlingApi(true);
-    
-    return resetRemote();
+    return resetRemote(flags);
 }
 
 bool KeyCapturePrivate::closeRemote(XQKeyCapture::CapturingFlags flags)
 {
-    if (flags & XQKeyCapture::CaptureBasic)
-        tgWrapper->setBasicApi(false);
-    
-    if (flags & XQKeyCapture::CaptureCallHandlingExt)
-        tgWrapper->setCallHandlingApi(false);
-    
-    return resetRemote();
+    return resetRemote(XQKeyCapture::CaptureNone);
 }
 
-bool KeyCapturePrivate::resetRemote()
+bool KeyCapturePrivate::resetRemote(XQKeyCapture::CapturingFlags flags)
 {
     int err;
-    QT_TRYCATCH_ERROR(err, tgWrapper->init());
+    QT_TRYCATCH_ERROR(err, tgWrapper->init(flags));
     mLastError = err;
     if (err != mLastError)
         regenerateError();

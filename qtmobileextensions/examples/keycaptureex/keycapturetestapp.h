@@ -24,15 +24,15 @@
 
 #include <QMainWindow>
 #include <QMap>
-#include <xqkeycapture.h>
+#include <XQKeyCapture>
+
+#include "mapping.h"
 
 class QPlainTextEdit;
 class QAction;
 class QWidget;
 class QMenu;
-class XqKeyCapture;
 class CaptureRequest;
-
 
 class KeyCaptureTestApp : public QMainWindow
 {
@@ -47,52 +47,36 @@ public:
 public slots:
     void triggered(QAction* aAction);
 	void cleanLog();
+	
+	void enableRemBasic(bool);
+    void enableRemCallHandlingEx(bool);
+    void enableRemoteExtEvents(bool);
+	
+    void remoteAll(bool enable);
+    void remoteNone(bool enable);
+
 private:
     void procesAction(CaptureRequest request);
     void processEvent(QEvent *event);
 private:	
     QPlainTextEdit *mTextArea;
 
-    XqKeyCapture *mKeyCapture;
+    XQKeyCapture *mKeyCapture;
     
-    QMap<QString, long> mKeysMap;
+    QAction *toggleRemoteBasic;
+    QAction *toggleRemoteCallHandlingEx;
+    QAction *toggleRemoteExtEvents;
     
+    QAction *remoteAllOn;
+    QAction *remoteAllOff;
+    
+    QMap<QString, Qt::Key> mKeysMap;
     QMenu* mKeysMenu;
     
-    QMap<QString, XqKeyCapture::LongFlags> mLongFlagsMap;
+    QMap<QString, XQKeyCapture::LongFlags> mLongFlagsMap;
     QMenu* mLongFlagsMenu;
-    
+  
+    Mapping *mappingPtr;
 };
 
-
-class CaptureRequest
-{
-public:
-    CaptureRequest();
-    ~CaptureRequest();
-    
-    enum RequestType {
-        RequestTypeUndefined =-1,
-        RequestTypeKey,
-        RequestTypeLongKey,
-        RequestTypeKeyUpAndDowns,
-        RequestTypeCancelKey,
-        RequestTypeCancelLongKey,
-        RequestTypeCancelKeyUpAndDowns        
-    };
-    
-    bool setType(QAction* action);
-    bool setKey(QAction* action, QMap<QString, long> *map);
-    bool setLongFlags(QAction* action, QMap<QString, XqKeyCapture::LongFlags> *map);
-    
-    QString toString();
-public:
-    RequestType mRequestType;
-    //Qt::Key mKey;    
-    long mKey;
-    bool isQtKey;
-    Qt::KeyboardModifier mModifiersMap;
-    Qt::KeyboardModifier mModifier;
-    XqKeyCapture::LongFlags mLongFlags;
-};
 #endif // KEYCAPTUREMAINWINDOW_H

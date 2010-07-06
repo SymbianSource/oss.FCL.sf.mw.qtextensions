@@ -23,6 +23,7 @@
 
 #include "keycapture_p.h"
 #include <qnamespace.h>
+#include <qcoreevent.h>
 
 /*!
  Constructor.
@@ -44,6 +45,11 @@ XQKeyCapture::~XQKeyCapture()
 /*!
  Initializes remote key handler(s) given by parameter.    
  \param flags  Flag representing supported remote handler. Flags can be ORed for simulteanous initializations.  
+               CaptureEnableRemoteExtEvents flag adds posibility to receive native events from remote device. 
+               QKeyEvent::nativeVirtualKey() function returns native remote key code. 
+               Important: Extended remote events have different custome type. Static functions 
+               XQKeyCapture::remoteKeyPress() and XQKeyCapture::remoteKeyRelease() return custom
+               event types.  
  */
 bool XQKeyCapture::captureRemoteKeys(CapturingFlags flags)
 {
@@ -57,6 +63,30 @@ bool XQKeyCapture::captureRemoteKeys(CapturingFlags flags)
 bool XQKeyCapture::cancelCaptureRemoteKeys(CapturingFlags flags)
 {
     return d->closeRemote(flags);
+}
+
+/*!
+ Returns type of remote key press event. Event type is assigned dynamically.   
+ \retval returns type of remote key press event.  
+ */
+QEvent::Type XQKeyCapture::remoteEventType_KeyPress()
+{
+    if (KeyCapturePrivate::mRemoteEventType_KeyPress == 0)
+        KeyCapturePrivate::mRemoteEventType_KeyPress = QEvent::registerEventType();
+    
+    return (QEvent::Type)KeyCapturePrivate::mRemoteEventType_KeyPress;
+}
+
+/*!
+ Returns type of remote key release event. Event type is assigned dynamically.    
+ \retval returns type of remote key release event.  
+ */
+QEvent::Type XQKeyCapture::remoteEventType_KeyRelease()
+{
+    if (KeyCapturePrivate::mRemoteEventType_KeyRelease == 0)
+        KeyCapturePrivate::mRemoteEventType_KeyRelease = QEvent::registerEventType();
+    
+    return (QEvent::Type)KeyCapturePrivate::mRemoteEventType_KeyRelease;
 }
 
 /*!

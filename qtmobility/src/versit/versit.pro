@@ -29,7 +29,7 @@ PUBLIC_HEADERS +=  \
 
 # Private Headers
 PRIVATE_HEADERS += \
-    qversitdefaultresourcehandler_p.h \
+    qvcardbackuphandlers_p.h \
     qversitdocument_p.h \
     qversitdocumentwriter_p.h \
     qversitproperty_p.h \
@@ -57,6 +57,7 @@ SOURCES += qversitdocument.cpp \
     qversitcontactexporter_p.cpp \
     qversitcontactimporter.cpp \
     qversitcontactimporter_p.cpp \
+    qvcardbackuphandlers_p.cpp \
     qversitresourcehandler.cpp \
     versitutils.cpp
 
@@ -69,6 +70,14 @@ symbian {
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = ALL \
         -TCB
+        
+    defFiles = \
+        "$${LITERAL_HASH}ifdef WINSCW" \
+        "DEFFILE ../s60installs/bwins/$${TARGET}.def" \
+        "$${LITERAL_HASH}elif defined EABI" \
+        "DEFFILE ../s60installs/eabi/$${TARGET}.def" \
+        "$${LITERAL_HASH}endif "
+    MMP_RULES += defFiles
 }
 
 maemo5|maemo6 {

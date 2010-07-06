@@ -82,6 +82,49 @@ template <typename Stream> inline void MetaDummy2::deserialize(Stream &s)
     s >> mTest;
 }
 
+// Testing QVariant
+class TestServiceData
+{
+    public:
+
+        TestServiceData() : mType(-1) {}
+        TestServiceData(int aType, const QVariant &aData) :
+                mType(aType),
+                mData(aData)
+                {}
+
+        virtual ~TestServiceData() {}
+
+       
+        int        mType;
+        QVariant   mData;
+
+        template <typename Stream> void serialize(Stream &aStream) const;
+        template <typename Stream> void deserialize(Stream &aStream);
+};
+
+template <typename Stream> inline void TestServiceData::serialize(Stream &aStream) const
+{
+    qDebug() << "TestServiceData::serialize 1";
+    aStream << mType;
+    qDebug() << "TestServiceData::serialize 2";
+    aStream << mData;
+    qDebug() << "TestServiceData::serialize 3";
+}
+
+template <typename Stream> inline void TestServiceData::deserialize(Stream &aStream)
+{
+    qDebug() << "TestServiceData::deserialize 1";
+    aStream >> mType;
+    qDebug() << "TestServiceData::deserialize 2";
+    aStream >> mData;
+    qDebug() << "TestServiceData::deserialize 3";
+}
+
+typedef QList<TestServiceData> TestServiceDataList;
+
+Q_DECLARE_USER_METATYPE(TestServiceData)
+Q_DECLARE_USER_METATYPE_NO_OPERATORS(TestServiceDataList)
 Q_DECLARE_USER_METATYPE(MetaDummy1)
 Q_DECLARE_USER_METATYPE(MetaDummy2)
 

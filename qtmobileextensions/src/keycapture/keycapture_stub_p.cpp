@@ -21,6 +21,9 @@
 
 #include "keycapture_stub_p.h"
 
+int KeyCapturePrivate::mRemoteEventType_KeyPress = 0;
+int KeyCapturePrivate::mRemoteEventType_KeyRelease = 0;
+
 KeyCapturePrivate::KeyCapturePrivate()
 {
 
@@ -28,6 +31,22 @@ KeyCapturePrivate::KeyCapturePrivate()
 
 KeyCapturePrivate::~KeyCapturePrivate()
 {
+}
+
+bool KeyCapturePrivate::initRemote(XQKeyCapture::CapturingFlags flags, XQKeyCapture::HandlingEvents events)
+{
+    Q_UNUSED(flags);
+    Q_UNUSED(events);
+    
+    return false;
+}
+
+bool KeyCapturePrivate::closeRemote(XQKeyCapture::CapturingFlags flags, XQKeyCapture::HandlingEvents events)
+{
+    Q_UNUSED(flags);
+    Q_UNUSED(events);
+    
+    return false;
 }
 
 void KeyCapturePrivate::captureKey(Qt::Key aKey,
@@ -158,3 +177,4 @@ int KeyCapturePrivate::errorId() const
 {
     return 0;
 }
+

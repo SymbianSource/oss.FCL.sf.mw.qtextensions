@@ -804,6 +804,17 @@ Q_DEFINE_LATIN1_CONSTANT(QContactPhoneNumber::SubTypeDtmfMenu, "DtmfMenu");
  */
 
 /*!
+   \deprecated
+   \variable QContactOrganization::FieldLogo
+
+   The constant key for which the logo path value is stored in details
+   of the QContactOrganization type.
+
+   This field is deprecated and will be removed after the transition period has elapsed.
+ */
+Q_DEFINE_LATIN1_CONSTANT(QContactOrganization::FieldLogo, "Logo");
+
+/*!
    \variable QContactBirthday::DefinitionName
    The string constant for the definition name of QContactBirthday details.
  */
@@ -921,6 +932,17 @@ Q_DEFINE_LATIN1_CONSTANT(QContactGeoLocation::FieldLatitude, "Latitude");
    \sa longitude(), setLongitude()
  */
 Q_DEFINE_LATIN1_CONSTANT(QContactGeoLocation::FieldLongitude, "Longitude");
+
+/*!
+   \variable QContactPhoneNumber::SubTypeFacsimile
+   \deprecated
+
+   The constant attribute value which describes the phone number as
+   identifying a fax machine.
+
+   This has been deprecated - use QContactPhoneNumebr::SubTypeFax instead.
+ */
+Q_DEFINE_LATIN1_CONSTANT(QContactPhoneNumber::SubTypeFacsimile, "Fax");
 
 /*!
    \variable QContactGeoLocation::FieldAccuracy
@@ -1680,6 +1702,7 @@ Q_DEFINE_LATIN1_CONSTANT(QContactOnlineAccount::SubTypeVideoShare, "VideoShare")
    Returns the list of subtypes that this detail implements.
  */
 
+
 /*!
    \fn QContactOnlineAccount::setCapabilities(const QStringList& capabilities)
 
@@ -1786,6 +1809,19 @@ Q_DEFINE_LATIN1_CONSTANT(QContactOrganization::FieldAssistantName, "AssistantNam
    \fn QContactOrganization::logoUrl() const
    Returns the url of the logo of the organization stored in this detail.
  */
+
+/*!
+   \deprecated
+   \fn QContactOrganization::setLogo(const QString& logo)
+   Sets the logo of the organization stored in this detail to \a logo.
+ */
+
+/*!
+   \deprecated
+   \fn QContactOrganization::logo() const
+   Returns the logo of the organization stored in this detail.
+ */
+
 
 /*!
    \fn QContactOrganization::setDepartment(const QStringList& department)

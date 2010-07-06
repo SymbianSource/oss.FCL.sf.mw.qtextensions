@@ -32,6 +32,7 @@
 
 #include <QMainWindow>
 #include <QMap>
+#include <QEvent>
 
 #include <e32base.h>
 
@@ -59,7 +60,7 @@ public:
     
     ~TargetWrapper();
     
-    void init();
+    void init(XQKeyCapture::CapturingFlags flags);
 
 public:
     // -- MRemConCoreApiTargetObserver overloaded methods --    
@@ -85,33 +86,27 @@ public:
     
      void SpeedDial( const TInt aIndex );    
      
-     void setBasicApi(bool);
-
-     void setCallHandlingApi(bool);
-    
 protected:    
      
     void initMapping();
 
     QWidget *getTargetWidget();
     
-    void sendPressKey(Qt::Key key, Qt::KeyboardModifiers modFlags);
-
-    void sendReleaseKey(Qt::Key key, Qt::KeyboardModifiers modFlags);
+    void sendKey(QEvent::Type eventType, Qt::Key key, Qt::KeyboardModifiers modFlags, 
+            TRemConCoreApiOperationId aOperationId = ENop);
 
     Qt::Key mapKey(TRemConCoreApiOperationId aOperationId);
 
 private:
     CRemConInterfaceSelector *selector;
     
-    bool basicApi;
-    bool callHandlingApi;
-
     CRemConCoreApiTarget *target;
     CRemConCallHandlingTarget *targetEx;
 
     ResponseHandler *handler;
     ResponseHandlerEx *handlerEx;
+    
+    XQKeyCapture::CapturingFlags captureFlags;
     
     QMap<TRemConCoreApiOperationId, Qt::Key> keyMapping;
 };

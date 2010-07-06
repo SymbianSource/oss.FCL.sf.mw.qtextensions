@@ -43,9 +43,9 @@ public:
     KeyCapturePrivate();
     ~KeyCapturePrivate();
 
-    bool initRemote(XQKeyCapture::CapturingFlags);
+    bool initRemote(XQKeyCapture::CapturingFlags flags);
     
-    bool closeRemote(XQKeyCapture::CapturingFlags);
+    bool closeRemote(XQKeyCapture::CapturingFlags flags);
 
     bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
@@ -90,8 +90,12 @@ public:
     int errorId() const;
 
 private:
+    static int mRemoteEventType_KeyPress;
+    static int mRemoteEventType_KeyRelease;
+    
+private:
 
-    bool resetRemote();
+    bool resetRemote(XQKeyCapture::CapturingFlags flags);
     
     bool doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
             Qt::KeyboardModifiers aModifier,
@@ -119,6 +123,8 @@ private:
     QKeyMapperPrivate* mMapper;
     
     TargetWrapper *tgWrapper;
+    
+    friend class XQKeyCapture;
     };
 
 #endif /* KEYCAPTUREPRIVATE_S60_H */

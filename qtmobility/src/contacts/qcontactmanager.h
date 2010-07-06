@@ -61,6 +61,8 @@
 QTM_BEGIN_NAMESPACE
 
 class QContactFilter;
+class QContactAction;
+
 class QContactManagerData;
 class Q_CONTACTS_EXPORT QContactManager : public QObject
 {
@@ -112,18 +114,22 @@ public:
     /* Contacts - Accessors and Mutators */
     QList<QContactLocalId> contactIds(const QList<QContactSortOrder>& sortOrders = QList<QContactSortOrder>()) const;
     QList<QContactLocalId> contactIds(const QContactFilter& filter, const QList<QContactSortOrder>& sortOrders = QList<QContactSortOrder>()) const;
+
     QList<QContact> contacts(const QList<QContactSortOrder>& sortOrders = QList<QContactSortOrder>(), const QContactFetchHint& fetchHint = QContactFetchHint()) const;
     QList<QContact> contacts(const QContactFilter& filter, const QList<QContactSortOrder>& sortOrders = QList<QContactSortOrder>(), const QContactFetchHint& fetchHint = QContactFetchHint()) const;
     QContact contact(const QContactLocalId& contactId, const QContactFetchHint& fetchHint = QContactFetchHint()) const;  // retrieve a contact
 
     bool saveContact(QContact* contact);                 // note: MODIFIES contact (sets the contactId)
     bool removeContact(const QContactLocalId& contactId);      // remove the contact from the persistent store
+
     bool saveContacts(QList<QContact>* contacts, QMap<int, QContactManager::Error>* errorMap); // batch API - save.
     bool removeContacts(const QList<QContactLocalId>& contactIds, QMap<int, QContactManager::Error>* errorMap); // batch API - remove.
 
     /* Return a pruned or modified contact which is valid and can be saved in the manager */
     QContact compatibleContact(const QContact& original); // Preliminary function!
 
+    /* deprecated - to be removed after the transition period has elapsed */
+    QString Q_DECL_DEPRECATED synthesizedDisplayLabel(const QContact& contact) const;
     /* Synthesize the display label of a contact */
     QString synthesizedContactDisplayLabel(const QContact& contact) const;
     void synthesizeContactDisplayLabel(QContact* contact) const;
@@ -153,6 +159,7 @@ public:
         MutableDefinitions,
         Relationships,
         ArbitraryRelationshipTypes,
+        RelationshipOrdering,     // deprecated along with setRelationshipOrder() etc in QContact.
         DetailOrdering,
         SelfContact,
         Anonymous,

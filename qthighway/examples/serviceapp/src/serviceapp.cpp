@@ -33,9 +33,9 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QMessageBox>
-#include <QUrl>
 #include <xqsharablefile.h>
 
+#include "testservicedata.h"
 #include "serviceapp.h"
 #include <xqserviceutil.h>
 
@@ -292,11 +292,13 @@ QVariant DialerService::testVariant(QVariant variant)
 
     if (variant.typeName() == QLatin1String("QStringList"))
     {
+        qDebug() << "DialerService::testVariant QStringList";
         QStringList ret = variant.toStringList();
         return qVariantFromValue(ret);
     }
     else if (variant.typeName() == QLatin1String("XQShabarableFile"))
     {
+        qDebug() << "DialerService::testVariant XQShabarableFile";
         XQSharableFile sf = variant.value<XQSharableFile>();
         
         RFile file;
@@ -317,6 +319,7 @@ QVariant DialerService::testVariant(QVariant variant)
     }
     else if (variant.typeName() == QLatin1String("XQRequestInfo"))
     {
+        qDebug() << "DialerService::testVariant XQRequestInfo";
         XQRequestInfo info = variant.value<XQRequestInfo>();
         QStringList keys = info.infoKeys();
         foreach (QString key, keys)
@@ -331,6 +334,7 @@ QVariant DialerService::testVariant(QVariant variant)
     }
     else if (variant.typeName() == QLatin1String("CntServicesContactList"))
     {
+        qDebug() << "DialerService::testVariant CntServicesContactList";
         // Show input
         showRecipients(variant);
 
@@ -511,6 +515,42 @@ QVariant NewDialerService::testVariant(QVariant variant)
         QStringList ret = variant.toStringList();
         return qVariantFromValue(ret);
     }
+    else if (variant.typeName() == QLatin1String("TestServiceDataList"))
+    {
+        qDebug() << "DialerService::testVariant TestServiceDataList";
+        TestServiceDataList list;
+        if(variant.canConvert<TestServiceDataList>())
+        {
+            qDebug() << "DialerService::TestServiceDataList: canConvert OK";
+            list = qVariantValue<TestServiceDataList>(variant);
+            for (int i = 0; i < list.count(); ++i)
+            {
+                qDebug() << "DialerService::TestServiceDataList[" << i << "]=" << list[i].mType;
+                qDebug() << "DialerService::TestServiceDataList[" << i << "]=" << list[i].mData.toString();
+            }
+        }
+        else
+        {
+            qDebug() << "DialerService::TestServiceDataList: canConvert NOK";
+        }    
+
+        TestServiceDataList resultList;
+        QVariant v1;
+        QVariant v2;
+        QVariant v3;
+        v1.setValue((int)99);
+        v2.setValue((bool)false);
+        v3.setValue(QString("Variant3 return"));
+        TestServiceData data1(1, v1);
+        TestServiceData data2(2, v2);
+        TestServiceData data3(3, v3);
+        resultList.append(data1);
+        resultList.append(data2);
+        resultList.append(data3);
+        
+        // Return some data back
+        return qVariantFromValue(resultList);
+    }
     else if (variant.typeName() == QLatin1String("XQShabarableFile"))
     {
         XQSharableFile sf = variant.value<XQSharableFile>();
@@ -567,6 +607,12 @@ QVariant NewDialerService::testVariant(QVariant variant)
 
         // Return contact list back
         return qVariantFromValue(list);
+    }
+    else if (variant.typeName() == QLatin1String("QByteArray"))
+    {
+        QByteArray val = variant.value<QByteArray>();
+        qDebug() << "DialerService::QByteArray size=" << val.size();
+        return qVariantFromValue(val);
     }
     else
     {
@@ -636,6 +682,9 @@ void NewDialerService::showRecipients(CntServicesContactList &list)
 Q_IMPLEMENT_USER_METATYPE(CntServicesContact)
 Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(CntServicesContactList)
 
+Q_IMPLEMENT_USER_METATYPE(TestServiceData)
+Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(TestServiceDataList)
+
 // ----------UriService---------------
 
 UriService::UriService(ServiceApp* parent)
@@ -654,6 +703,7 @@ UriService::~UriService()
 
 void UriService::complete(bool ok)
 {
+    Q_UNUSED(ok)
     XQSERVICE_DEBUG_PRINT("UriService::complete");
     // Complete all IDs
     foreach (quint32 reqId, mAsyncReqIds)
@@ -730,6 +780,7 @@ NewUriService::~NewUriService()
 
 void NewUriService::complete(bool ok)
 {
+    Q_UNUSED(ok);
     XQSERVICE_DEBUG_PRINT("NewUriService::complete");
     // Complete all IDs
     foreach (quint32 reqId, mAsyncReqIds)
@@ -742,18 +793,7 @@ void NewUriService::complete(bool ok)
 bool NewUriService::view(const QString& uri)
 {
     XQSERVICE_DEBUG_PRINT("NewUriService::view(1)");
-    QUrl url(uri);
-    XQSERVICE_DEBUG_PRINT("NewUriService::scheme=%s", qPrintable(url.scheme()));
-    if (url.scheme() == QLatin1String("testto"))
-    {
-        XQSERVICE_DEBUG_PRINT("NewUriService::return true");
-        return view(uri, true);
-    }
-    else
-    {
-        XQSERVICE_DEBUG_PRINT("NewUriService::return false");
-        return view(uri, false);
-    }
+    return view(uri, true);
 }
 
 bool NewUriService::view(const QString& uri, bool retValue)
@@ -775,10 +815,8 @@ bool NewUriService::view(const QString& uri, bool retValue)
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
     }
-    else
-    {
-        return retValue;
-    }
+
+    return retValue;
 }
 
 void NewUriService::handleClientDisconnect()

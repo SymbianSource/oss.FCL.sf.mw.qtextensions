@@ -63,7 +63,6 @@ public:
     Q_DECLARE_CUSTOM_CONTACT_DETAIL(QContactAvatar, "Avatar")
     Q_DECLARE_LATIN1_CONSTANT(FieldImageUrl, "ImageUrl");
     Q_DECLARE_LATIN1_CONSTANT(FieldVideoUrl, "VideoUrl");
-    // MeshUri, VibetoneUri, Audio(theme)Uri, ...?
 #endif
 
     void setImageUrl(const QUrl& imageUrl) {setValue(FieldImageUrl, imageUrl);}

@@ -65,6 +65,12 @@ QContactRemoveRequest::QContactRemoveRequest(QObject* parent)
 {
 }
 
+/*! Frees any memory used by this request */
+QContactRemoveRequest::~QContactRemoveRequest()
+{
+    QContactAbstractRequestPrivate::notifyEngine(this);
+}
+
 /*!
   Sets the id of the contact which will be removed to \a contactId.
   Equivalent to calling:

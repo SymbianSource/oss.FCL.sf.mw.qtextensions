@@ -38,8 +38,6 @@
 TargetWrapper::TargetWrapper()
 :
 selector(0),
-basicApi(false),
-callHandlingApi(false),
 target(0),
 targetEx(0),
 handler(0),
@@ -53,30 +51,20 @@ TargetWrapper::~TargetWrapper()
     delete selector;
 }
 
-void TargetWrapper::setBasicApi(bool basic)
+void TargetWrapper::init(XQKeyCapture::CapturingFlags flags)
 {
-    basicApi = basic;
-}
-
-void TargetWrapper::setCallHandlingApi(bool callHandling)
-{
-    callHandlingApi = callHandling;
-}
-
-
-void TargetWrapper::init()
-{
+    captureFlags = flags;
     try {
         delete selector;
     
         QT_TRAP_THROWING(selector = CRemConInterfaceSelector::NewL());
         
-        if (basicApi) {
+        if (captureFlags & XQKeyCapture::CaptureBasic) {
             QT_TRAP_THROWING(target = CRemConCoreApiTarget::NewL(*selector, *this));
             QT_TRAP_THROWING(handler = ResponseHandler::NewL(*target));
         }
          
-        if (callHandlingApi) {
+        if (captureFlags & XQKeyCapture::CaptureCallHandlingExt) {
             QT_TRAP_THROWING(targetEx = CRemConCallHandlingTarget::NewL(*selector, *this));
             QT_TRAP_THROWING(handlerEx = ResponseHandlerEx::NewL(*targetEx));
         }
@@ -114,44 +102,42 @@ void TargetWrapper::MrccatoCommand(TRemConCoreApiOperationId aOperationId, TRemC
     switch (aButtonAct) {
         case ERemConCoreApiButtonPress:
             TX_LOG_ARGS("ERemConCoreApiButtonPress");
-            sendPressKey(key, Qt::NoModifier);
+            sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
             break;
         case ERemConCoreApiButtonRelease:
             TX_LOG_ARGS("ERemConCoreApiButtonRelease");
-            sendReleaseKey(key, Qt::NoModifier);
+            sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
             break;
         case ERemConCoreApiButtonClick:
             TX_LOG_ARGS("ERemConCoreApiButtonClick");
-            sendPressKey(key, Qt::NoModifier);
-            sendReleaseKey(key, Qt::NoModifier);
+            sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
+            sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
             break;
         default:
-            break;
+            return;
     }
-    
-    
-    handler->CompleteAnyKey(aOperationId);
 
+    handler->CompleteAnyKey(aOperationId);
 }
 
 void TargetWrapper::AnswerCall()
 {
-    sendPressKey(Qt::Key_Call, Qt::NoModifier);
-    sendReleaseKey(Qt::Key_Call, Qt::NoModifier);
+    sendKey(QEvent::KeyPress, Qt::Key_Call, Qt::NoModifier);
+    sendKey(QEvent::KeyRelease, Qt::Key_Call, Qt::NoModifier);
     handlerEx->CompleteAnyKey(0);
 }
 
 void TargetWrapper::EndCall()
 {
-    sendPressKey(Qt::Key_Hangup, Qt::NoModifier);
-    sendReleaseKey(Qt::Key_Hangup, Qt::NoModifier);
+    sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);
+    sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier);
     handlerEx->CompleteAnyKey(0);
 }
 
 void TargetWrapper::AnswerEndCall()
 {
-    sendPressKey(Qt::Key_Hangup, Qt::NoModifier);  //TODO: Qt::Key_ToggleCallHangup
-    sendReleaseKey(Qt::Key_Hangup, Qt::NoModifier); 
+    sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);  //TODO: Qt::Key_ToggleCallHangup
+    sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier); 
     handlerEx->CompleteAnyKey(0);
 }
 
@@ -184,6 +170,31 @@ void TargetWrapper::SpeedDial( const TInt aIndex )
     Q_UNUSED(aIndex)
 }
 
+void TargetWrapper::sendKey(QEvent::Type eventType, Qt::Key key, Qt::KeyboardModifiers modFlags, 
+                    TRemConCoreApiOperationId aOperationId)
+{
+    QWidget *widget = getTargetWidget();
+    if (widget) {
+        QKeyEvent *event = NULL;
+        if (captureFlags & XQKeyCapture::CaptureEnableRemoteExtEvents){
+            if (eventType == QEvent::KeyPress){
+                event = QKeyEvent::createExtendedKeyEvent(XQKeyCapture::remoteEventType_KeyPress(), 
+                        key, modFlags, 0, aOperationId, 0);
+            } else if (eventType == QEvent::KeyRelease){
+                event = QKeyEvent::createExtendedKeyEvent(XQKeyCapture::remoteEventType_KeyRelease(), 
+                        key, modFlags, 0, aOperationId, 0);
+            }
+        } else {
+            event = new QKeyEvent(eventType, key, modFlags);
+        }
+        
+        if (event){
+            QApplication::sendEvent(widget, event);
+            qDebug("sending key event!");
+            delete event;
+        }
+    }
+}
 
 QWidget *TargetWrapper::getTargetWidget()
 {
@@ -206,24 +217,7 @@ QWidget *TargetWrapper::getTargetWidget()
     return widget;
 }
 
-void TargetWrapper::sendPressKey(Qt::Key key, Qt::KeyboardModifiers modFlags)
-{
-    QWidget *widget = getTargetWidget();
-    if (widget) {
-        QKeyEvent event(QKeyEvent::KeyPress, key, modFlags, 0, false, 1);
-        QApplication::sendEvent(widget, &event);
-    }
-    qDebug("sending key event!");
-}
 
-void TargetWrapper::sendReleaseKey(Qt::Key key, Qt::KeyboardModifiers modFlags)
-{
-    QWidget *widget = getTargetWidget();
-    if (widget) {
-        QKeyEvent event(QKeyEvent::KeyRelease, key, modFlags, 0, false, 1);
-        QApplication::sendEvent(widget, &event);
-    }
-}
 
 void TargetWrapper::initMapping()
 {
