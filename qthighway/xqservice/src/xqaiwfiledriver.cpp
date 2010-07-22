@@ -28,17 +28,32 @@
 
 XQAiwFileDriver::XQAiwFileDriver(const QFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
     : XQAiwRequestDriver(),
-      mFile(file.fileName()),
       mUtilities(NULL)
 {
 
     mErrorMsg = "";
     mDescr = descriptor; 
-    mOperation = operation; 
+    mOperation = operation;
+    mFile = file.fileName();
     
     XQSERVICE_DEBUG_PRINT("XQAiwFileDriver::XQAiwFileDriver: %s",
                           qPrintable(file.fileName()));
     
+}
+
+XQAiwFileDriver::XQAiwFileDriver(const XQSharableFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
+    : XQAiwRequestDriver(),
+      mUtilities(NULL)
+{
+
+    mErrorMsg = "";
+    mDescr = descriptor; 
+    mOperation = operation;
+    mFile = qVariantFromValue(file);
+
+    XQSERVICE_DEBUG_PRINT("XQAiwFileDriver::XQAiwFileDriver: sharable %s",
+                          qPrintable(file.fileName()));
+
 }
 
 
@@ -75,11 +90,7 @@ bool XQAiwFileDriver::send(QVariant& retValue)
     QVariant applicationId =  mDescr.property(XQAiwInterfaceDescriptor::ImplementationId);
     XQSERVICE_DEBUG_PRINT("Application id %x", applicationId.toInt());
 
-    // Create space separated command line args
-    QString args = mUtilities->createCmdlineArgs(mArguments);
-    XQSERVICE_DEBUG_PRINT("args %s", qPrintable(args));
-    
-    mErrorCode = mUtilities->launchApplication(applicationId.toInt(), args);
+    mErrorCode = mUtilities->launchFile(applicationId.toInt(), mFile);
     XQSERVICE_DEBUG_PRINT("XQAiwFileDriver::errorCode %d", mErrorCode);
     QVariant ret(!mErrorCode);
     retValue = ret;

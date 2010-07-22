@@ -31,6 +31,10 @@ public:
     KeyCapturePrivate();
     ~KeyCapturePrivate();
 
+    bool initRemote(XQKeyCapture::CapturingFlags, XQKeyCapture::HandlingEvents);
+        
+    bool closeRemote(XQKeyCapture::CapturingFlags, XQKeyCapture::HandlingEvents);
+    
     bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier);
     
@@ -38,10 +42,10 @@ public:
         Qt::KeyboardModifiers aModifier);
     
     bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
     
     bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XqKeyCapture::LongFlags aLongType);
+        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
     
     bool captureKeyUpAndDowns(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
@@ -57,11 +61,11 @@ public:
     
     bool cancelCaptureLongKey(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType);
+        XQKeyCapture::LongFlags aLongType);
     
     bool cancelCaptureLongKey(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType);
+        XQKeyCapture::LongFlags aLongType);
     
     bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
         Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
@@ -72,6 +76,12 @@ public:
     QString errorString() const;
 
     int errorId() const;
+
+private:
+    static int mRemoteEventType_KeyPress;
+    static int mRemoteEventType_KeyRelease;
+    
+    friend class XQKeyCapture;
 };
 
 #endif /* KEYCAPTUREPRIVATE_STUB_H */

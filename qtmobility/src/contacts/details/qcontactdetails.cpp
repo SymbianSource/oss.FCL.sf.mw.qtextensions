@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -804,6 +804,17 @@ Q_DEFINE_LATIN1_CONSTANT(QContactPhoneNumber::SubTypeDtmfMenu, "DtmfMenu");
  */
 
 /*!
+   \deprecated
+   \variable QContactOrganization::FieldLogo
+
+   The constant key for which the logo path value is stored in details
+   of the QContactOrganization type.
+
+   This field is deprecated and will be removed after the transition period has elapsed.
+ */
+Q_DEFINE_LATIN1_CONSTANT(QContactOrganization::FieldLogo, "Logo");
+
+/*!
    \variable QContactBirthday::DefinitionName
    The string constant for the definition name of QContactBirthday details.
  */
@@ -921,6 +932,17 @@ Q_DEFINE_LATIN1_CONSTANT(QContactGeoLocation::FieldLatitude, "Latitude");
    \sa longitude(), setLongitude()
  */
 Q_DEFINE_LATIN1_CONSTANT(QContactGeoLocation::FieldLongitude, "Longitude");
+
+/*!
+   \variable QContactPhoneNumber::SubTypeFacsimile
+   \deprecated
+
+   The constant attribute value which describes the phone number as
+   identifying a fax machine.
+
+   This has been deprecated - use QContactPhoneNumebr::SubTypeFax instead.
+ */
+Q_DEFINE_LATIN1_CONSTANT(QContactPhoneNumber::SubTypeFacsimile, "Fax");
 
 /*!
    \variable QContactGeoLocation::FieldAccuracy
@@ -1328,6 +1350,17 @@ Q_DEFINE_LATIN1_CONSTANT(QContactNote::FieldNote, "Note");
    \brief The QContactTag class contains a tag associated with a
    contact.
    \ingroup contacts-details
+
+   Typically the tags associated with a contact will be distinct,
+   although this is usually only enforced when the contact is saved
+   in the manager.
+
+   Here is an example of retrieving all the tags for a contact:
+   \snippet doc/src/snippets/qtcontactsdocsample/qtcontactsdocsample.cpp Getting all tags
+
+   Here is an example of checking for a specific tag value:
+   \snippet doc/src/snippets/qtcontactsdocsample/qtcontactsdocsample.cpp Checking for a specific tag
+
  */
 
 /*!
@@ -1669,6 +1702,7 @@ Q_DEFINE_LATIN1_CONSTANT(QContactOnlineAccount::SubTypeVideoShare, "VideoShare")
    Returns the list of subtypes that this detail implements.
  */
 
+
 /*!
    \fn QContactOnlineAccount::setCapabilities(const QStringList& capabilities)
 
@@ -1775,6 +1809,19 @@ Q_DEFINE_LATIN1_CONSTANT(QContactOrganization::FieldAssistantName, "AssistantNam
    \fn QContactOrganization::logoUrl() const
    Returns the url of the logo of the organization stored in this detail.
  */
+
+/*!
+   \deprecated
+   \fn QContactOrganization::setLogo(const QString& logo)
+   Sets the logo of the organization stored in this detail to \a logo.
+ */
+
+/*!
+   \deprecated
+   \fn QContactOrganization::logo() const
+   Returns the logo of the organization stored in this detail.
+ */
+
 
 /*!
    \fn QContactOrganization::setDepartment(const QStringList& department)

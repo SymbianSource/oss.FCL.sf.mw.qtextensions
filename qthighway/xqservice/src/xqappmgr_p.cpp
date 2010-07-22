@@ -61,9 +61,9 @@ XQAiwRequest* XQApplicationManagerPrivate::create(
 
     QList<XQAiwInterfaceDescriptor> impls;
     if (service.isEmpty())
-        impls = serviceMgr->findInterfaces(interface);
+        impls = serviceMgr->findFirstInterface(interface);
     else
-        impls = serviceMgr->findInterfaces(service, interface);
+        impls = serviceMgr->findFirstInterface(service, interface);
 
     // Pick up the first implementation
     if (impls.count())
@@ -528,5 +528,10 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::listFileHandlers(
         }
     }
 
+    if (result.isEmpty())
+    {
+        // No service support present, try using the MIME handlers via old way
+        return mimeHandlers;
+    }
     return result;
 }

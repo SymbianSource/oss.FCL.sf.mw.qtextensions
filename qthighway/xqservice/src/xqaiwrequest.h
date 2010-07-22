@@ -108,7 +108,8 @@ private:
     int errorCode;
     QVariant result;  // Client can use results whenever wants
     QList<QAction*> actionList;
-    bool asyncErrorSet;
+    bool completeSignalConnected;
+    bool errorSignalConnected;
     
     };
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -63,7 +63,6 @@ public:
     Q_DECLARE_CUSTOM_CONTACT_DETAIL(QContactAvatar, "Avatar")
     Q_DECLARE_LATIN1_CONSTANT(FieldImageUrl, "ImageUrl");
     Q_DECLARE_LATIN1_CONSTANT(FieldVideoUrl, "VideoUrl");
-    // MeshUri, VibetoneUri, Audio(theme)Uri, ...?
 #endif
 
     void setImageUrl(const QUrl& imageUrl) {setValue(FieldImageUrl, imageUrl);}

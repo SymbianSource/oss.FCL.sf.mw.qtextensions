@@ -23,7 +23,7 @@ TARGET=serviceapp
 
 CONFIG += service
 
-symbian:TARGET.UID3 = 0xE0022E73
+symbian:TARGET.UID3 = 0xE0022E78
 
 XQSERVICE_ROOT=../..
 include(../../xqservicebase.pri)
@@ -50,4 +50,3 @@ RSS_RULES += \
   "          type = \"text/plain\";" \
   "          }" \
   "      };" \
-

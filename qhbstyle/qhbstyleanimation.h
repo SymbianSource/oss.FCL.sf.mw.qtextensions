@@ -47,10 +47,10 @@ public:
     void paintAnimation(QPainter *painter);
 
 private:
-    QPixmap* m_animationIcon;
-    QWidget* m_target;
+    QScopedPointer<QPixmap> m_animationIcon;
+    QScopedPointer<QWidget> m_target;
     QPoint m_point;
-    QPixmap* m_mask;
+    QScopedPointer<QPixmap> m_mask;
 };
 
 #endif // QHBSTYLEANIMATION_H

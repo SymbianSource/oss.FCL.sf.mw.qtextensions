@@ -92,4 +92,7 @@ EXPORTS
 	_ZNK16XQServiceManager9isRunningERK24XQAiwInterfaceDescriptor @ 91 NONAME
 	_ZN13XQRequestInfo13setForegroundEb @ 92 NONAME
 	_ZNK13XQRequestInfo12isForegroundEv @ 93 NONAME
+	_ZN13XQRequestUtil11channelNameERK7QString @ 94 NONAME
+	_ZNK16XQServiceManager18findFirstInterfaceERK7QString @ 95 NONAME
+	_ZNK16XQServiceManager18findFirstInterfaceERK7QStringS2_ @ 96 NONAME
 

@@ -86,7 +86,8 @@ private:
 private:
 
     XQServiceRequest * currentRequest;
-    bool asyncErrorSet;
+    bool completeSignalConnected;
+    bool errorSignalConnected;
     QTranslator translator;
     QString lastLang;
     };

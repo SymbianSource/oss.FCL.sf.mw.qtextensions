@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -56,6 +56,7 @@ class Q_CONTACTS_EXPORT QContactDetailDefinitionRemoveRequest : public QContactA
 
 public:
     QContactDetailDefinitionRemoveRequest(QObject* parent = 0);
+    ~QContactDetailDefinitionRemoveRequest();
 
     /* Selection */
     void setDefinitionName(const QString& definitionName);
@@ -66,6 +67,9 @@ public:
 
     /* Results */
     QMap<int, QContactManager::Error> errorMap() const;
+
+    /* deprecated - to be removed after the transition period has elapsed */
+    void Q_DECL_DEPRECATED setDefinitionNames(const QString& contactType, const QStringList& names);
 
 private:
     Q_DISABLE_COPY(QContactDetailDefinitionRemoveRequest)

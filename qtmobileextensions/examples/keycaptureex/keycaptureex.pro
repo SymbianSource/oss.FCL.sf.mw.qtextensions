@@ -23,25 +23,34 @@ TARGET = KeyCaptureEx
 
 QT        += core gui
 
-SOURCES = main.cpp \
-		keycapturetestapp.cpp
-		
-HEADERS = keycapturetestapp.h \
-		txlogger.h
+SOURCES = \
+    main.cpp \
+    mapping.cpp \
+    keycapturetestapp.cpp \
+    capturerequest.cpp
+    
+HEADERS = \
+    keycapturetestapp.h \
+    mybutton.h \
+    mapping.h \
+    txlogger.h \
+    capturerequest.h
 
 symbian { 
 	TARGET.EPOCSTACKSIZE = 0x14000
     TARGET.EPOCALLOWDLLDATA = 1
     TARGET.CAPABILITY = ALL -TCB
-	
-	LIBS += -lflogger
-	
-	INCLUDEPATH += /epoc32/include
-	
+    
+    MMP_RULES += EXPORTUNFROZEN
+
+    LIBS += -lflogger \
+        -lxqkeycapture
+    
+    INCLUDEPATH += /epoc32/include \
+           ../keycapture/
+    
 }
 
-LIBS += -lxqkeycapture
-            
 # enable for debug traces
 #DEFINES += ENABLETRACE
 #DEFINES += TRACE_FILE

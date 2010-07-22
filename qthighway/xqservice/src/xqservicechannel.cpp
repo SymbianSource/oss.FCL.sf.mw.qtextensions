@@ -332,7 +332,13 @@ QVariant XQServiceChannel::sendLocally(const QString& ch, const QString& msg,
         if (channel->object)
             ret = channel->object->receive(msg, data,sf );
     }
-    XQSERVICE_DEBUG_PRINT("ret: %s", qPrintable(ret.toString()));
+
+#ifdef XQSERVICE_DEBUG
+    QString s = ret.toString();
+    int len=s.length();
+    XQSERVICE_DEBUG_PRINT("sendLocally ret: type=%s,len=%d,value(max.1024)=%s",
+                          ret.typeName(),len,qPrintable(s.left(1024)));
+#endif
     return ret ;
 }
 

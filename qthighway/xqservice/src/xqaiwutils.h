@@ -40,7 +40,8 @@ public:
 
     XQAiwUtils();
     virtual ~XQAiwUtils();
-    int launchApplication(int applicationId, const QString &cmdArguments);
+    int launchApplication(int applicationId, const QList<QVariant> &arguments);
+    int launchFile(int applicationId, const QVariant &file);
     int mapError(int symbianError);
     int findApplication(const QFile &file, int &applicationId);
     int findApplication(const XQSharableFile &file, int &applicationId);

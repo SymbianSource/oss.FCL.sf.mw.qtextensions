@@ -77,4 +77,7 @@ EXPORTS
 	?isRunning@XQServiceManager@@QBE_NABVXQAiwInterfaceDescriptor@@@Z @ 76 NONAME ; bool XQServiceManager::isRunning(class XQAiwInterfaceDescriptor const &) const
 	?setForeground@XQRequestInfo@@QAEX_N@Z @ 77 NONAME ; void XQRequestInfo::setForeground(bool)
 	?isForeground@XQRequestInfo@@QBE_NXZ @ 78 NONAME ; bool XQRequestInfo::isForeground(void) const
+	?channelName@XQRequestUtil@@SA?AVQString@@ABV2@@Z @ 79 NONAME ; class QString XQRequestUtil::channelName(class QString const &)
+	?findFirstInterface@XQServiceManager@@QBE?AV?$QList@VXQAiwInterfaceDescriptor@@@@ABVQString@@@Z @ 80 NONAME ; class QList<class XQAiwInterfaceDescriptor> XQServiceManager::findFirstInterface(class QString const &) const
+	?findFirstInterface@XQServiceManager@@QBE?AV?$QList@VXQAiwInterfaceDescriptor@@@@ABVQString@@0@Z @ 81 NONAME ; class QList<class XQAiwInterfaceDescriptor> XQServiceManager::findFirstInterface(class QString const &, class QString const &) const
 

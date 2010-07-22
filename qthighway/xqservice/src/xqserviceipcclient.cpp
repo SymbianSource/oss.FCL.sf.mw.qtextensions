@@ -134,9 +134,16 @@ bool XQServiceIpcClient::connectToServer()
         return true;
         }
 #endif
-		
+
+    // Attension.
+    // The 'mIpcConName' may contai the unique session identifier to separate connections using the same
+    // By default server name is the same as the channel name.
+    // When embedded launch, we add the server process ID to name to make it unique
+    QString serverName = XQRequestUtil::channelName(mIpcConName);
+    
     if (!serviceIpc) {
-        XQSERVICE_DEBUG_PRINT("New serviceIpc:mIpcConName=%s", qPrintable(mIpcConName));
+        XQSERVICE_DEBUG_PRINT("New serviceIpc:mIpcConName=%s,serverName=%s",
+                              qPrintable(mIpcConName), qPrintable(serverName));
         
         serviceIpc = new ServiceFwIPC(this, ESymbianApaServer);
         serviceIpc->setUserData(mUserData); // Attach user data, if any, to request
@@ -145,30 +152,36 @@ bool XQServiceIpcClient::connectToServer()
         
         connect(serviceIpc, SIGNAL(error(int)), this, SLOT(clientError(int)));
         connect(serviceIpc, SIGNAL(readyRead()), this, SLOT(readyRead()));
-        XQSERVICE_DEBUG_PRINT("embedded: %d", embedded);
+        XQSERVICE_DEBUG_PRINT("\tembedded: %d", embedded);
         if (embedded) {
-            // You can have only one embedded service in use at a time !!!
-            // Start application in embedded mode (add process ID to connection name !)
             quint64 processId=0;
-            bool ret = serviceIpc->startServer(mIpcConName,"", processId, ServiceFwIPC::EStartInEmbeddedMode);
+            // Embedded server launch.
+            // Server executable is always started with common name.
+            // The server has to add the it's process ID to server names when creating Symbian server names to
+            // be connected to. That's how client and server can establish unique connection.
+            // 
+            bool ret = serviceIpc->startServer(serverName,"", processId, ServiceFwIPC::EStartInEmbeddedMode);
             XQSERVICE_DEBUG_PRINT("ret: %d", ret);
             if (ret && (processId > 0)) {
-                QString conName = mIpcConName + "." + QString::number(processId);
-                XQSERVICE_DEBUG_PRINT("conName: %s", qPrintable(conName));
+                // 
+                // Start application in embedded mode. Add process ID to server name to make
+                // server connection unique.
+                serverName  = serverName  + "." + QString::number(processId);
+                XQSERVICE_DEBUG_PRINT("Try connect to embedded service: %s", qPrintable(serverName));
                 retryCount = 0;
-                while (!serviceIpc->connect(conName) && retryCount < retryToServerMax) {
+                while (!serviceIpc->connect(serverName) && retryCount < retryToServerMax) {
                     XQSERVICE_DEBUG_PRINT("retryCount: %d", retryCount+1);
                     ++retryCount;
                     wait(200);
                 }
                 if (retryCount == retryToServerMax) {
-                    XQSERVICE_DEBUG_PRINT("Couldn't connect new");
+                    XQSERVICE_DEBUG_PRINT("Couldn't connect to embedded server");
                     XQService::serviceThreadData()->setLatestError(ServiceFwIPC::EConnectionError);  // Set error also
                     processId = 0;
                 }
             }
             if (!processId) {
-                XQSERVICE_WARNING_PRINT("Could not connect to the service %s", qPrintable(mIpcConName));
+                XQSERVICE_WARNING_PRINT("Could not connect to embedded service %s", qPrintable(serverName));
                 delete serviceIpc;
                 serviceIpc = NULL;
                 return false;                
@@ -176,26 +189,29 @@ bool XQServiceIpcClient::connectToServer()
             XQSERVICE_DEBUG_PRINT("Embedded connection created");
         }
         else {
-            if (!serviceIpc->connect(mIpcConName)) {
-                XQSERVICE_DEBUG_PRINT("Trying to start server");
+            // Not embedded 
+            XQSERVICE_DEBUG_PRINT("Use existing serviceIpc:mIpcConName=%s, serverName=%s",
+                                  qPrintable(mIpcConName), qPrintable(serverName));
+            if (!serviceIpc->connect(serverName)) {
+                XQSERVICE_DEBUG_PRINT("Trying to start server %s", qPrintable(serverName));
                 quint64 processId=0;
-                bool ret=serviceIpc->startServer(mIpcConName,"",processId);
-                XQSERVICE_DEBUG_PRINT("ret: %d", ret);
+                bool ret=serviceIpc->startServer(serverName,"",processId);
+                XQSERVICE_DEBUG_PRINT("starServer ret=%d", ret);
                 if (ret && (processId > 0)) {
                     retryCount = 0;
-                    while (!serviceIpc->connect(mIpcConName) && retryCount < retryToServerMax) {
+                    while (!serviceIpc->connect(serverName) && retryCount < retryToServerMax) {
                         XQSERVICE_DEBUG_PRINT("retryCount: %d", retryCount+1);
                         ++retryCount;
                         wait(200);
                     }
                     if (retryCount == retryToServerMax) {
-                        XQSERVICE_DEBUG_PRINT("Couldn't connect");
+                        XQSERVICE_DEBUG_PRINT("Couldn't connect to server");
                         XQService::serviceThreadData()->setLatestError(ServiceFwIPC::EConnectionError);  // Set error also
                         processId = 0;
                     }
                 }
                 if (!processId) {
-                    XQSERVICE_WARNING_PRINT("Could not connect to the service %s", qPrintable(mIpcConName));
+                    XQSERVICE_WARNING_PRINT("Could not connect to the service %s", qPrintable(serverName));
                     delete serviceIpc;
                     serviceIpc = NULL;
                     return false;                
@@ -280,7 +296,7 @@ void XQServiceIpcClient::handleCancelRequest(ServiceIPCRequest* aRequest)
         // Valid only upon sendCommand call
         cancelledRequest = aRequest; 
         
-        //Attention! At the moment channel name and connection name are the same
+        //Attention! At the moment in server side channel name and connection name are the same
         // it might be that in the future will be different then this is not valid anymore.
         XQServiceChannel::sendCommand(mIpcConName,XQServiceChannel::ClientDisconnected);
 
@@ -373,8 +389,16 @@ bool XQServiceIpcClient::send(const QString& ch,
                               int cmd)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::send, isServer?=%d", server);
-    XQSERVICE_DEBUG_PRINT("\tch: %s, msg: %s", qPrintable(ch), qPrintable(msg));
+    
+    // Attension. The 'ch' name may contain unique session identifier to separate requests going
+    // the same channel. Before real IPC calls need to get the normalized channel name.
+    // The 'mIpcConName' contains the same session identifier to separate connections using the same
+    // channel name.
+    QString channel = XQRequestUtil::channelName(ch);
+    
+    XQSERVICE_DEBUG_PRINT("\tchannel: %s, msg: %s", qPrintable(channel), qPrintable(msg));
     XQSERVICE_DEBUG_PRINT("\tdata: %s, cmd: %d", data.constData(), cmd);
+    
     XQService::serviceThreadData()->setLatestError(KErrNone);
     if (!connectToServer()){
         XQSERVICE_DEBUG_PRINT("\tCouldn't connect to the server");
@@ -383,12 +407,12 @@ bool XQServiceIpcClient::send(const QString& ch,
 
 #ifdef QT_S60_AIW_PLUGIN
     if (plugin) {     
-        QVariant ret=XQServiceChannel::sendLocally(ch, msg, data);     
+        QVariant ret=XQServiceChannel::sendLocally(channel, msg, data);     
         retData = XQServiceThreadData::serializeRetData(ret, XQService::serviceThreadData()->latestError());
         return true;
         }
 #endif
-    int len = ch.length() * 2 + msg.length() * 2 + data.length();
+    int len = channel.length() * 2 + msg.length() * 2 + data.length();
     len += sizeof(XQServicePacketHeader);
     XQSERVICE_DEBUG_PRINT("\tcmd: %d", len);
     int writelen;
@@ -407,12 +431,12 @@ bool XQServiceIpcClient::send(const QString& ch,
     XQServicePacketHeader *header = (XQServicePacketHeader *)buf;
     header->command = cmd;
     header->totalLength = len;
-    header->chLength = ch.length();
+    header->chLength = channel.length();
     header->msgLength = msg.length();
     header->dataLength = data.length();
     char *ptr = buf + sizeof(XQServicePacketHeader);
-    memcpy(ptr, ch.constData(), ch.length() * 2);
-    ptr += ch.length() * 2;
+    memcpy(ptr, channel.constData(), channel.length() * 2);
+    ptr += channel.length() * 2;
     memcpy(ptr, msg.constData(), msg.length() * 2);
     ptr += msg.length() * 2;
     memcpy(ptr, data.constData(), data.length());
@@ -431,7 +455,7 @@ bool XQServiceIpcClient::send(const QString& ch,
             {
                 // No point to send channel command on error. Error could be also
                 // caused by server exit without completing the actual request
-                sendChannelCommand(XQServiceCmd_ReturnValueDelivered,ch);
+                sendChannelCommand(XQServiceCmd_ReturnValueDelivered,channel);
             }
             else
                 ret = false;
@@ -461,6 +485,7 @@ bool XQServiceIpcClient::send(const QString& ch,
  */
 bool XQServiceIpcClient::cancelPendingSend(const QString& ch)
 {
+    Q_UNUSED(ch);  // 
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::cancelPendingSend, isServer?=%d", server);
     if (serviceIpc) {
         // Close the client connection silently
@@ -506,7 +531,6 @@ void XQServiceIpcClient::disconnected()
             delete serviceIpcServer;
             serviceIpcServer = NULL;
             XQSERVICE_DEBUG_PRINT("\tXQServiceIpcClient deleteLater");
-            deleteLater();
             wait(200);
             XQSERVICE_DEBUG_PRINT("\tXQServiceIpcClient deleteLater over");
         }
@@ -522,6 +546,7 @@ void XQServiceIpcClient::disconnected()
             serviceIpc = NULL;
         }
     }
+    deleteLater();
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::disconnected END");
 }
 
@@ -570,10 +595,15 @@ void XQServiceIpcClient::readyRead()
 */
 void XQServiceIpcClient::readDone()
     {
-    XQSERVICE_DEBUG_PRINT("retData: %s", iRetData.constData());
+    XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::readDone");
     QVariant retValue = XQServiceThreadData::deserializeRetData(iRetData);
 
-    XQSERVICE_DEBUG_PRINT("retValue: %s", qPrintable(retValue.toString()));
+#ifdef XQSERVICE_DEBUG
+    QString s = retValue.toString();
+    int len=s.length();
+    XQSERVICE_DEBUG_PRINT("retValue: type=%s,len=%d,value(max.1024)=%s",
+                          retValue.typeName(),len,qPrintable(s.left(1024)));
+#endif
     int err = XQService::serviceThreadData()->latestError();
     XQSERVICE_DEBUG_PRINT("err: %d", err);
 
@@ -593,9 +623,10 @@ void XQServiceIpcClient::readDone()
             XQSERVICE_DEBUG_PRINT("before compelete async request");
             
             //should this send before compete the request ?
-            //attention at the moment channel name and connection name are the same
-            // it might be that in the future will be different then this is not valid anymore.
-            sendChannelCommand(XQServiceCmd_ReturnValueDelivered, mIpcConName);
+            //Attention ! Map mIpcConName name may contain unique identifier to separate connections using the same
+            //            channel name. So need to get channel name.
+            QString channel = XQRequestUtil::channelName(mIpcConName);
+            sendChannelCommand(XQServiceCmd_ReturnValueDelivered, channel);
             
             callBackRequestComplete->requestCompletedAsync( retValue );
             XQSERVICE_DEBUG_PRINT("After complete async request");
@@ -664,7 +695,12 @@ bool XQServiceIpcClient::completeRequest(int index, const QVariant& retValue)
     XQSERVICE_DEBUG_PRINT("XQServiceIpcClient::completeRequest START");
     XQSERVICE_DEBUG_PRINT("\t isServer=%d", server);
     XQSERVICE_DEBUG_PRINT("\t index=%d", index);
-    XQSERVICE_DEBUG_PRINT("\t retValue: %s", qPrintable(retValue.toString()));
+#ifdef XQSERVICE_DEBUG
+    QString s = retValue.toString();
+    int len=s.length();
+    XQSERVICE_DEBUG_PRINT("retValue: type=%s,len=%d,value(max.1024)=%s",
+                          retValue.typeName(),len,qPrintable(s.left(1024)));
+#endif
 
     ServiceIPCRequest* request = requestPtr(index);
     if (!request){

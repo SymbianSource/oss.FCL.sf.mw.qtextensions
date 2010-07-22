@@ -22,10 +22,10 @@ XQSERVICE_API_HEADERS = \
 				src/xqservicerequest.h \
 				src/xqserviceprovider.h \
 				src/xqserviceipcmarshal.h \
-				src/../../inc/xqserviceglobal.h \
-				src/../../inc/xqserviceipcconst.h \
-				src/../../inc/xqserviceclientinfo.h \
-				src/../../inc/xqserviceerrdefs.h \
+				../inc/xqserviceglobal.h \
+				../inc/xqserviceipcconst.h \
+				../inc/xqserviceclientinfo.h \
+				../inc/xqserviceerrdefs.h \
 				src/xqaiwglobal.h \
 				src/xqaiwrequest.h \
 				src/xqappmgr.h \

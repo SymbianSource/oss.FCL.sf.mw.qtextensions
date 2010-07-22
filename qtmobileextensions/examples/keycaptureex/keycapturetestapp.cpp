@@ -39,41 +39,42 @@
 #include <QMenuBar>
 #include <QAction>
 #include <QEvent>
+#include <XQRemConKeyEvent>
+
+#include <QFont>
 
 #include "keycapturetestapp.h"
 #include "txlogger.h"
 
+#include "mapping.h"
+#include "capturerequest.h"
 
 KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
-{
+{   
     TX_ENTRY
     
-//    qApp->installEventFilter(this);
-//    QCoreApplication::instance()->installEventFilter(this);
+    qApp->installEventFilter(this);
+    QCoreApplication::instance()->installEventFilter(this);
     
     
 	setWindowTitle(tr("KeyCaptureTestApp"));
     
-    mKeyCapture = new XqKeyCapture();
+    mKeyCapture = new XQKeyCapture();
     
-    mKeysMap.insert("Up_Qt",    Qt::Key_Up);
-    mKeysMap.insert("Down_Qt",  Qt::Key_Down);
-    mKeysMap.insert("Menu_Qt",  Qt::Key_Launch0);
-    
-    mKeysMap.insert("Up_S60",   EKeyUpArrow);
-    mKeysMap.insert("Down_S60", EKeyDownArrow);
-    mKeysMap.insert("Menu_S60", EKeyApplication1);
+    mKeysMap.insert("Up", Qt::Key_Up);
+    mKeysMap.insert("Down", Qt::Key_Down);
+    mKeysMap.insert("Menu", Qt::Key_Menu);
     
     
     mKeysMenu = new QMenu(this);
     foreach (QString value, mKeysMap.keys())
         mKeysMenu->addAction(value)->setData( QVariant(value) );
     
-    mLongFlagsMap.insert("LongNormal", XqKeyCapture::LongNormal);
-    mLongFlagsMap.insert("LongRepeatEvents", XqKeyCapture::LongRepeatEvents);
-    mLongFlagsMap.insert("LongShortEventImmediately", XqKeyCapture::LongShortEventImmediately);
-    mLongFlagsMap.insert("LongWaitNotApplicable", XqKeyCapture::LongWaitNotApplicable);
-    mLongFlagsMap.insert("LongWaitShort", XqKeyCapture::LongWaitShort);
+    mLongFlagsMap.insert("LongNormal", XQKeyCapture::LongNormal);
+    mLongFlagsMap.insert("LongRepeatEvents", XQKeyCapture::LongRepeatEvents);
+    mLongFlagsMap.insert("LongShortEventImmediately", XQKeyCapture::LongShortEventImmediately);
+    mLongFlagsMap.insert("LongWaitNotApplicable", XQKeyCapture::LongWaitNotApplicable);
+    mLongFlagsMap.insert("LongWaitShort", XQKeyCapture::LongWaitShort);
     
     mLongFlagsMenu = new QMenu(this);
     foreach (QString value, mLongFlagsMap.keys())
@@ -91,32 +92,62 @@ KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
 	cancelCaptureMenu->addAction(QString("Cancel Long Key"))->setData( QVariant(5) );
 	cancelCaptureMenu->addAction(QString("Cancel Up and Down Key"))->setData( QVariant(6) );
 
+    QMenu *remoteMenu = menuBar()->addMenu(QString("Remote"));
+
+    // *** remcon ***
+    
+    remoteAllOn = remoteMenu->addAction(QString("Turn on all"));
+    remoteAllOff = remoteMenu->addAction(QString("Turn off all"));
+    
+    toggleRemoteBasic = remoteMenu->addAction(QString("Basic Remote"));
+    toggleRemoteBasic->setCheckable(true);
+    
+    toggleRemoteCallHandlingEx = remoteMenu->addAction(QString("Call Handl. Ex Remote"));
+    toggleRemoteCallHandlingEx->setCheckable(true);
+    
+    toggleRemoteExtEvents = remoteMenu->addAction(QString("Extended Remote Events"));
+    toggleRemoteExtEvents->setCheckable(true);
+
+    connect(toggleRemoteBasic, SIGNAL(toggled(bool)), this, SLOT(enableRemBasic(bool)));
+    connect(toggleRemoteCallHandlingEx, SIGNAL(toggled(bool)), this, SLOT(enableRemCallHandlingEx(bool)));
+    connect(toggleRemoteExtEvents, SIGNAL(toggled(bool)), this, SLOT(enableRemoteExtEvents(bool)));
+
+    connect(remoteAllOn, SIGNAL(triggered(bool)), this, SLOT(remoteAll(bool)));
+    connect(remoteAllOff, SIGNAL(triggered(bool)), this, SLOT(remoteNone(bool)));
+    
+    // *** utilities ***
+
     connect(menuBar()->addAction(QString("Clear Log")), SIGNAL(triggered()), this, SLOT(cleanLog()));
     connect(menuBar()->addAction(QString("Exit")), SIGNAL(triggered()), qApp, SLOT(quit()));
-
 
     QWidget *window = new QWidget;
     QVBoxLayout* layout = new QVBoxLayout;
 
-	mTextArea = new QPlainTextEdit("Log area\n");
+	mTextArea = new QPlainTextEdit("");
+	mTextArea->setTextInteractionFlags(Qt::NoTextInteraction);
+	QFont font = QFont(mTextArea->font());
+	font.setPixelSize(10);
+	mTextArea->setFont(font);
+	
 	layout->addWidget(mTextArea);
 	
     window->setLayout(layout);
     setCentralWidget(window);
     window->show();;
 
+    mappingPtr = new Mapping();
     
     TX_EXIT
 }
 	
 KeyCaptureTestApp::~KeyCaptureTestApp()
 {
-	
+    delete mappingPtr;
 }
 
 void KeyCaptureTestApp::triggered(QAction* aAction)
 {
-    CaptureRequest request;
+    CaptureRequest request(mappingPtr);
     if (!request.setType(aAction)){
         return;
     }
@@ -141,60 +172,34 @@ void KeyCaptureTestApp::cleanLog()
 void KeyCaptureTestApp::procesAction(CaptureRequest request)
 {
     TX_ENTRY
-    switch (request.mRequestType){
+    switch (request.mRequestType) {
         case CaptureRequest::RequestTypeKey :
-            
-            if (request.isQtKey) 
-                mKeyCapture->captureKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
-            else
-                mKeyCapture->captureKey((TUint) request.mKey, request.mModifiersMap, request.mModifier );
-            
+            mKeyCapture->captureKey(request.mKey, request.mModifiersMap, request.mModifier );
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeLongKey :
-            if (request.isQtKey)
-                mKeyCapture->captureLongKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
-            else
-                mKeyCapture->captureLongKey((TUint) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
-            
+            mKeyCapture->captureLongKey(request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeKeyUpAndDowns :
-            if (request.isQtKey)
-                mKeyCapture->captureKeyUpAndDowns((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
-            else
-                mKeyCapture->captureKeyUpAndDowns((TUint) request.mKey, request.mModifiersMap, request.mModifier );
-
+            mKeyCapture->captureKeyUpAndDowns(request.mKey, request.mModifiersMap, request.mModifier );
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelKey :
-            if (request.isQtKey)
-                mKeyCapture->cancelCaptureKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
-            else
-                mKeyCapture->cancelCaptureKey((TUint) request.mKey, request.mModifiersMap, request.mModifier );
-                
+            mKeyCapture->cancelCaptureKey(request.mKey, request.mModifiersMap, request.mModifier );
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelLongKey :
-            if (request.isQtKey)
-                mKeyCapture->cancelCaptureLongKey((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
-            else
-                mKeyCapture->cancelCaptureLongKey((TUint) request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
-                
+            mKeyCapture->cancelCaptureLongKey(request.mKey, request.mModifiersMap, request.mModifier, request.mLongFlags);
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         case CaptureRequest::RequestTypeCancelKeyUpAndDowns :
-            if (request.isQtKey)
-                mKeyCapture->cancelCaptureKeyUpAndDowns((Qt::Key) request.mKey, request.mModifiersMap, request.mModifier );
-            else
-                mKeyCapture->cancelCaptureKeyUpAndDowns((TUint) request.mKey, request.mModifiersMap, request.mModifier );
-            
+            mKeyCapture->cancelCaptureKeyUpAndDowns(request.mKey, request.mModifiersMap, request.mModifier );
             addTextLine(QString("%1:%2\n").arg(request.toString()).arg(mKeyCapture->errorString()));
             break;
         default:
             break;
     }
-
 
     TX_EXIT    
 }
@@ -224,116 +229,85 @@ bool KeyCaptureTestApp::eventFilter(QObject *o, QEvent *ev)
 void KeyCaptureTestApp::processEvent(QEvent *ev)
 {
     if (ev){
-       if (ev->type() == QEvent::KeyPress){
+        if (ev->type() == QEvent::KeyPress){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-           addTextLine(QString("KeyPress:%1\n").arg(keyEvent->key(), 0, 16) );
-       }else if (ev->type() == QEvent::KeyRelease){
+           QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key())); 
+           
+           addTextLine(QString("KeyPress:%1\n").arg(keyName));
+        } else if (ev->type() == QEvent::KeyRelease){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-           addTextLine(QString("KeyRelease:%1\n").arg(keyEvent->key(), 0, 16) );
-       }
-    }
-}
-
-CaptureRequest::CaptureRequest()
-{
-    mRequestType = RequestTypeUndefined;
-    mKey = Qt::Key_unknown;    
-    mModifiersMap = Qt::NoModifier;
-    mModifier = Qt::NoModifier;
-    mLongFlags = XqKeyCapture::LongNormal; 
-}
-
-CaptureRequest::~CaptureRequest()
-{
-    
-}
-
-QString CaptureRequest::toString()
-{
-    QString res = "Request ";
-    switch (mRequestType){
-        case CaptureRequest::RequestTypeKey :
-            res +="Key(";
-            break;
-        case CaptureRequest::RequestTypeLongKey :
-            res +="LongKey(";            
-            break;
-        case CaptureRequest::RequestTypeKeyUpAndDowns :
-            res +="UpAndDowns(";  
-            break;
-        case CaptureRequest::RequestTypeCancelKey :
-            res +="CancelKey(";
-            break;
-        case CaptureRequest::RequestTypeCancelLongKey :
-            res +="CancelLongKey(";
-            break;
-        case CaptureRequest::RequestTypeCancelKeyUpAndDowns :
-            res +="CancelUpAndDowns(";
-            break;
-        default:
-            res +="Unknown";
-            break;
-    }
-    if ( mRequestType == RequestTypeUndefined)
-        return res;
-    res +=QString("%1").arg(mKey, 0, 16);
-    //TODO::put to res mModifiersMap    
-    //TODO::put to res mModifier
-    if ( mRequestType == RequestTypeLongKey || mRequestType == RequestTypeCancelLongKey)
-        res +=QString(",%1)").arg(mLongFlags, 0, 16);
-    else
-        res +=")";
-    
-    return res;
-}
-
-bool CaptureRequest::setType(QAction* action)
-{
-    if (!action)
-        return false;
-    bool ok;
-    int act = action->data().toInt(&ok);
-    if (ok){
-        switch (act){
-            case 1 : mRequestType = RequestTypeKey; break;
-            case 2 : mRequestType = RequestTypeLongKey; break;
-            case 3 : mRequestType = RequestTypeKeyUpAndDowns; break;
-            case 4 : mRequestType = RequestTypeCancelKey; break;
-            case 5 : mRequestType = RequestTypeCancelLongKey; break;
-            case 6 : mRequestType = RequestTypeCancelKeyUpAndDowns; break;
+           QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
+           
+           addTextLine(QString("KeyRelease:%1\n").arg(keyName));
+        } else if (ev->type() == XQKeyCapture::remoteEventType_KeyPress()){
+           QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+                      
+           QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
+                      
+           addTextLine(QString("KeyPress:%1\n").arg(keyName));
+           addTextLine(QString("Native virtual key:%1\n").arg((int)keyEvent->nativeVirtualKey()));
+        } else if (ev->type() == XQKeyCapture::remoteEventType_KeyRelease()){
+           QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+                      
+           QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
+                      
+           addTextLine(QString("KeyRelease:%1\n").arg(keyName));
+           addTextLine(QString("Native virtual key:%1\n").arg((int)keyEvent->nativeVirtualKey()));
         }
-        return mRequestType!=RequestTypeUndefined;
-    }else{
-        return false;
     }
 }
 
-//bool CaptureRequest::setKey(QAction* action, QMap<QString, Qt::Key> *map)
-bool CaptureRequest::setKey(QAction* action, QMap<QString, long> *map)
+void KeyCaptureTestApp::enableRemBasic(bool enable)
 {
-    if (!action || !map || map->count()==0)
-        return false;
-    QString key = action->data().toString();
-    if ( !key.isNull() && map->contains(key)){
-        if (key.contains("_Qt")) {
-            isQtKey = true;
-        } else {
-            isQtKey = false;
-        }
-        mKey = map->value(key);
-        return true;
+    if (enable) {
+        addTextLine("Remote Basic enabled");
+        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureBasic);
+    } else {
+        addTextLine("Remote Basic disabled");
+        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureBasic);
     }
-    return false;
 }
 
-bool CaptureRequest::setLongFlags(QAction* action, QMap<QString, XqKeyCapture::LongFlags> *map)
+void KeyCaptureTestApp::enableRemCallHandlingEx(bool enable)
 {
-    if (!action || !map || map->count()==0)
-        return false;
-    QString flag = action->data().toString();
-    if ( !flag.isNull() && map->contains(flag)){
-        mLongFlags = map->value(flag);
-        return true;
+    if (enable) {
+        addTextLine("Remote Call Handling Ext. enabled");
+        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt);
+    } else {
+        addTextLine("Remote Call Handling Ext. disabled");
+        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt);
     }
-    return false;
+}
+
+void KeyCaptureTestApp::enableRemoteExtEvents(bool enable)
+{
+    if (enable) {
+        addTextLine("Remote Events Ext. enabled");
+        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureBasic | XQKeyCapture::CaptureEnableRemoteExtEvents);
+        toggleRemoteBasic->setChecked(true);
+    } else {
+        addTextLine("Remote Events Ext. disabled");
+        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureBasic | XQKeyCapture::CaptureEnableRemoteExtEvents);
+    }
+}
+
+void KeyCaptureTestApp::remoteAll(bool enable)
+{
+    Q_UNUSED(enable);
+    toggleRemoteBasic->setChecked(true);
+    toggleRemoteCallHandlingEx->setChecked(true);
+    toggleRemoteExtEvents->setChecked(true);
+    addTextLine("Remote: enable all");
+    mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt |  XQKeyCapture::CaptureBasic | 
+            XQKeyCapture::CaptureEnableRemoteExtEvents);
+}
+
+void KeyCaptureTestApp::remoteNone(bool enable)
+{
+    Q_UNUSED(enable);
+    toggleRemoteBasic->setChecked(false);
+    toggleRemoteCallHandlingEx->setChecked(false);
+    addTextLine("Remote: disable all");
+    mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt | XQKeyCapture::CaptureBasic | 
+            XQKeyCapture::CaptureEnableRemoteExtEvents);
 }

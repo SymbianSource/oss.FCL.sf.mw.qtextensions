@@ -14,7 +14,7 @@
      <name>com.nokia.symbian.IUriView</name>
      <version>1.0</version>
      <description>Interface for showing URIs</description>
-     <customproperty key="schemes">testto</customproperty>
+     <customproperty key="schemes">testto,test2to</customproperty>
      <customproperty key="deprecatedsn">com.nokia.services.serviceapp</customproperty>
   </interface>
   <interface>

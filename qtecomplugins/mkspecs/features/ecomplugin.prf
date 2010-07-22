@@ -11,11 +11,11 @@ LIBS *= -lxqplugins
 
 TARGET.UID2 = 0x10009d8d
 #generated files needs TARGET.UID3 to be set
-isEmpty(TARGET.UID3):error(Plugiin has to has TARGET.UID3 assigned explicitly!)
+isEmpty(TARGET.UID3):error(Plugin has to has TARGET.UID3 assigned explicitly!)
 
 
 #Generate additional files
-XQECOMAPP = xqecom.exe 
+XQECOMAPP = "python $${EPOCROOT}epoc32/tools/xqecom.py"
 #XQECOMAPP = $$[QT_INSTALL_BINS]$${DIR_SEPARATOR}xqecom.exe
 
 XQ_FILE_RSS_TAIL=.rss

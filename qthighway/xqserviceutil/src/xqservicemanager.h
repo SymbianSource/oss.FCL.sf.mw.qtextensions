@@ -39,6 +39,8 @@ class XQSERVICEUTIL_EXPORT XQServiceManager : public QObject
         int startServer(const QString& service, bool embedded, int& applicationUid, quint64& processId);
         QList<XQAiwInterfaceDescriptor>  findInterfaces ( const QString &interfaceName ) const;
         QList<XQAiwInterfaceDescriptor>  findInterfaces ( const QString &serviceName, const QString &interfaceName ) const;
+        QList<XQAiwInterfaceDescriptor>  findFirstInterface ( const QString &interfaceName ) const;
+        QList<XQAiwInterfaceDescriptor>  findFirstInterface ( const QString &serviceName, const QString &interfaceName ) const;
         
         // Extended starter to allow passing XQAiwInterfaceDescriptor as user data
         // The user data has been attached by the XQServiceRequest

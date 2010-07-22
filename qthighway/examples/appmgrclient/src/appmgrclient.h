@@ -29,6 +29,7 @@
 #include <QStringList>
 #include <QPushButton>
 #include <QMenu>
+#include <QSpinBox>
 #include <xqappmgr.h>
 #include <XQSharableFile.h>
 
@@ -87,7 +88,7 @@ private:
         XQApplicationManager appmgr;
         QPushButton *actionButton;
         QMenu *mMenu;
-                
+        QSpinBox* mDataSpinBox;
         XQAiwRequest* req1;
         XQAiwRequest* req2;
         XQAiwRequest* req3;

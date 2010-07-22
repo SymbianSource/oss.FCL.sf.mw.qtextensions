@@ -31,10 +31,16 @@ SOURCES += \
 symbian { 
     HEADERS += $${DIR_PRFX}/keycapture_s60_p.h \
                 $${DIR_PRFX}/capturerequest_s60.h \
-                $${DIR_PRFX}/keymapper.h
+                $${DIR_PRFX}/keymapper.h \
+                $${DIR_PRFX}/responsehandler.h \
+                $${DIR_PRFX}/responsehandlerex.h \
+                $${DIR_PRFX}/targetwrapper.h
     SOURCES += $${DIR_PRFX}/keycapture_s60_p.cpp \
                 $${DIR_PRFX}/capturerequest_s60.cpp \
-                $${DIR_PRFX}/keymapper.cpp
+                $${DIR_PRFX}/keymapper.cpp \
+                $${DIR_PRFX}/responsehandler.cpp \
+                $${DIR_PRFX}/responsehandlerex.cpp \
+                $${DIR_PRFX}/targetwrapper.cpp
 } else { 
     HEADERS += $${DIR_PRFX}/keycapture_stub_p.h
     SOURCES += $${DIR_PRFX}/keycapture_stub_p.cpp

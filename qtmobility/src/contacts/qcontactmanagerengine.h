@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -158,6 +158,7 @@ public:
 
     // Other protected area update functions
     static void setDetailAccessConstraints(QContactDetail* detail, QContactDetail::AccessConstraints constraints);
+    static QContact Q_DECL_DEPRECATED setContactDisplayLabel(const QString& displayLabel, const QContact& contact);
     static void setContactDisplayLabel(QContact* contact, const QString& displayLabel);
     static void setContactRelationships(QContact* contact, const QList<QContactRelationship>& relationships);
 
@@ -166,6 +167,7 @@ public:
     static void addSorted(QList<QContact>* sorted, const QContact& toAdd, const QList<QContactSortOrder>& sortOrders);
     static int compareVariant(const QVariant& first, const QVariant& second, Qt::CaseSensitivity sensitivity);
     static bool testFilter(const QContactFilter& filter, const QContact& contact);
+    static bool validateActionFilter(const QContactFilter& filter);
     static QList<QContactLocalId> sortContacts(const QList<QContact>& contacts, const QList<QContactSortOrder>& sortOrders);
 
     static QContactFilter canonicalizedFilter(const QContactFilter& filter);

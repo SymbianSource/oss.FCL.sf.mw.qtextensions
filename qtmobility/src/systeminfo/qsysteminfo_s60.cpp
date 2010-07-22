@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -47,23 +47,25 @@
 #include <QTimer>
 
 #include <sysutil.h>
-#include <PtiEngine.h>
+#include <ptiengine.h>
 #include <featdiscovery.h>
 #ifndef KFeatureIdMmc
 #include <featureinfo.h>
 #endif
 #include <hwrmvibra.h>
-#include <AknUtils.h>
+#include <aknutils.h>
 #include <w32std.h>
 #include <centralrepository.h>
-#include <MProEngEngine.h>
-#include <ProEngFactory.h>
-#include <MProEngNotifyHandler.h>
+#include <mproengengine.h>
+#include <proengfactory.h>
+#include <mproengnotifyhandler.h>
 #include <btserversdkcrkeys.h>
 #include <bt_subscribe.h>
 #include <bttypes.h>
 #include <etel3rdparty.h>
 #include <aknkeylock.h>
+#include <startupdomainpskeys.h>
+#include <simutils.h>
 
 QTM_BEGIN_NAMESPACE
 
@@ -421,6 +423,11 @@ QString QSystemNetworkInfoPrivate::homeMobileCountryCode()
 
 QString QSystemNetworkInfoPrivate::homeMobileNetworkCode()
 {
+    CTelephony::TRegistrationStatus networkStatus = DeviceInfo::instance()
+        ->cellNetworkRegistrationInfo()->cellNetworkStatus();
+    if (networkStatus == CTelephony::ERegisteredOnHomeNetwork) {
+        return DeviceInfo::instance()->cellNetworkInfo()->networkCode();
+    }
     return QString();
 }
 
@@ -904,7 +911,19 @@ QSystemDeviceInfo::BatteryStatus QSystemDeviceInfoPrivate::batteryStatus()
 
 QSystemDeviceInfo::SimStatus QSystemDeviceInfoPrivate::simStatus()
 {
-    return QSystemDeviceInfo::SimNotAvailable;  //Not available in public SDKs
+    TInt lockStatus = 0;
+    TInt err = RProperty::Get(KPSUidStartup, KStartupSimLockStatus, lockStatus);
+    if (err == KErrNone && (TPSSimLockStatus)lockStatus != ESimLockOk) {
+        return QSystemDeviceInfo::SimLocked;
+    }
+
+    TInt simStatus = 0;
+    err = RProperty::Get(KPSUidStartup, KPSSimStatus, simStatus);
+    if (err == KErrNone && TPSSimStatus(simStatus) == ESimUsable) {
+        return QSystemDeviceInfo::SingleSimAvailable;
+    }
+
+    return QSystemDeviceInfo::SimNotAvailable;
 }
 
 bool QSystemDeviceInfoPrivate::isDeviceLocked()

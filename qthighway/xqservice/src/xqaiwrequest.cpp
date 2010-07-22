@@ -33,7 +33,8 @@ XQAiwRequest::XQAiwRequest(const XQAiwInterfaceDescriptor& descriptor, const QSt
       currentRequest(NULL),
       errorMsg(),
       errorCode(0),
-      asyncErrorSet(false)
+      completeSignalConnected(false),
+      errorSignalConnected(false)
 {
 
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::XQAiwRequest: %s %s,%d,%x",
@@ -57,7 +58,8 @@ XQAiwRequest::XQAiwRequest(
       currentRequest(NULL),
       errorMsg(),
       errorCode(0),
-      asyncErrorSet(false)
+      completeSignalConnected(false),
+      errorSignalConnected(false)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::XQAiwRequest (uri): %s %s,%x",
                           qPrintable(descriptor.interfaceName()),
@@ -85,7 +87,8 @@ XQAiwRequest::XQAiwRequest(
      currentRequest(NULL),
       errorMsg(),
       errorCode(0),
-      asyncErrorSet(false)
+      completeSignalConnected(false),
+      errorSignalConnected(false)
 {
 
    XQSERVICE_DEBUG_PRINT("XQAiwRequest::XQAiwRequest (file): %s %x",
@@ -101,8 +104,8 @@ XQAiwRequest::XQAiwRequest(
    }
    else 
    {
-       // This means descriptor is incompete and created for carrying implementation information only.
-       // See XQApplicationManagerPrivate::getAppDescriptor or XQApplicationManagerPrivate::listMimeHandlers
+       // The is no service provider for the file.
+       // So as backup plan, apply file driver to handle non-service file launches
        XQSERVICE_DEBUG_PRINT("Apply file driver");
        currentRequest = new XQAiwFileDriver(file, descriptor, operation);
    }
@@ -116,7 +119,8 @@ XQAiwRequest::XQAiwRequest(
       currentRequest(NULL),
       errorMsg(),
       errorCode(0),
-      asyncErrorSet(false)
+      completeSignalConnected(false),
+      errorSignalConnected(false)
 {
 
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::XQAiwRequest (file handle): %x",
@@ -129,8 +133,13 @@ XQAiwRequest::XQAiwRequest(
         XQSERVICE_DEBUG_PRINT("Apply service driver");
         currentRequest = new XQAiwServiceDriver(descriptor, operation);
     }
-
-    // No other way to pass sharable file as via service request
+    else 
+    {
+       // The is no service provider for the file.
+       // So as backup plan, apply file driver to handle non-service file launches
+        XQSERVICE_DEBUG_PRINT("Apply file driver");
+        currentRequest = new XQAiwFileDriver(file, descriptor, operation);
+    }
 
 }
 
@@ -139,10 +148,13 @@ XQAiwRequest::~XQAiwRequest()
 {
     XQSERVICE_DEBUG_PRINT("~XQAiwRequest::XQAiwRequest");
 
-    // Disconnect error
-    if (asyncErrorSet)
+    // Disconnect signals
+    if (completeSignalConnected)
     {
         disconnect(currentRequest, SIGNAL(requestOk(const QVariant&)), this, SLOT(handleAsyncResponse(const QVariant&)));
+    }
+    if (errorSignalConnected)
+    {
         disconnect(currentRequest, SIGNAL(requestError(int,const QString&)), this, SLOT(handleAsyncError(int)));
     }
     
@@ -387,13 +399,18 @@ bool XQAiwRequest::sendExecute()
 
     QStringList list;
     bool res = true;
-    if (!isSynchronous() && !asyncErrorSet)
+    if (!isSynchronous() && !completeSignalConnected)
     {
         // Set async request signals once
         XQSERVICE_DEBUG_PRINT("request::async send");
         connect(currentRequest, SIGNAL(requestOk(const QVariant&)), this, SLOT(handleAsyncResponse(const QVariant&)));
+        completeSignalConnected = true;
+    }
+    if (!errorSignalConnected)
+    {
+        // Connect always error signal  once
         connect(currentRequest, SIGNAL(requestError(int,const QString&)), this, SLOT(handleAsyncError(int)));
-        asyncErrorSet = true;
+        errorSignalConnected = true;
     }
     
     XQSERVICE_DEBUG_PRINT("request::send>>>");

@@ -30,10 +30,16 @@ DEFINES += XQKEYCAPTURE_LIBRARY
 #DEFINES += ENABLETRACE
 #DEFINES += TRACE_FILE
  
-INCLUDEPATH += /sf/mw/qt/include/Qt
+INCLUDEPATH += \ 
+           /sf/mw/qt/include/Qt \
+           . 
 
 #INCLUDEPATH += /sf/mw/qt/src/gui/kernel/
 
+
+LIBS += -lremconcoreapi \
+        -lremconinterfacebase \
+        -lremconextensionapi
 symbian { 
     INCLUDEPATH += . /epoc32/include
     defFilePath=..

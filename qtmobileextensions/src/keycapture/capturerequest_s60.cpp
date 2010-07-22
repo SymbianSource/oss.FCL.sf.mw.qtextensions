@@ -29,7 +29,7 @@
 
 CaptureRequest::CaptureRequest(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier, CaptureRequestType aRequestType, 
-        XqKeyCapture::LongFlags aLongKeyFlags, 
+        XQKeyCapture::LongFlags aLongKeyFlags, 
 #ifndef _XQKEYCAPTURE_UNITTEST_
     RWindowGroup* aGroup
 #else
@@ -196,7 +196,7 @@ bool CaptureRequest::operator==(const CaptureRequest& other) const
 
 bool CaptureRequest::matches(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
     Qt::KeyboardModifiers aModifier, CaptureRequestType aRequestType,
-    XqKeyCapture::LongFlags captureLongFlag) const
+    XQKeyCapture::LongFlags captureLongFlag) const
 {
     bool res = mKey == aKey && mModifiersMask == aModifiersMask && mModifier == aModifier
         && mRequestType == aRequestType && 

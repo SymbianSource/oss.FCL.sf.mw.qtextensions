@@ -44,4 +44,10 @@ S60_APP_RESOURCE(KeyCaptureEx)
 UPGRADABLE_APP_REG_RSC(KeyCaptureEx)
 */
 
+/* optional 
+S60_APP_EXE(SystemToneServiceEx)
+S60_APP_RESOURCE(SystemToneServiceEx)
+UPGRADABLE_APP_REG_RSC(SystemToneServiceEx)
+*/
+
 #endif //__QT_MOBILEEXTENSIONSEXAMPLES_IBY__

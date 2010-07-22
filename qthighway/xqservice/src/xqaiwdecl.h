@@ -49,23 +49,43 @@
  Image fetching interface and related operations
 */
 #define XQI_IMAGE_FETCH QLatin1String("com.nokia.symbian.IImageFetch")
-#define XQOP_IMAGE_FETCH QLatin1String("fetch(void)")
+#define XQOP_IMAGE_FETCH QLatin1String("fetch()")
 
 /*!
  Music fetching interface and related operations
 */
 #define XQI_MUSIC_FETCH QLatin1String("com.nokia.symbian.IMusicFetch")
-#define XQOP_MUSIC_FETCH QLatin1String("fetch(void)")
+#define XQOP_MUSIC_FETCH QLatin1String("fetch()")
+
+/*!
+ Tones fetching interface and related operations
+*/
+#define XQI_TONE_FETCH QLatin1String("com.nokia.symbian.IToneFetch")
+#define XQOP_TONE_FETCH QLatin1String("fetch()")
 
 /*!
  Video fetching interface and related operations
 */
 #define XQI_VIDEO_FETCH QLatin1String("com.nokia.symbian.IVideoFetch")
-#define XQOP_VIDEO_FETCH QLatin1String("fetch(void)")
+#define XQOP_VIDEO_FETCH QLatin1String("fetch()")
+
+/*!
+ Video collection browser interface and related operations
+*/
+#define XQI_VIDEO_BROWSE QLatin1String("com.nokia.symbian.IVideoBrowse")
+#define XQOP_VIDEO_BROWSE QLatin1String("browseVideos(int, int)")
+
+/*!
+ Video player interface and related operations
+*/
+#define XQI_VIDEO_PLAY QLatin1String("com.nokia.symbian.IVideoView")
+#define XQOP_VIDEO_PLAY QLatin1String("playMedia(QString)")
+#define XQOP_VIDEO_PLAY_PD QLatin1String("playMedia(QString, int)")
+#define XQOP_VIDEO_CLOSE QLatin1String("closePlayer()")
 
 /*!
  Camera capture interface and related operations
- Operation: capture(int mode, const QVariantMap &parameters)
+ Operation: capture(int mode, QVariantMap parameters)
   mode: image = 0, video = 1
   parameters: 
    CameraIndex: int:  primary = 0, secondary = 1
@@ -75,12 +95,22 @@
    allow_quality_change: bool
 */
 #define XQI_CAMERA_CAPTURE QLatin1String("com.nokia.symbian.ICameraCapture")
-#define XQOP_CAMERA_CAPTURE QLatin1String("capture(int, const QVariantMap &)")
+#define XQOP_CAMERA_CAPTURE QLatin1String("capture(int,QVariantMap)")
 #define XQCAMERA_INDEX QLatin1String("CameraIndex")
 #define XQCAMERA_QUALITY QLatin1String("Quality")
 #define XQCAMERA_MODE_SWITCH QLatin1String("AllowModeSwitch")
 #define XQCAMERA_INDEX_SWITCH QLatin1String("AllowCameraSwitch")
 #define XQCAMERA_QUALITY_CHANGE QLatin1String("AllowQualityChange")
+
+/*!
+ Incomplete list of interfaces.
+ To be completed with operation signatures and related declarations.
+*/
+#define XQI_LOG_VIEW QLatin1String("com.nokia.symbian.ILogsView")
+#define XQI_CONTACT_VIEW QLatin1String("com.nokia.symbian.IContactView")
+#define XQI_CONTACT_FETCH QLatin1String("com.nokia.symbian.IContactFetch")
+#define XQI_FILE_FETCH QLatin1String("com.nokia.symbian.IFileFetch")
+#define XQI_FILE_SHARE QLatin1String("com.nokia.symbian.IFileShare")
 
 // Public URI related constants
 /*!
@@ -131,5 +161,14 @@
  \see XQApplicationMgr::isEnabled()
 */
 #define XQCUSTOM_PROP_AIW_SERVICE_STATUS QLatin1String("aiw_status")
+
+/*!
+ A key name for XQRequestInfo object to pass a window title
+ to be shown in service application instead of the default title.
+ Service application is responsible to handle the key value.
+ \see XQApplicationMgr::XQRequestInfo::setInfo()
+*/
+#define XQINFO_KEY_WINDOW_TITLE QLatin1String("WindowTitle")
+
 
 #endif

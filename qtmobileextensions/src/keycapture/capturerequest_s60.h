@@ -44,7 +44,7 @@ public:
     };
 
     CaptureRequest(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, CaptureRequestType aRequestType, XqKeyCapture::LongFlags aLongKeyFlags,
+        Qt::KeyboardModifiers aModifier, CaptureRequestType aRequestType, XQKeyCapture::LongFlags aLongKeyFlags,
 #ifndef _XQKEYCAPTURE_UNITTEST_
     RWindowGroup* aGroup
 #else
@@ -62,7 +62,7 @@ public:
 
     bool matches(TUint aKey, Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
         CaptureRequestType aRequestType, 
-        XqKeyCapture::LongFlags captureLongFlag = XqKeyCapture::LongWaitNotApplicable) const;
+        XQKeyCapture::LongFlags captureLongFlag = XQKeyCapture::LongWaitNotApplicable) const;
 
 private:
     TUint translatedModifierMask();
@@ -74,7 +74,7 @@ private:
     const Qt::KeyboardModifiers mModifiersMask;
     const Qt::KeyboardModifiers mModifier;
     const CaptureRequestType mRequestType;
-    const XqKeyCapture::LongFlags longKeyFlags;
+    const XQKeyCapture::LongFlags longKeyFlags;
     
     long int mRequestHandle;
     long int mAdditionalRequestHandle;

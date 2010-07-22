@@ -39,34 +39,31 @@ XQApplicationManager::~XQApplicationManager()
 };
 
 /*!
-    Create AIW request for interface and operation name.
-    The first found implementation is applied. If you need to activate specific implementation
+    Creates AIW request by interface and operation name.
+    The first found service implementation is returned. If you need to activate specific implementation
     you shall first list() implementations and use the overloaded create() with XQAiwInterfaceDescriptor
-    to select the correct implementation.
+    to select the correct implementation. 
     
-    \param interface Interface name as mentioned in the service registry file
+    \param interface Interface name as mentioned in the service registry file.
+                     Apply the xqaiwdecl.h file for common constants.
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
-    \param embedded True if embedded call, false otherwise
-                     Can be set later via XQAiwRequest::setEmbedded.
+                     Apply the xqaiwdecl.h file for common constants.
+    \param embedded True if embedded (window groups chained) call, false otherwise
+                    Can be set later via XQAiwRequest::setEmbedded.
     \return The application interworking request instance, NULL if no service is available
-    \see list()
-    \see create( const QString &service, const QString &interface, const QString &operation, bool embedded)
-    \see create( const XQAiwInterfaceDescriptor &implementation, const QString &operation, bool embedded);
+    \sa list(const QString &interface, const QString &operation)
+    \sa create( const XQAiwInterfaceDescriptor &implementation, const QString &operation, bool embedded);
+    \sa xqaiwdecl.h for constants values
     
     Example usage:
     \code
-    // componentglobal.h
-    const QString photosApplication = "Photos";
-    const QString imageInterface = "com.nokia.symbian.IImageFetch";
-    const QString selectOperation = "select(QString&,bool)";
-
-    #include <xqappmgr.h>;
-    #include "componentglobal.h";
+    #include <xqaiwdecl.h>
+    #include <xqapplicationmanager.h>
     
-    // XQApplicationManager mAppMgr;  // manager as class member
+    // XQApplicationManager mAppMgr;  // Set manager as class member
     
-    XQAiwRequest * req = this->mAppMgr.create(imageInterface, selectOperation);
+    XQAiwRequest * req = this->mAppMgr.create(XQI_IMAGE_FETCH, XQOP_IMAGE_FETCH, false);
     if (req)
     {
         // There was service available
@@ -91,7 +88,7 @@ XQAiwRequest* XQApplicationManager::create(
 
 
 /*!
-    Create AIW request for interface implementation descriptor and operation name.
+    Creates AIW request by interface implementation descriptor and operation name.
     The descriptor is got from the list() call.
     As combination [service,interface,version] shall be unique,
     the descriptor points to one implementation and thus selects correct
@@ -100,21 +97,26 @@ XQAiwRequest* XQApplicationManager::create(
     \param implementation Valid interface descriptor obtained by the "list" call.
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
+                     Apply the xqaiwdecl.h file for common constants.
     \param embedded True if embedded call, false otherwise
                      Can be set later via XQAiwRequest::setEmbedded.
-    \return The application interworking request instance.
-    \see list()
-    \see create( const QString &interface, const QString &operation, bool embedded)
-    \see create( const QString &service, const QString &interface, const QString &operation, bool embedded)
+    \return The application interworking request instance, NULL if no service is available
+    \sa list()
+    \sa create( const QString &interface, const QString &operation, bool embedded)
+    \sa create( const QString &service, const QString &interface, const QString &operation, bool embedded)
+    \sa xqaiwdecl.h for constants values
 
     Example usage:
     \code
+    #include <xqaiwdecl.h>
+    #include <xqapplicationmanager.h>
+    
     XQApplicationManager appMgr;  // Prefer one instance only 
-    QList<XQAiwInterfaceDescriptor> list = appMgr.list(imageInterface, "");
+    QList<XQAiwInterfaceDescriptor> list = appMgr.list(XQI_CAMERA_CAPTURE, "");
     //
     // Populate a user interface widget and select proper implementation via descriptor
     // ... 
-    XQAiwRequest * req = appMgr.create(selectedDescriptor, selectOperation);
+    XQAiwRequest * req = appMgr.create(selectedDescriptor, XQOP_CAMERA_CAPTURE);
     //
     // ... the rest as usual...
     //
@@ -129,34 +131,34 @@ XQAiwRequest* XQApplicationManager::create(
 
 
 /*!
-    Create AIW request for interface and service name.
-    As combination [service,interface,version] shall be unique,
-    the descriptor points to one implementation and thus selects correct
+    Creates AIW request by service and interface name.  You should not normally use this
+    overload as typically service request are done by the interface name only.
+    Internally this applies list() operation and applies the first found service
     implementation.
     
     \param service Service name as mentioned in the service registry file
     \param interface Interface name as mentioned in the service registry file
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
-    \param embedded True if embedded call, false otherwise
+    \param embedded True if embedded (window groups chained) call, false otherwise
                      Can be set later via XQAiwRequest::setEmbedded.
-    \return The application interworking request instance
-    \see XQApplicationManager::create( const QString &interface, const QString &operation, bool embedded)
-    \see create( const XQAiwInterfaceDescriptor &implementation, const QString &operation, bool embedded);
+    \return The application interworking request instance, NULL if no service is available
+    \sa XQApplicationManager::create( const QString &interface, const QString &operation, bool embedded)
+    \sa create( const XQAiwInterfaceDescriptor &implementation, const QString &operation, bool embedded);
+    \sa xqaiwdecl.h for constants values
 
     Example usage:
     \code
-    // componentglobal.h
-    QString photosApplication = "Photos";
-    QString imageInterface = "com.nokia.symbian.IImageFetch";
-    QString selectOperation = "select(QString&,bool)";
+    #include <xqaiwdecl.h>
+    #include <xqapplicationmanager.h>
 
     #include <xqappmgr.h>;
     #include "componentglobal.h";
 
     // XQApplicationManager mAppMgr;  // manager as class member
 
-    XQAiwRequest * req = this->mAppMgr.create(photosApplication, imageInterface, selectOperation);
+    // Use embedded call.
+    XQAiwRequest * req = this->mAppMgr.create(QLatin1String("photos"), XQI_IMAGE_FETCH, XQOP_IMAGE_FETCH, true);
     if (req)
     {
         ...
@@ -174,20 +176,18 @@ XQAiwRequest* XQApplicationManager::create(
     List implementation descriptors by interface name.
     \param interface Interface name as mentioned in the service registry file
     \param operation The operation signature to be called.  Reserved for future use.
-    \param embedded True if embedded call, false otherwise
-    \return The list of implementation descriptors.
-    \see list
+    \return The list of implementation descriptors, or empty list if no implementations found.
+    \sa xqaiwdecl.h for constants values
 
     Example usage:
     \code
-    \code
-    // Use some variant of "list"
-    QString imageInterface = "com.nokia.symbian.IImageFetch";
-    QList<XQAiwInterfaceDescriptor> list = this->mAppmgr.list(imageInterface, "");
+    #include <xqaiwdecl.h>
+    #include <xqapplicationmanager.h>
+    QList<XQAiwInterfaceDescriptor> list = this->mAppmgr.list(XQI_IMAGE_FETCH, "");
     //
     // Populate a user interface widget and select proper implementation via descriptor
     // ... 
-    XQAiwRequest * req = this->mAppMgr.create(selectedDescriptor, selectOperation);
+    XQAiwRequest * req = this->mAppMgr.create(selectedDescriptor, XQOP_IMAGE_FETCH);
     //
     // ... the rest as usual...
     //
@@ -201,6 +201,7 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QString &interf
 
 /*!
     List implementation(s) descriptors by service and interface name.
+    \sa list(const QString &interface, const QString &operation)
 */
 QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(
     const QString &service, const QString &interface, const QString &operation)
@@ -210,20 +211,23 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(
 }
 
 /*!
-    Create AIW request for uri.
-    The interface name applied implicitly is declared by the constant XQI_URI_VIEW
-    unless there is custom handler attached to URI scheme, the 
+    Creates AIW request to view the  given URI (having a attached scheme)
+    The interface name applied implicitly isthe XQI_URI_VIEW (from xqaiwdecl.h),
+    unless there is custom handling attached to URI scheme.
+    The first found service implementation is applied.
     A service declares support for scheme(s) (CSV list) by adding the custom property key
     (see the constant XQCUSTOM_PROP_SCHEMES value) to the service XML.
     By default, the operation name declared by constant XQOP_URI_VIEW is used.
-    Certain URI schemes, like "application" or "http"  have custom handling and thus they override the service handling.
-     - "appto"  URIs is handled by corresponding activity framework
-     - "http:" and "https: URIs are handled by QDesktopServices::openUrl()
-     - "file": URIs is handled via the XQI_FILE_VIEW interface.
-       Example, QFile file("C:\\data\\Others\\test.txt");
+    Custom handling for certainsoverride the default service handling:
+     - "http:" and "https: schemes are handled by QDesktopServices::openUrl()
+     - "appto"  URIs is handled by corresponding Activity Manager Framework
+     - "file": Local file scheme is handled via the XQI_FILE_VIEW interface
+               (the same as applie to e.g. create(QFile))
          
-    \return The application interworking request instance
-    \see XQAiwInterfaceDescriptor for constants values
+    \param uri The URI to be viewed
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \return The application interworking request instance, or NULL if no URI viewer found.
+    \sa xqaiwdecl.h for constants values
 */
 XQAiwRequest* XQApplicationManager::create( const QUrl &uri, bool embedded)
 {
@@ -231,6 +235,24 @@ XQAiwRequest* XQApplicationManager::create( const QUrl &uri, bool embedded)
     return d->create(uri, NULL, embedded);
 }
 
+/*!
+    Creates AIW request to view the given URI by service implementation
+    The interface name applied implicitly is XQI_URI_VIEW (from xqaiwdecl.h),
+    unless there is custom handling attached to URI scheme.
+    A service declares support for scheme(s) (CSV list) by adding the custom property key
+    (see the constant XQCUSTOM_PROP_SCHEMES value) to the service XML.
+    Custom handling for certainsoverride the default service handling:
+     - "http:" and "https: schemes are handled by QDesktopServices::openUrl()
+     - "appto"  URIs is handled by corresponding Activity Manager Framework
+     - "file": Local file scheme is handled via the XQI_FILE_VIEW interface
+               (the same as applie to e.g. create(QFile))
+
+    \param uri The URI to be viewed
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \param implementation Valid interface descriptor obtained by the "list(QUrl)" call.
+    \return The application interworking request instance, or NULL if no URI viewer found.
+    \sa xqaiwdecl.h for constants values
+*/
 XQAiwRequest* XQApplicationManager::create(
     const QUrl &uri, const XQAiwInterfaceDescriptor& implementation, bool embedded)
 {
@@ -239,9 +261,13 @@ XQAiwRequest* XQApplicationManager::create(
 }
 
 /*!
-    Create AIW request for the given file and the MIME type attached to the file.
+    Create AIW requests to view the given file and having the MIME type attached.
     The interface name applied implicitly is declared by the constant XQI_FILE_VIEW
-    By default, the operation name declared by constant XQOP_FILE_VIEW is used.
+    The first found service implementation is applied.
+    \param file The file to be viewed
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \return The application interworking request instance, or NULL if no viewer found.
+    \sa xqaiwdecl.h for constants values
 */
 XQAiwRequest* XQApplicationManager::create( const QFile &file, bool embedded)
 {

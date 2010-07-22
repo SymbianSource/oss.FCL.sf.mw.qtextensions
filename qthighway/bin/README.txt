@@ -1,5 +1,6 @@
-XQ Service registration application
+XQ Service registration
 
-Copy service.prf file in the folder \epoc32\tools\qt\mkspecs\features\symbian.
-Copy xqsreg.exe file in the foldet \epoc32\tools or whatever folder that is in the envriromen variable PATH.
+The New service.prf (same as service2.prf) has been taken into use in MCLwk22
+The old one renamed to servicefold.prf
 
+The QtHighway MCL wk22 supports both new and old the formats.
