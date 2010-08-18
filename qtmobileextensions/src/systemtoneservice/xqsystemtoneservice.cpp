@@ -49,3 +49,9 @@ STS_EXPORT void XQSystemToneService::stopAlarm(unsigned int context)
 {
     d_p->stopAlarm(context);
 }
+
+STS_EXPORT void XQSystemToneService::playAlarm(ToneType toneType, unsigned int& context)
+{
+    context = d_p->playAlarm(toneType);
+}
+

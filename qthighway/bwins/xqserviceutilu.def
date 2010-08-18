@@ -80,4 +80,10 @@ EXPORTS
 	?channelName@XQRequestUtil@@SA?AVQString@@ABV2@@Z @ 79 NONAME ; class QString XQRequestUtil::channelName(class QString const &)
 	?findFirstInterface@XQServiceManager@@QBE?AV?$QList@VXQAiwInterfaceDescriptor@@@@ABVQString@@@Z @ 80 NONAME ; class QList<class XQAiwInterfaceDescriptor> XQServiceManager::findFirstInterface(class QString const &) const
 	?findFirstInterface@XQServiceManager@@QBE?AV?$QList@VXQAiwInterfaceDescriptor@@@@ABVQString@@0@Z @ 81 NONAME ; class QList<class XQAiwInterfaceDescriptor> XQServiceManager::findFirstInterface(class QString const &, class QString const &) const
+	?operationName@XQServiceUtil@@YA?AVQString@@HPAPAD@Z @ 82 NONAME ; class QString XQServiceUtil::operationName(int, char * *)
+	?serviceName@XQServiceUtil@@YA?AVQString@@HPAPAD@Z @ 83 NONAME ; class QString XQServiceUtil::serviceName(int, char * *)
+	?serviceName@XQServiceUtil@@YA?AVQString@@XZ @ 84 NONAME ; class QString XQServiceUtil::serviceName(void)
+	?isEmbedded@XQServiceUtil@@YA_NHPAPAD@Z @ 85 NONAME ; bool XQServiceUtil::isEmbedded(int, char * *)
+	?isService@XQServiceUtil@@YA_NHPAPAD@Z @ 86 NONAME ; bool XQServiceUtil::isService(int, char * *)
+	?interfaceName@XQServiceUtil@@YA?AVQString@@HPAPAD@Z @ 87 NONAME ; class QString XQServiceUtil::interfaceName(int, char * *)
 

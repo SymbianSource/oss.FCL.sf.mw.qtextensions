@@ -28,7 +28,7 @@
 #include "xqkeycapture.h"
 
 class RWindowGroup;
-class QKeyMapperPrivate;
+class QKeyMapper;
 
 #ifdef _XQKEYCAPTURE_UNITTEST_
     class MyTestWindowGroup;
@@ -84,7 +84,7 @@ private:
 #else
     MyTestWindowGroup* mGroup;
 #endif
-    QKeyMapperPrivate* mMapper;
+    QKeyMapper* mMapper;
 //    QMap<Qt::Key, TUint> *mQtToS60KeyMap;//not owned
 //    QMap<Qt::Key, TUint> *mQtToS60StdScanCodeMap;    //not owned
 };

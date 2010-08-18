@@ -95,4 +95,10 @@ EXPORTS
 	_ZN13XQRequestUtil11channelNameERK7QString @ 94 NONAME
 	_ZNK16XQServiceManager18findFirstInterfaceERK7QString @ 95 NONAME
 	_ZNK16XQServiceManager18findFirstInterfaceERK7QStringS2_ @ 96 NONAME
+	_ZN13XQServiceUtil10isEmbeddedEiPPc @ 97 NONAME
+	_ZN13XQServiceUtil11serviceNameEiPPc @ 98 NONAME
+	_ZN13XQServiceUtil11serviceNameEv @ 99 NONAME
+	_ZN13XQServiceUtil13interfaceNameEiPPc @ 100 NONAME
+	_ZN13XQServiceUtil13operationNameEiPPc @ 101 NONAME
+	_ZN13XQServiceUtil9isServiceEiPPc @ 102 NONAME
 

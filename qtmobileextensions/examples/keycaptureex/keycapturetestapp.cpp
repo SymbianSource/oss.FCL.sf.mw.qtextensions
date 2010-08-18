@@ -39,7 +39,7 @@
 #include <QMenuBar>
 #include <QAction>
 #include <QEvent>
-#include <XQRemConKeyEvent>
+
 
 #include <QFont>
 
@@ -261,7 +261,12 @@ void KeyCaptureTestApp::enableRemBasic(bool enable)
 {
     if (enable) {
         addTextLine("Remote Basic enabled");
-        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureBasic);
+        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
+        if (toggleRemoteExtEvents->isChecked())
+            flags = XQKeyCapture::CaptureEnableRemoteExtEvents;
+        if (toggleRemoteCallHandlingEx->isChecked())
+            flags |= XQKeyCapture::CaptureCallHandlingExt;
+        mKeyCapture->captureRemoteKeys(flags |= XQKeyCapture::CaptureBasic);
     } else {
         addTextLine("Remote Basic disabled");
         mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureBasic);
@@ -272,7 +277,12 @@ void KeyCaptureTestApp::enableRemCallHandlingEx(bool enable)
 {
     if (enable) {
         addTextLine("Remote Call Handling Ext. enabled");
-        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt);
+        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
+        if (toggleRemoteExtEvents->isChecked())
+            flags = XQKeyCapture::CaptureEnableRemoteExtEvents;
+        if (toggleRemoteBasic->isChecked())
+            flags |= XQKeyCapture::CaptureBasic;
+        mKeyCapture->captureRemoteKeys(flags | XQKeyCapture::CaptureCallHandlingExt);
     } else {
         addTextLine("Remote Call Handling Ext. disabled");
         mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt);
@@ -283,11 +293,15 @@ void KeyCaptureTestApp::enableRemoteExtEvents(bool enable)
 {
     if (enable) {
         addTextLine("Remote Events Ext. enabled");
-        mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureBasic | XQKeyCapture::CaptureEnableRemoteExtEvents);
-        toggleRemoteBasic->setChecked(true);
+        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
+        if (toggleRemoteCallHandlingEx->isChecked())
+            flags = XQKeyCapture::CaptureCallHandlingExt;
+        if (toggleRemoteBasic->isChecked())
+            flags |= XQKeyCapture::CaptureBasic;
+        mKeyCapture->captureRemoteKeys(flags | XQKeyCapture::CaptureEnableRemoteExtEvents);
     } else {
         addTextLine("Remote Events Ext. disabled");
-        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureBasic | XQKeyCapture::CaptureEnableRemoteExtEvents);
+        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureEnableRemoteExtEvents);
     }
 }
 
@@ -307,6 +321,7 @@ void KeyCaptureTestApp::remoteNone(bool enable)
     Q_UNUSED(enable);
     toggleRemoteBasic->setChecked(false);
     toggleRemoteCallHandlingEx->setChecked(false);
+    toggleRemoteExtEvents->setChecked(false);
     addTextLine("Remote: disable all");
     mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt | XQKeyCapture::CaptureBasic | 
             XQKeyCapture::CaptureEnableRemoteExtEvents);

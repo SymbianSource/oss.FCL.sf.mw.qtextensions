@@ -41,12 +41,12 @@ int KeyCapturePrivate::mRemoteEventType_KeyRelease = 0;
 KeyCapturePrivate::KeyCapturePrivate() :
     mLastError(KErrNone), mLastErrorString(QString("OK")),
 #ifndef _XQKEYCAPTURE_UNITTEST_
-        mWindowGroup( &CEikonEnv::Static()->RootWin()), 
+        mWindowGroup( CEikonEnv::Static()->RootWin()), 
 #else
-        mWindowGroup( MyTestWindowGroup::Instance()),
+        mWindowGroup( *MyTestWindowGroup::Instance()),
 #endif
         mRequestsList(new QList<CaptureRequest*> ()),
-        mMapper(new QKeyMapperPrivate()),
+        mMapper(new QKeyMapper()),
         tgWrapper(new TargetWrapper())
 {
 
@@ -63,56 +63,6 @@ KeyCapturePrivate::~KeyCapturePrivate()
     delete tgWrapper;
 }
 
-bool KeyCapturePrivate::captureKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeNormal);
-}
-
-bool KeyCapturePrivate::captureKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCapture(aKey, aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeNormal);
-}
-
-bool KeyCapturePrivate::captureLongKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    return doCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeLong, aLongType);
-}
-
-bool KeyCapturePrivate::captureLongKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    return doCapture(aKey, aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeLong, aLongType);
-}
-
-bool KeyCapturePrivate::captureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCapture(mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask,
-            aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-bool KeyCapturePrivate::captureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCapture(aKey, aModifiersMask,
-            aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
 bool KeyCapturePrivate::doCapture(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
@@ -121,63 +71,13 @@ bool KeyCapturePrivate::doCapture(TUint aKey,
 {
     int err = mLastError;
     CaptureRequest *req = new CaptureRequest(aKey, aModifiersMask, aModifier,
-            aType, aLongType, mWindowGroup);
+            aType, aLongType, &mWindowGroup);
     mLastError = req->request();
     mRequestsList->append(req);
     if (err != mLastError)
-    regenerateError();
+        regenerateError();
 
     return errorId() == KErrNone;
-}
-
-bool KeyCapturePrivate::cancelCaptureKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCancelCapture(mMapper->mapQtToS60Key(aKey),
-            aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeNormal);
-}
-
-bool KeyCapturePrivate::cancelCaptureKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    return doCancelCapture(aKey, aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeNormal);
-}
-
-bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    return doCancelCapture(mMapper->mapQtToS60Key(aKey), aModifiersMask,
-            aModifier, CaptureRequest::CaptureRequestTypeLong, aLongType);
-}
-
-bool KeyCapturePrivate::cancelCaptureLongKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    return doCancelCapture(aKey, aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeLong, aLongType);
-}
-
-bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return doCancelCapture(mMapper->mapQtToS60ScanCodes(aKey),
-            aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return doCancelCapture(aKey, aModifiersMask, aModifier,
-            CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 bool KeyCapturePrivate::doCancelCapture(TUint aKey,
@@ -189,18 +89,18 @@ bool KeyCapturePrivate::doCancelCapture(TUint aKey,
     int err = mLastError;
 
     for (int i(0), size(mRequestsList->count()); i < size; i++) {
-        CaptureRequest *r = mRequestsList->at(i);
-        if (r && r->matches(aKey, aModifiersMask, aModifier, aType,
+        CaptureRequest *request = mRequestsList->at(i);
+        if (request && request->matches(aKey, aModifiersMask, aModifier, aType,
                 aLongType)) {
-            mLastError = r->cancel();
+            mLastError = request->cancel();
             mRequestsList->removeAt(i);
-            delete r;
-            r = 0;
+            delete request;
+            break;
         }
     }
 
     if (err != mLastError)
-    regenerateError();
+        regenerateError();
 
     return errorId() == KErrNone;
 }
@@ -226,18 +126,19 @@ void KeyCapturePrivate::regenerateError()
 
 bool KeyCapturePrivate::initRemote(XQKeyCapture::CapturingFlags flags)
 {
-    return resetRemote(flags);
+    int err;
+    QT_TRYCATCH_ERROR(err, tgWrapper->init(flags));
+    mLastError = err;
+    if (err != mLastError)
+        regenerateError();
+
+    return errorId() == KErrNone;
 }
 
 bool KeyCapturePrivate::closeRemote(XQKeyCapture::CapturingFlags flags)
 {
-    return resetRemote(XQKeyCapture::CaptureNone);
-}
-
-bool KeyCapturePrivate::resetRemote(XQKeyCapture::CapturingFlags flags)
-{
     int err;
-    QT_TRYCATCH_ERROR(err, tgWrapper->init(flags));
+    QT_TRYCATCH_ERROR(err, tgWrapper->close(flags));
     mLastError = err;
     if (err != mLastError)
         regenerateError();

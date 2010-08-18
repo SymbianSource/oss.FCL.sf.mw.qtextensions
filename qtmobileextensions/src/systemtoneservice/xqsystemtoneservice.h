@@ -139,7 +139,7 @@ public:
 /**
 * Play selected alarm. 
 *
-* @param  toneType  selected tone type.
+* @param  alarmType  selected tone type.
 * @param  contextId  unique playback id for current playback event. May be used for matching playback signals and/or to later stop playing.
 * @see  XQSystemToneService::stopAlarm(unsigned int contextId)
 * @see  XQSystemToneService::error()
@@ -155,6 +155,16 @@ public:
 */
   STS_EXPORT void stopAlarm(unsigned int contextId);
 
+/**
+* Play selected tone. 
+*
+* @param  toneType  selected tone type.
+* @param  contextId  unique playback id for current playback event. May be used for matching playback signals and/or to later stop playing.
+* @see  XQSystemToneService::stopAlarm(unsigned int contextId)
+* @see  XQSystemToneService::error()
+*/
+  STS_EXPORT void playAlarm(ToneType toneType, unsigned int& contextId);
+  
 signals:
 
 /**

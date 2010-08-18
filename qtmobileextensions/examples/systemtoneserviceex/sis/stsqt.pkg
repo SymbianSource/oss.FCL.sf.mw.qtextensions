@@ -19,7 +19,8 @@
 &EN
 
 ;Header
-#{"System Tone Service QT"},(0x10207C90),1,0,0, TYPE=SA, RU
+; SIS header: name, uid, version
+#{"SystemToneServiceEx"},(0xE9e86548),1,0,0, TYPE=SA, RU
 
 ;Series 60 v5.0
 [0x1028315F], 0,0,0, {"Series60ProductID"}
@@ -31,6 +32,7 @@
 :"Nokia"
 
 ;Files To Copy...<src> <destination>
-"/epoc32/release/armv5/urel/SystemToneServiceEx2.exe"         -"!:/sys/bin/SystemToneServiceEx.exe"
-"/epoc32/data/z/resource/apps/SystemToneServiceEx2.rsc"    - "!:\resource\apps\SystemToneServiceEx2.rsc"
-"/epoc32/data/z/private/10003a3f/import/apps/SystemToneServiceEx2_reg.rsc"    - "!:\private\10003a3f\import\apps\SystemToneServiceEx2_reg.rsc"
+; Executable and default resource files
+"/epoc32/release/armv5/urel/SystemToneServiceEx.exe" - "!:\sys\bin\SystemToneServiceEx.exe"
+"/epoc32/data/z/resource/apps/SystemToneServiceEx.rsc" - "!:\resource\apps\SystemToneServiceEx.rsc"
+"/epoc32/data/z/private/10003a3f/import/apps/SystemToneServiceEx_reg.rsc" - "!:\private\10003a3f\import\apps\SystemToneServiceEx_reg.rsc"

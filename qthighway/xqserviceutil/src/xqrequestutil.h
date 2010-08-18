@@ -53,6 +53,7 @@ namespace XQServiceUtils
     static const char * StartupArgService = "service=yes";
     static const char * StartupArgInterfaceName = "intf=";
     static const char * StartupArgOperationName = "oper=";
+    static const char * StartupArgServiceName = "xqsn=";
 }
 
 

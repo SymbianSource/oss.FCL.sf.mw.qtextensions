@@ -5,11 +5,6 @@
 
 	<!-- Tools interfaces -->
 
-	<interface name="qt.qtmobilityheaders" extends="Symbian.UserFLM" flm="qtmobilityheaders.flm">
-		<param name='SYNCHEADERS' default='syncheaders' />
-		<param name='MODULES' default='' />
-	</interface>
-	
 	<interface name="qt.qtextensions_pre_targetdep.export" extends="Symbian.UserFLM"
                 flm="qtextensions_pre_targetdep.flm">
     <param name='PREDEP_TARGET' />

@@ -25,6 +25,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QMainWindow>
 #include <QWidget>
 #include <QComboBox>
 #include <QSpinBox>
@@ -33,14 +34,14 @@
 
 #include <xqsystemtoneservice.h>
 
-class STSTest : public QWidget
+class STSTest : public QMainWindow
 {
 
 Q_OBJECT
 
 public:
    
-    STSTest(QWidget *parent = 0, Qt::WFlags f = 0);
+    STSTest(QWidget *parent = 0);
     
     ~STSTest();
     
@@ -49,6 +50,8 @@ public slots:
     void playTone();
 
     void playAlarm();
+	
+    void playAlarmAsTone();
 
     void stopAlarm();
 

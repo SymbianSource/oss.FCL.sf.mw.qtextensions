@@ -53,6 +53,10 @@
 #include "appmgrclient.h"
 
 
+//
+// TODO: Better UI for test cases which allows
+// more test cases.
+//
 AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     : QWidget(parent, f),
       actionButton(0),
@@ -66,6 +70,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
       req8(0),
       req9(0),
       req10(0),
+      anyReq(0),
       mImplIndex(0)      
 {
     /* Adjust the palette */
@@ -108,7 +113,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     QAction *test5 = new QAction("5:appto:", this);
     connect(test5, SIGNAL(triggered()), this, SLOT(test5()));
     QAction *test6 = new QAction("6:testto:", this);
-    connect(test6, SIGNAL(triggered()), this, SLOT(test6()));
+   connect(test6, SIGNAL(triggered()), this, SLOT(test6()));
     QAction *test7 = new QAction("7:MIME", this);
     connect(test7, SIGNAL(triggered()), this, SLOT(test7()));
     QAction *test8 = new QAction("8:URI", this);
@@ -157,7 +162,7 @@ AppMgrClient::AppMgrClient(QWidget *parent, Qt::WFlags f)
     mTextRetValue = new QLineEdit("no ret value set");
 
     QFileInfo appinfo (qApp->applicationFilePath());
-    mAppName = appinfo.baseName();
+    mAppName = "XQTESTER " + appinfo.baseName();
 
     QLabel *label = new QLabel(mAppName);
 
@@ -208,23 +213,24 @@ AppMgrClient::~AppMgrClient()
     
 }
 
-void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QString& operation)
+// Tester helper function
+bool AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QString& operation)
 {
-    qDebug() << mAppName << " test START"; 
-
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
     
-    qDebug() << mAppName << " test: embed=" << embed << ",sync=" << sync << "background=" << background;
+    qDebug() << mAppName << " test options: embed=" << embed << ",sync=" << sync << "background=" << background;
     
     if (!*req)
     {
         *req = appmgr.create(interface, operation);
+        assert(mTestCase + ".req != NULL", *req != NULL);
         if (!*req)
         {
+            qDebug() <<  mAppName << " AIW-ERROR::NULL request";
             qDebug() << mAppName << " Last error=" << appmgr.lastError();
-            return;
+            return false;
         }
         connectSignals(*req);        
     }
@@ -234,43 +240,37 @@ void AppMgrClient::test(XQAiwRequest **req, const QString& interface, const QStr
     (*req)->setBackground(background);
     
     
-    qDebug("%s::isEmbbedded %d", qPrintable(mAppName), (*req)->isEmbedded());
-    
-    test(req, mReqArg->text());
+    bool ret=test(req, mReqArg->text());
 
-    qDebug() << mAppName << " test END";    
+    return ret;
     
 }
 
 
-void AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation)
+// Tester helper function
+bool AppMgrClient::test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation)
 {
-    qDebug() << mAppName << " test START";    
-
     if (!*req)
     {
         *req = appmgr.create(impl, operation);
+        assert(mTestCase + ".req != NULL", *req != NULL);
         connectSignals(*req);        
     }
-    // Test embedded funcions
-    qDebug("%s::isEmbbedded %d", qPrintable(mAppName),(*req)->isEmbedded());
+    bool ret = test(req, mReqArg->text());
 
-    test(req, mReqArg->text());
-
-    qDebug() << mAppName << " test END";    
-
+    return ret;
 }
 
 
 
-void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
+// Tester helper function
+bool AppMgrClient::test(XQAiwRequest **req, const QString &arg)
 {
-    qDebug() << mAppName << " testreq START";    
 
     if (!req || !*req)
     {
         qDebug() <<  mAppName << " AIW-ERROR::NULL request";
-        return;
+        return false;
     }
 
     
@@ -278,13 +278,15 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
     bool foreground = (mForeground->checkState() == Qt::Checked);
+    qDebug() << mAppName << " test options: embed=" << embed << ",sync=" << sync << "background=" << background;
+    
+    bool ret=true;
     
     // Set arguments for request
     QList<QVariant> args;
     args << arg;
     if ((*req)->operation() == OPERATION1)
     {
-        qDebug() << mAppName << " test: add bool arg" << !sync;
         args << QVariant(!sync);
     }
     (*req)->setArguments(args);
@@ -297,6 +299,9 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
     // Apply additional options
     XQRequestInfo options;
     options.setForeground(foreground);
+    // Save the test case to options as tester data. This data is also passed to service app
+    // The test case is utilized in requestOk and requestError signal handlers
+    options.setInfo(TESTCASE_INFO_KEY, mTestCase);
     (*req)->setInfo(options);
     
     // Make the request
@@ -305,6 +310,7 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         if (!(*req)->send())
         {
             qDebug() << mAppName << " AIW-ERROR:test: Send failed" << (*req)->lastError();;
+            ret=false;
         }
     }
     else if (!genericSend && sync)
@@ -313,6 +319,7 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         if (!(*req)->send(retValue))
         {
             qDebug() << mAppName <<  " AIW-ERROR: test: Send(retValue) failed" << (*req)->lastError();;
+            ret=false;
         }
         else
         {
@@ -333,6 +340,8 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         }
     }
 
+    assert(mTestCase + ".lastError==0", !(*req)->lastError());
+    
     // Delete request if wanted
     bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
     
@@ -349,14 +358,15 @@ void AppMgrClient::test(XQAiwRequest **req, const QString &arg)
         *req = 0;
     }
 
-    qDebug() << mAppName << " test END";
-
     update();
+
+    return ret;
     
 
 }
 
 
+// Tester helper function
 void AppMgrClient::connectSignals(XQAiwRequest *req)
 {
     if (req)
@@ -368,6 +378,7 @@ void AppMgrClient::connectSignals(XQAiwRequest *req)
 }
 
 
+// Tester helper function
 void AppMgrClient::createTestFile(const QString &dir, const QString &fileName)
 {
 
@@ -387,53 +398,71 @@ void AppMgrClient::createTestFile(const QString &dir, const QString &fileName)
     
 }
 
+// Tester helper function
+void AppMgrClient::assert(const QString &testName, bool testResult)
+{
+    qDebug("%s,ASSERT,%s,%s", qPrintable(mAppName), qPrintable(testName),testResult?"OK" : "FAILED");
+}
+
+
+// Tester helper function
 bool AppMgrClient::testRunning(const QString & service, const QString & interface)
 {
 
     QList<XQAiwInterfaceDescriptor> impls = appmgr.list(service, interface, QString(""));
-    qDebug() << mAppName <<  " isRunning" << impls.count();
     if (impls.count() > 0)
     {
         bool b = appmgr.isRunning(impls[0]);
-        qDebug() << mAppName <<  " isRunning=" << b;
         return b;
     }
     else
     {
-        qDebug("%s isRunning: no service found (%s,%s)", qPrintable(mAppName),
-               qPrintable(service),qPrintable(interface));
         return false;
     }
    
 }
 
 
+/*
+* Test1:
+* - Call the first IDIAL interface found.
+* - Test XQAplicationManager::isRunning
+* See appmgrservices.h
+*/
 void AppMgrClient::test1()
 {
 
+    mTestCase = "Test1";
     qDebug() << mAppName << " test1 START";
-    test(&req1, IDIAL, OPERATION1);
-    qDebug() << mAppName << " test1 END";
+    assert("Test1",test(&req1, IDIAL, OPERATION1));
 
-    qDebug("%s::isRunning=%d", qPrintable(mAppName), testRunning("com.nokia.services.serviceapp", IDIAL));
-    
-    
-    /*
-    mReqArg->setText("77777"); 
-    qDebug() << mAppName <<  " test1 second call";
-    test(&req1, IDIAL, OPERATION1);
-    */
+    bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
+    if (!embed)
+    {
+        // Works only for non-embedded cases (no point to check embedded case)
+        assert("Test1.isRunning", testRunning("serviceapp", IDIAL));
+    }
+    qDebug() << mAppName << " test1 END";
+  
 }
 
-
+/*
+* Test2:
+* - List all the IDIAL interfaces
+* - List all the IDIAL interfaces of the old serviceapp service name
+* - List all the IDIAL interfaces of the new serviceapp service name
+* See appmgrservices.h
+*/
 void AppMgrClient::test2()
 {
+    mTestCase = "Test2";
+    
     qDebug() << mAppName << " test2 START";
     
     QList<XQAiwInterfaceDescriptor> list=appmgr.list(IDIAL, "");
     qDebug() << mAppName << " list implementations: " << list.count();
     int i=0;
-    Q_ASSERT(list.count() > 0);
+    assert("Test2.list.count() > 0", list.count() > 0);
     foreach (XQAiwInterfaceDescriptor d, list)
     {
         qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
@@ -444,10 +473,11 @@ void AppMgrClient::test2()
         i++;
     }
 
+    // Old, deprecated service name
     QList<XQAiwInterfaceDescriptor> list2=appmgr.list("com.nokia.services.serviceapp", IDIAL, "");
     qDebug() << mAppName << " list implementations 2: " << list2.count();
     i=0;
-    Q_ASSERT(list2.count() > 0);
+    assert("Test2.list2.count() > 0",list2.count() > 0);
     foreach (XQAiwInterfaceDescriptor d, list2)
     {
         qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
@@ -456,10 +486,11 @@ void AppMgrClient::test2()
         i++;
     }
 
+    // Service name
     QList<XQAiwInterfaceDescriptor> list3=appmgr.list("serviceapp", IDIAL, "");
     qDebug() << mAppName << " New: list implementations: " << list3.count();
     i=0;
-    Q_ASSERT(list3.count() > 0);
+    assert("Test2.list3.count() > 0", list3.count() > 0);
     foreach (XQAiwInterfaceDescriptor d, list3)
     {
         qDebug("%s::Service[%d]=%s",qPrintable(mAppName),i,qPrintable(d.serviceName()));
@@ -479,9 +510,17 @@ void AppMgrClient::test2()
     
 }
 
+/*
+* Test3:
+* - Using serviceapp and IDIAL interface test passing big amount of data.
+    The datasize can be given in the mDataSpinBox field.
+    At least 0.5 MB shall be passed OK
+* See appmgrservices.h
+*/
 void AppMgrClient::test3()
 {
 
+    mTestCase = "Test3";
     qDebug() << mAppName << " test3 START";
     
     QByteArray data;
@@ -494,10 +533,10 @@ void AppMgrClient::test3()
 
     XQAiwRequest *req=0;
     req = appmgr.create(QLatin1String("serviceapp"), IDIAL, QLatin1String(""));
+    assert("Test3.req != NULL", req != NULL);
 
     if (!req)
     {
-        qDebug() << mAppName << " AIW-ERROR NULL request";
         return;
     }
 
@@ -511,13 +550,19 @@ void AppMgrClient::test3()
     req->setSynchronous(sync);
     req->setBackground(background);
 
+    XQRequestInfo info;
+    // Save the test case to options as tester data. This data is also passed to service app
+    // The test case is utilized in requestOk and requestError signal handlers
+    info.setInfo(TESTCASE_INFO_KEY, mTestCase);
+    req->setInfo(info);
+    
     QList<QVariant> args;
 
     args.clear();
     args << qVariantFromValue(data);
     req->setArguments(args);
-
-    req->send();
+    
+    assert("Test3.send", req->send());
 
     bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
     if (deleteRequest)
@@ -530,8 +575,19 @@ void AppMgrClient::test3()
     
 }
 
+/*
+* Test4:
+* - Test QAction creation using the service "com.nokia.services.hbserviceprovider" and IDIAL interface
+    (The com.nokia.services.hbserviceprovider is implemented by the examples/hbserviceprovider
+    which should be built and included in ROM)
+    The successfully created QAction adds a Test button to UI.
+    Pressing the button emits the signal "test4ActionTriggered" to get input args
+    (the actual "send" happens after returning from the signal)
+* See appmgrservices.h
+*/
 void AppMgrClient::test4()
 {
+    mTestCase = "Test4";
     qDebug() << mAppName << " test4 START";
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
@@ -545,10 +601,10 @@ void AppMgrClient::test4()
     }
 
     // Only hbserviceprovider support localization
-    req4 = appmgr.create(QLatin1String("com.nokia.services.hbserviceprovider"), IDIAL, OPERATION1);
+    req4 = appmgr.create("com.nokia.services.hbserviceprovider", IDIAL, OPERATION1, true);
+    assert("Test4.req4 != NULL", req4 != NULL);
     if (!req4)
     {
-        qDebug() << mAppName << " AIW-ERROR::NULL request";
         return;
     }
 
@@ -559,6 +615,9 @@ void AppMgrClient::test4()
     XQRequestInfo options;
     options.setEmbedded(embed);
     options.setForeground(foreground);
+    // Save the test case to options as tester data. This data is also passed to service app
+    // The test case is utilized in requestOk and requestError signal handlers
+    options.setInfo(TESTCASE_INFO_KEY, mTestCase);
     req4->setInfo(options);
 
     if (actionButton)
@@ -571,7 +630,7 @@ void AppMgrClient::test4()
     }
     
     QAction *action = req4->createAction();  // Also connects the triggered event to req !!!!
-    qDebug() << mAppName << " action:" << action->isEnabled();
+    assert("Test4.action != NULL", action != NULL);
     
     // Create UI
     if (action)
@@ -584,17 +643,13 @@ void AppMgrClient::test4()
         // Workaround...
         connect(actionButton, SIGNAL(clicked()), action, SIGNAL(triggered()));
         connect(req4, SIGNAL(triggered()), this, SLOT(test4ActionTriggered()));
-    }
-    else
-    {
-        qDebug() << mAppName << " test4 No action available";
-
+        qDebug() << mAppName << " Press Test button";
     }
 
-    qDebug() << mAppName << " test4 END";
     
 }
 
+// Test button pressed from UI
 void AppMgrClient::test4ActionTriggered()
 {
     XQAiwRequest *r = (XQAiwRequest *)sender();
@@ -605,21 +660,19 @@ void AppMgrClient::test4ActionTriggered()
     args << QVariant(mReqArg->text());
     args << QVariant(!embed);
     r->setArguments(args);
-
 }
 
+/*
+* Test5:
+* - Test launching activity URI for the UID E0022E70 (fire-and-forget launch)
+    (The E0022E70 is the examples/hbserviceclient which should be built and included in ROM)
+* See appmgrservices.h
+*/
 void AppMgrClient::test5()
 {
+    mTestCase = "Test5";
     qDebug() << mAppName << " test5 START";
 
-    QString str("e0022e70");
-    uint ui = str.toUInt();
-    qDebug() << mAppName << " toUInt value=" << ui;
-    bool b=false;
-    ui=str.toUInt(&b,16);
-    qDebug() << mAppName << " toUInt status=" << b <<  ",value=" << ui;
-    
-    
     QUrl uri(XQURI_SCHEME_ACTIVITY + "://E0022E70?" + XQURI_KEY_ACTIVITY_NAME + "=MainView&key1=data1&key2=data2"); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
@@ -628,27 +681,37 @@ void AppMgrClient::test5()
     if (!req5)
     {
         req5 = appmgr.create(uri);
+        assert("Test5.req5 != NULL", req5 != NULL);
         connectSignals(req5); 
     }
     
     mReqArg->setText(uri.encodedQuery()); 
-    test(&req5, mReqArg->text());
+    assert("Test5", test(&req5, mReqArg->text()));
     mReqArg->setText(old);
     
     qDebug() << mAppName << " test5 END";
     
 }
 
+/*
+* Test6:
+* - Test launching URI scheme "testto" implemented by the examples/serviceapp
+*/
 void AppMgrClient::test6()
 {
+
+    mTestCase = "Test5";
     qDebug() << mAppName << " test6 START";
 
+    // QUrl uri("testto://authority?param1=value1&param1=value2"); 
     QUrl uri("testto://authority?param1=value1&param1=value2"); 
     qDebug() << mAppName << " Uri=" << uri.toString();
     qDebug() << mAppName << " isValid=" << uri.isValid();
     qDebug() << mAppName << " Uri authority=" << uri.authority();
 
     QList<XQAiwInterfaceDescriptor> uriHandlers = appmgr.list(uri);
+    assert("Test6.uriHandlers.count() > 0", uriHandlers.count() > 0);
+    
     // Note : Only services supporting custom property are returned
     foreach (XQAiwInterfaceDescriptor d, uriHandlers)
     {
@@ -661,21 +724,27 @@ void AppMgrClient::test6()
     if (!req6)
     {
         req6 = appmgr.create(uri);
+        assert("Test5.req6 != NULL", req6 != NULL);
         connectSignals(req6); 
     }
 
-    test(&req6, uri.toString());
+    assert("Test6",test(&req6, uri.toString()));
 
     qDebug() << mAppName << " test6 END";
     
 }
 
+/*
+* Test7:
+* - Test launching com.nokia.symbian.IFileView for non-data-caged text file (MIME type text/plain)
+*   At least the examples/serviceapp implements support for interface
+*/
 void AppMgrClient::test7()
 {
+    mTestCase = "Test7";
     qDebug() << mAppName << " test7 START";
     
-    // Should launch viewer for text/plain MimeTestApp.
-    // Create test file
+    // Create test file  (MIME type text/plain)
     createTestFile("C:/data/Others", "test.txt");
 
     
@@ -684,27 +753,35 @@ void AppMgrClient::test7()
     qDebug() << mAppName << " exists=" << file.exists();
 
     QList<XQAiwInterfaceDescriptor> fileHandlers = appmgr.list(file);
+    assert("Test7.fileHandlers.count() > 0", fileHandlers.count() > 0);
     foreach (XQAiwInterfaceDescriptor d, fileHandlers)
     {
         qDebug() << mAppName << " Service=" << d.serviceName();
         qDebug() << mAppName << " Interface=" << d.interfaceName();
-        qDebug() << mAppName << " Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
+        qDebug("%s::Implementation Id=%x",qPrintable(mAppName),d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
     }
     
     if (!req7)
     {
         req7 = appmgr.create(file);
+        assert("Test5.req7 != NULL", req7 != NULL);
         connectSignals(req7); 
     }
-    test(&req7, file.fileName());
+    assert("Test7",test(&req7, file.fileName()));
 
     qDebug() << mAppName << " test7 END";
     
 }
 
 
+/*
+* Test8:
+* - Test launching http URI which should be implemented by the Browser
+    Note ! http scheme is handled by the QDesktopServices::openUrl.
+*/
 void AppMgrClient::test8()
 {
+    mTestCase = "Test8";
     qDebug() << mAppName << " test8 START";
 
     // E0022E73 == ServiceApp
@@ -716,17 +793,24 @@ void AppMgrClient::test8()
     if (!req8)
     {
         req8 = appmgr.create(uri);
+        assert("Test8.req8 != NULL", req8 != NULL);
         connectSignals(req8); 
     }
-    test(&req8, uri.toString());
+    assert("Test8", test(&req8, uri.toString()));
 
     qDebug() << mAppName << " test8 END";
     
 }
 
+/*
+* Test9:
+* - Test launching com.nokia.symbian.IFileView for data-caged text file (MIME type text/plain)
+*   At least the examples/serviceapp implements support for interface
+*/
 void AppMgrClient::test9()
 {
 
+    mTestCase = "Test9";
     qDebug() << mAppName << " test9 START";    
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
@@ -752,28 +836,28 @@ void AppMgrClient::test9()
 
     // Just test listing by sharable file
     QList<XQAiwInterfaceDescriptor> fileHandlers = appmgr.list(sf);
+    assert("Test9.fileHandlers.count() > 0", fileHandlers.count() > 0);
     if (fileHandlers.count() > 0)
     {
         XQAiwInterfaceDescriptor d = fileHandlers.first();
         qDebug() << mAppName << " File Service=" << d.serviceName();
         qDebug() << mAppName << " File Interface=" << d.interfaceName();
-        qDebug() << mAppName << " Handler Implementation Id=" << d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
+        qDebug("%s::Implementation Id=%x",qPrintable(mAppName),d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
         if (!req9)
         {
             // Create by descriptor
             req9 = appmgr.create(sf, d);
+            assert("Test9.req9 != NULL", req9 != NULL);
         }
         if (!req9)
         {
             sf.close();
-            qDebug() << mAppName <<  " anyTest: ERROR IN XQAppMgr API";
             return ;
         }
     }
     else
     {
         sf.close();
-        qDebug() << mAppName <<  " anyTest: NO HANDLER FOUND";
     }
 
     connectSignals(req9);        
@@ -783,14 +867,16 @@ void AppMgrClient::test9()
     QList<QVariant> args;
     args << qVariantFromValue(sf);
     req9->setArguments(args);
+
+    XQRequestInfo info;
+    // Save the test case to options as tester data. This data is also passed to service app
+    // The test case is utilized in requestOk and requestError signal handlers
+    info.setInfo(TESTCASE_INFO_KEY, mTestCase);
+    req9->setInfo(info);
     
-    req9->send();
-    if (req9->lastError() == XQService::EMessageNotFound)
-    {
-        // Slot was not found
-        qDebug() << mAppName <<  " AIW-ERROR:XQService::EMessageNotFound";
-        deleteRequest = true;
-    }
+    assert("Test9.send", req9->send());
+    assert(mTestCase + ".lastError==0", !req9->lastError());
+    
     // Remember to close the file !!!
     sf.close();
 
@@ -804,10 +890,16 @@ void AppMgrClient::test9()
     
 }
 
-// Test 10
+/*
+* Test10:
+* - Test fetching contacts via the "com.nokia.services.phonebookservices" interfaces
+    Note ! This is deprecated interface name still used. The official name is "com.nokia.symbian.IContactFetch"
+           once phonebook supports that.
+*/
 void AppMgrClient::test10()
 {
 
+    mTestCase = "Test10";
     qDebug() << mAppName << " test10 START";
 
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
@@ -819,13 +911,16 @@ void AppMgrClient::test10()
     if (!req10)
     {
         req10 = appmgr.create(QLatin1String("com.nokia.services.phonebookservices"), QLatin1String("Fetch"), QLatin1String(""));
-        connect(req10, SIGNAL(requestOk(const QVariant&)), this, SLOT(showRecipients(const QVariant&)));
-        connect(req10, SIGNAL(requestError(int,const QString&)), this, SLOT(handleError(int,const QString&)));
+        assert("Test10.req10 != NULL", req10 != NULL);
+        if (req10)
+        {
+            connect(req10, SIGNAL(requestOk(const QVariant&)), this, SLOT(handleOk(const QVariant&)));
+            connect(req10, SIGNAL(requestError(int,const QString&)), this, SLOT(handleError(int,const QString&)));
+        }
     }
 
     if (!req10)
     {
-        qDebug() << mAppName <<  " AIW-ERROR: NULL request";
         return;
     }
 
@@ -841,9 +936,16 @@ void AppMgrClient::test10()
     args << KCntActionAll;   
     args << KCntFilterDisplayAll;
     req10->setArguments(args);
+    
+    XQRequestInfo info;
+    // Save the test case to options as tester data. This data is also passed to service app
+    // The test case is utilized in requestOk and requestError signal handlers
+    info.setInfo(TESTCASE_INFO_KEY, mTestCase);
+    req10->setInfo(info);
 
     // Send the request
-    req10->send();
+    assert("Test10.send", req10->send());
+    assert(mTestCase + ".lastError==0", !req10->lastError());
 
     bool deleteRequest = (mCheckDeleteRequest->checkState() == Qt::Checked);
     if (deleteRequest)
@@ -858,8 +960,14 @@ void AppMgrClient::test10()
 }
 
 
+/*
+* Test10:
+* - Test getting DRM attributes of the files included in the examples\appmgrclient\DrmTestFiles.zip
+    (You need to unzip/transfer these files in correct location)
+*/
 void AppMgrClient::test11()
 {
+    mTestCase = "Test11";
     qDebug() << mAppName << " test11 START";
 
     // Copy files from DrmTestFiles.zip into correct location
@@ -870,12 +978,13 @@ void AppMgrClient::test11()
     drmFiles.append("C:/data/Others/SD_jpg_sun.dcf");
     drmFiles.append("C:/data/Others/STC1_128_44_16_2_CBR.wma");
     drmFiles.append("C:/data/Others/test.txt");
-    drmFiles.append("C:/data/Others/foo.txt");
+    drmFiles.append("C:/data/Others/some-nonexisting-file.txt");  // Error
 
     QList<int> attrNames;
     attrNames.append(XQApplicationManager::MimeType);
     attrNames.append(XQApplicationManager::IsProtected);
     attrNames.append(XQApplicationManager::IsForwardable);
+    // See other attributes from epoc32/include/caf/caftypes.h
 
     // Test with file names
     foreach (QString f, drmFiles)
@@ -883,7 +992,8 @@ void AppMgrClient::test11()
         QFile file(f);
         QVariantList attrValues;
         bool ok = appmgr.getDrmAttributes(file, attrNames, attrValues);
-        qDebug() << mAppName << " getDrmAttributes for " << f << " status=" << ok;
+        assert("Test11.getDrmAttributes.QFile/" + f,
+               f != QString("C:/data/Others/some-nonexisting-file.txt") ? ok : !ok);
         int i=0;
         foreach (QVariant v, attrValues)
         {
@@ -899,7 +1009,8 @@ void AppMgrClient::test11()
         file.open(f);  // Create handle manually
         QVariantList attrValues;
         bool ok = appmgr.getDrmAttributes(file, attrNames, attrValues);
-        qDebug() << mAppName << " getDrmAttributes for file " << file.fileName() << " handle status=" << ok;
+        assert("Test11.getDrmAttributes.XQSharableFile/" + f,
+               f != QString("C:/data/Others/some-nonexisting-file.txt") ? ok : !ok);
         int i=0;
         foreach (QVariant v, attrValues)
         {
@@ -914,45 +1025,15 @@ void AppMgrClient::test11()
 }
 
 
-void AppMgrClient::showRecipients(const QVariant &value)
-{
-    qDebug("%s::showRecipients::variant(%d,%s)", qPrintable(mAppName),value.type(), value.typeName());
-    
-    CntServicesContactList list;
-    if(value.canConvert<CntServicesContactList>())
-    {
-        qDebug() << mAppName << " showRecipients: canConvert";
-        list = qVariantValue<CntServicesContactList>(value);
-    }
-    else
-    {
-        qDebug() << mAppName << " showRecipients: canConvert NOK !!!";
-        return;
-    }    
-
-    if (list.count() == 0)
-    {
-        qDebug() << mAppName << " showRecipients: Count==0";
-    }
-    else {
-        for (int i = 0; i < list.count(); ++i)
-        {
-            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mDisplayName;
-            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mPhoneNumber;
-            qDebug() << mAppName << " showRecipients[" << i << "]=" << list[i].mEmailAddress;
-
-        }
-    }
-}
-
-
-
-
 #define TXT_ID QLatin1String("txt_aiw_action_text")
 
+//
+// Miscellanous ad-hoc tests for trying bugs, etc.
+//
 void AppMgrClient::anyTest()
 {
 
+#if 0
     bool embed = (mCheckEmbedded->checkState() == Qt::Checked);
     bool sync = (mSynchronous->checkState() == Qt::Checked);
     bool background = (mBackground->checkState() == Qt::Checked);
@@ -1001,9 +1082,6 @@ void AppMgrClient::anyTest()
     list.append(cnt2);
     */
 
-    //
-    // THIS DOES NOT WORK ???
-    //
     QVariant v1;
     QVariant v2;
     QVariant v3;
@@ -1082,8 +1160,18 @@ void AppMgrClient::anyTest()
     qApp->removeTranslator(&translator);
 
     Q_ASSERT(0==1);
+
+    QString str("e0022e70");
+    uint ui = str.toUInt();
+    qDebug() << mAppName << " toUInt value=" << ui;
+    bool b=false;
+    ui=str.toUInt(&b,16);
+    qDebug() << mAppName << " toUInt status=" << b <<  ",value=" << ui;
+
+    
     */
 
+#endif
 }
 
 
@@ -1093,46 +1181,57 @@ void AppMgrClient::anyTest()
 void AppMgrClient::handleOk(const QVariant& result)
 {
     XQAiwRequest *r = static_cast<XQAiwRequest *>(sender());
+    QString testCase = (r->info().info(TESTCASE_INFO_KEY)).toString();
     
     int impl=-1;
     impl = (r->descriptor().property(XQAiwInterfaceDescriptor::ImplementationId)).toInt();
     QString interface = r->descriptor().interfaceName();
     QString service = r->descriptor().serviceName();
+
+    qDebug("%s,%s::requestOk,from [%s.%s,%x]",
+           qPrintable(mAppName),
+           qPrintable(testCase),
+           qPrintable(service),
+           qPrintable(interface),
+           impl);
+    qDebug("%s,%s::requestOk,result type=%s",
+           qPrintable(mAppName),
+           qPrintable(testCase),
+           result.typeName());
     
     if (result.canConvert<CntServicesContactList>())
     {
-        showRecipients(result);
+        CntServicesContactList list;
+        list = qVariantValue<CntServicesContactList>(result);
+        for (int i = 0; i < list.count(); ++i)
+        {
+            qDebug() << mAppName << "," << testCase <<  ",result[" << i << "].mDisplayName=" << list[i].mDisplayName;
+            qDebug() << mAppName << "," << testCase <<  " result[" << i << "].mPhoneNumber=" << list[i].mPhoneNumber;
+            qDebug() << mAppName << "," << testCase <<  ",result[" << i << "].mEmailAddress=" << list[i].mEmailAddress;
+
+        }
     }
     else if (result.canConvert<TestServiceDataList>())
     {
         TestServiceDataList list = qVariantValue<TestServiceDataList>(result);
         for (int i = 0; i < list.count(); ++i)
         {
-            qDebug() << "AppMgrClient::handleOk[" << i << "]=" << list[i].mType;
-            qDebug() << "AppMgrClient::handleOk[" << i << "]=" << list[i].mData.toString();
+            qDebug() << mAppName << "," << testCase << ",result[" << i << "].mType=" << list[i].mType;
+            qDebug() << mAppName << "," << testCase << ",result[" << i << "].mData=" << list[i].mData.toString();
         }
         
     }
     else if (result.canConvert<QString>())
     {
-        qDebug("%s::handleOk from [%s.%s,%x]=(%s,%s)",
+        qDebug("%s,%s,result=%s",
                qPrintable(mAppName),
-               qPrintable(service),
-               qPrintable(interface),
-               impl,
-               result.typeName(),
+               qPrintable(testCase),
                qPrintable(result.value<QString>()));
         mTextRetValue->setText(result.value<QString>());
     }
 
     else
     {
-        qDebug("%s::handleOk from [%s.%s,%x]=(%s)",
-               qPrintable(mAppName),
-               qPrintable(service),
-               qPrintable(interface),
-               impl,
-               result.typeName());
         mTextRetValue->setText("Not displayable");
     }
 }
@@ -1142,12 +1241,14 @@ void AppMgrClient::handleError(int errorCode, const QString& errorMessage)
     XQAiwRequest *r = static_cast<XQAiwRequest *>(sender());
     QString interface = r->descriptor().interfaceName();
     QString service = r->descriptor().serviceName();
+    QString testCase = (r->info().info(TESTCASE_INFO_KEY)).toString();
     
     int impl=-1;
     impl = (r->descriptor().property(XQAiwInterfaceDescriptor::ImplementationId)).toInt();
 
-    qDebug("%s::handleError from [%s.%s,%d]=(%d,%s)",
+    qDebug("%s,%s::requestError,from [%s.%s,%x]=(%d,%s)",
            qPrintable(mAppName),
+           qPrintable(testCase),
            qPrintable(service),
            qPrintable(interface),
            impl, errorCode, qPrintable(errorMessage));

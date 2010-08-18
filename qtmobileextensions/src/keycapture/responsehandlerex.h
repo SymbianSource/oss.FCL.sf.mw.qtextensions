@@ -29,7 +29,7 @@
 #include <remconcallhandlingtarget.h>
 #include <remconcallhandlingtargetobserver.h>    
 
-NONSHARABLE_CLASS(ResponseHandlerEx) : public CActive
+NONSHARABLE_CLASS(CResponseHandlerEx) : public CActive
 {
 public:
 
@@ -40,12 +40,12 @@ public:
      * @param aRemConCoreApiTarget RemCon core target object.
      * @return Pointer to newly created object.
      */
-    static ResponseHandlerEx* NewL( CRemConCallHandlingTarget& aRemConCallHandlingTarget );
+    static CResponseHandlerEx* NewL( CRemConCallHandlingTarget& aRemConCallHandlingTarget );
 
     /**
      * Destructor.
      */
-    virtual ~ResponseHandlerEx();
+    virtual ~CResponseHandlerEx();
 
     /**
      * Send the any key response back to Remcon server
@@ -60,7 +60,7 @@ private:
     /**
      * C++ default constructor.
      */
-    ResponseHandlerEx( CRemConCallHandlingTarget& aRemConCallHandlingTarget );
+    CResponseHandlerEx( CRemConCallHandlingTarget& aRemConCallHandlingTarget );
 
 // from base class CActive
 

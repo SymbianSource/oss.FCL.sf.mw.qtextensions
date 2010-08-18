@@ -41,6 +41,8 @@ public:
 
   void PlayAlarmComplete(unsigned int aAlarmContext);
 
+  unsigned int playAlarm(XQSystemToneService::ToneType toneType);
+  
 private:
 
   CSystemToneService::TToneType mapToneType(XQSystemToneService::ToneType toneType);

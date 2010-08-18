@@ -229,8 +229,11 @@ void DialerService::complete(QString number)
 
 int DialerService::dial(const QString& number, bool asyncAnswer)
 {
-    XQSERVICE_DEBUG_PRINT("DialerService::dial: %s,%d", qPrintable(number), asyncAnswer);
+    Q_UNUSED(asyncAnswer);
+    
     XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,DialerService::dial", qPrintable(testCase));
     
     XQSERVICE_DEBUG_PRINT("\tRequest info: id=%d,sid=%X,vid=%X", info.id(), info.clientSecureId(), info.clientVendorId());
     QSet<int> caps = info.clientCapabilities();
@@ -238,17 +241,18 @@ int DialerService::dial(const QString& number, bool asyncAnswer)
     while (i.hasNext())
         qDebug() << "Has capability " << i.next();    
     XQSERVICE_DEBUG_PRINT("\tRequest info: embed=%d,sync=%d", info.isEmbedded(), info.isSynchronous());
-    
+
+    bool isAsync = !info.isSynchronous();
     QString label = "Dialer::dial:\n";
     label += QString("number=%1\n").arg(number);
-    label += QString("asyncAnswer=%1\n").arg(asyncAnswer);
+    label += QString("async=%1\n").arg(isAsync);
     
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
     
     mNumber = number ;
     mServiceApp->setLabelNumber(label, number);
     int ret = 0;
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -286,6 +290,10 @@ CntServicesContactList DialerService::testContactList(CntServicesContactList lis
 
 QVariant DialerService::testVariant(QVariant variant)
 {
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,DialerService::testVariant", qPrintable(testCase));
+
     XQSERVICE_DEBUG_PRINT("DialerService::testVariant::variant(%d,%d,%s)",
                           variant.type(), variant.userType(), variant.typeName());
     XQSERVICE_DEBUG_PRINT("DialerService::testVariant::variant value=%s", qPrintable(variant.toString()));
@@ -449,9 +457,12 @@ void NewDialerService::complete(QString number)
 
 int NewDialerService::dial(const QString& number, bool asyncAnswer)
 {
-    XQSERVICE_DEBUG_PRINT("NewDialerService::dial: %s,%d", qPrintable(number), asyncAnswer);
-    XQRequestInfo info = requestInfo();
+    Q_UNUSED(asyncAnswer);
 
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,NewDialerService::dial", qPrintable(testCase));
+    
     XQSERVICE_DEBUG_PRINT("\tRequest info: id=%d,sid=%X,vid=%X", info.id(), info.clientSecureId(), info.clientVendorId());
     QSet<int> caps = info.clientCapabilities();
     QSetIterator<int> i(caps);
@@ -459,16 +470,18 @@ int NewDialerService::dial(const QString& number, bool asyncAnswer)
         qDebug() << "Has capability " << i.next();    
     XQSERVICE_DEBUG_PRINT("\tRequest info: embed=%d,sync=%d", info.isEmbedded(), info.isSynchronous());
 
+    bool isAsync = !info.isSynchronous();
+    
     QString label = "NewDialer::dial:\n";
     label += QString("number=%1\n").arg(number);
-    label += QString("asyncAnswer=%1\n").arg(asyncAnswer);
+    label += QString("async=%1\n").arg(isAsync);
 
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
 
     mNumber = number ;
     mServiceApp->setLabelNumber(label, number);
     int ret = 0;
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -506,6 +519,10 @@ CntServicesContactList NewDialerService::testContactList(CntServicesContactList 
 
 QVariant NewDialerService::testVariant(QVariant variant)
 {
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,NewDialerService::testVariant", qPrintable(testCase));
+    
     XQSERVICE_DEBUG_PRINT("NewDialerService::testVariant::variant(%d,%d,%s)",
                           variant.type(), variant.userType(), variant.typeName());
     XQSERVICE_DEBUG_PRINT("NewDialerService::testVariant::variant value=%s", qPrintable(variant.toString()));
@@ -721,19 +738,21 @@ bool UriService::view(const QString& uri)
 
 bool UriService::view(const QString& uri, bool retValue)
 {
-    XQSERVICE_DEBUG_PRINT("UriService::view(2)");
-    QString label = "IUri::view\n:";
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,UriService::view", qPrintable(testCase));
+    
+    QString label = "IUriView::view\n:";
     label += QString ("Uri=%1\n").arg(uri);
     label += QString ("retValue=%1\n").arg(retValue);
     QString param = QString ("retValue=%1\n").arg(retValue);
 
-    XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
 
     mRetValue = retValue;
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -798,19 +817,21 @@ bool NewUriService::view(const QString& uri)
 
 bool NewUriService::view(const QString& uri, bool retValue)
 {
-    XQSERVICE_DEBUG_PRINT("NewUriService::view(2)");
-    QString label = "New IUri::view\n:";
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,NewUriService::view", qPrintable(testCase));
+    
+    QString label = "New IUriView::view\n:";
     label += QString ("Uri=%1\n").arg(uri);
     label += QString ("retValue=%1\n").arg(retValue);
     QString param = QString ("retValue=%1\n").arg(retValue);
 
-    XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
 
     mRetValue = retValue;
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -869,16 +890,18 @@ void FileService::complete(bool ok)
 
 bool FileService::view(QString file)
 {
-    XQSERVICE_DEBUG_PRINT("FileService::view(QString)");
-    QString label = "IFile::view\n:";
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,FileService::view", qPrintable(testCase));
+
+    QString label = "IFileView::view\n:";
     QString param = QString ("File=%1\n").arg(file);
 
-    XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
 
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -908,10 +931,10 @@ bool FileService::view(XQSharableFile sf)
     }
 
     XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
     
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -971,16 +994,18 @@ void NewFileService::complete(bool ok)
 
 bool NewFileService::view(QString file)
 {
-    XQSERVICE_DEBUG_PRINT("NewFileService::view(QString)");
-    QString label = "New IFile::view\n:";
+    XQRequestInfo info = requestInfo();
+    QString testCase = (info.info(TESTCASE_INFO_KEY)).toString();
+    XQSERVICE_DEBUG_PRINT("XQTESTER serviceapp,%s,NewFileService::view", qPrintable(testCase));
+    
+    QString label = "New IFileView::view\n:";
     QString param = QString ("File=%1\n").arg(file);
 
-    XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
     connect(this, SIGNAL(returnValueDelivered()), this, SLOT(handleAnswerDelivered()));
 
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));
@@ -1010,10 +1035,10 @@ bool NewFileService::view(XQSharableFile sf)
     }
 
     XQRequestInfo info = requestInfo();
-    bool asyncAnswer = !info.isSynchronous();;
+    bool isAsync = !info.isSynchronous();;
 
     mServiceApp->setLabelNumber(label,param);
-    if (asyncAnswer)
+    if (isAsync)
     {
         mAsyncReqIds.insertMulti(info.clientSecureId(), setCurrentRequestAsync());
         connect(this, SIGNAL(clientDisconnected()), this, SLOT(handleClientDisconnect()));

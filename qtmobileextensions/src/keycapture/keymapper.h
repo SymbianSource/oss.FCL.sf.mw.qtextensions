@@ -47,11 +47,11 @@ public:
     Qt::Key qtKey;
 }; 
 
-class QKeyMapperPrivate
+class QKeyMapper
 {
 public:
-    QKeyMapperPrivate();
-    ~QKeyMapperPrivate();
+    QKeyMapper();
+    ~QKeyMapper();
 
 #if defined(Q_OS_SYMBIAN)
 private:

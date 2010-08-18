@@ -43,24 +43,32 @@
 #include "ststest.h"
 #include <XQSystemToneService>
 
-STSTest::STSTest( QWidget *parent, Qt::WFlags f ) 
+STSTest::STSTest( QWidget *parent) 
 :
-QWidget(parent, f),
+QMainWindow(parent),
 sts(new XQSystemToneService())
 {
+    qDebug() << QString("[sts] STSTest::STSTest 1");
+    QWidget *window = new QWidget(this);
+    qDebug() << QString("[sts] STSTest::STSTest 2");
+    QVBoxLayout* layout = new QVBoxLayout(this);
+
     callbackCleanTimer.setSingleShot(true);
     connect(&callbackCleanTimer, SIGNAL(timeout()), this, SLOT(cleanCallback()));
     
-    QPushButton *quitButton = new QPushButton("QUIT");
+    QPushButton *quitButton = new QPushButton("QUIT", this);
     connect(quitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QPushButton *playToneButton = new QPushButton("Play Tone");
+    QPushButton *playToneButton = new QPushButton("Play Tone", this);
     connect(playToneButton, SIGNAL(clicked()), this, SLOT(playTone()));
 
-    QPushButton *playAlarmButton = new QPushButton("Play Alarm");
+    QPushButton *playAlarmButton = new QPushButton("Play Alarm", this);
     connect(playAlarmButton, SIGNAL(clicked()), this, SLOT(playAlarm()));
 
-    QPushButton *stopAlarmButton = new QPushButton("Stop Alarm");
+    QPushButton *playAlarmAsToneButton = new QPushButton("Play Alarm as Tone", this);
+    connect(playAlarmAsToneButton, SIGNAL(clicked()), this, SLOT(playAlarmAsTone()));
+
+    QPushButton *stopAlarmButton = new QPushButton("Stop Alarm", this);
     connect(stopAlarmButton, SIGNAL(clicked()), this, SLOT(stopAlarm()));
     
 
@@ -68,21 +76,14 @@ sts(new XQSystemToneService())
     connect(sts, SIGNAL(alarmStarted(unsigned int)), this, SLOT(startCallback(unsigned int)));
     connect(sts, SIGNAL(alarmFinished(unsigned int)), this, SLOT(stopCallback(unsigned int)));
 
+    qDebug() << QString("[sts] STSTest::STSTest 3");
 
-    box = new QComboBox();
-    spinBox = new QSpinBox();
+    box = new QComboBox(this);
+    spinBox = new QSpinBox(this);
     
-    QVBoxLayout *vl = new QVBoxLayout;
-    QGridLayout *gl = new QGridLayout();
-    
-    vl->setMargin(10);
-    vl->setSpacing(0);
-
-//    gl->setMargin(0);
-//    gl->setSpacing(0);
-//    gl->setDefaultPositioning();
-
-    
+    layout->setMargin(10);
+    layout->setSpacing(0);
+    qDebug() << QString("[sts] STSTest::STSTest 4"); 
     QList<QPair<int, QString> > tonesList;
     
 
@@ -131,41 +132,44 @@ sts(new XQSystemToneService())
     tonesList.append(QPair<int,QString>(XQSystemToneService::VoiceErrorTone, "[T] Voice Error"));
     tonesList.append(QPair<int,QString>(XQSystemToneService::VoiceAbortTone, "[T] Voice Abort"));
 
-    vl->addLayout(gl);
-
+    qDebug() << QString("[sts] STSTest::STSTest 5");
     QListIterator<QPair<int, QString> > iter(tonesList);
-
-    gl->setDefaultPositioning(4, Qt::Horizontal);
-    
     while (iter.hasNext()) {
         QPair<int, QString> item = iter.next();
         box->addItem(item.second, item.first);
     }
 
-    vl->addStretch(4);
-    vl->addWidget(box);
+    layout->addStretch(4);
+    layout->addWidget(box);
 
-    vl->addStretch(1);
-    vl->addWidget(playToneButton);
-    vl->addStretch(1);
-    vl->addWidget(playAlarmButton);
-    vl->addStretch(1);
-    vl->addWidget(currCtxLabel = new QLabel("Last context: ?"));
-    vl->addStretch(2);
-    vl->addWidget(stopAlarmButton);
-    vl->addStretch(1);
-    vl->addWidget(new QLabel("Context:"));
-    vl->addWidget(spinBox);
+    qDebug() << QString("[sts] STSTest::STSTest 6");
+    layout->addStretch(1);
+    layout->addWidget(playToneButton);
+    layout->addStretch(1);
+    layout->addWidget(playAlarmButton);
+    layout->addStretch(1);
+    layout->addWidget(playAlarmAsToneButton);
+    layout->addStretch(1);	
+    currCtxLabel = new QLabel("Last context: ?", this);
+    layout->addWidget(currCtxLabel);
+    layout->addStretch(2);
+    layout->addWidget(stopAlarmButton);
+    layout->addStretch(1);
+    layout->addWidget(new QLabel("Context:", this));
+    layout->addWidget(spinBox);
 
-    vl->addStretch(1);
-    vl->addWidget(callbackLabel = new QLabel("SIGNALS: ---"));
+    layout->addStretch(1);
+    callbackLabel = new QLabel("SIGNALS: ---", this);
+    layout->addWidget(callbackLabel);
     
-    vl->addStretch(4);
-    vl->addWidget(quitButton);
+    layout->addStretch(4);
+    layout->addWidget(quitButton);
 
-    setLayout(vl);
-    //showMaximized();
-    showFullScreen();
+    
+    window->setLayout(layout);
+    setCentralWidget(window);
+    window->show();;
+
 }
 
 STSTest::~STSTest()
@@ -192,6 +196,18 @@ void STSTest::playAlarm()
     unsigned int ctx = 0;
     
     sts->playAlarm((XQSystemToneService::AlarmType)id, ctx);
+    
+    currCtxLabel->setText(QString("Last context: %1").arg(ctx));
+}
+
+void STSTest::playAlarmAsTone()
+{
+    int id = box->itemData(box->currentIndex(), Qt::UserRole).toInt();
+    
+    qDebug("Beep!!! (%d)", id);
+    unsigned int ctx = 0;
+    
+    sts->playAlarm((XQSystemToneService::ToneType)id, ctx);
     
     currCtxLabel->setText(QString("Last context: %1").arg(ctx));
 }
@@ -228,12 +244,14 @@ void STSTest::cleanCallback()
 }
 
 int main(int argc, char* argv[])
-{
-    QApplication a(argc, argv);
+{  
+    QApplication app(argc, argv);
 
     STSTest* tester = new STSTest();
-    int rv = a.exec();    
+    tester->showMaximized();
+
+    int rv = app.exec();
     delete tester;
-	return rv;    
+    return rv;
 }
     

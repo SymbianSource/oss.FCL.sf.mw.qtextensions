@@ -35,6 +35,12 @@ namespace XQServiceUtil
     XQSERVICEUTIL_EXPORT bool isService();
     XQSERVICEUTIL_EXPORT QString interfaceName();
     XQSERVICEUTIL_EXPORT QString operationName();
+    XQSERVICEUTIL_EXPORT bool isEmbedded(int argc, char **argv);
+    XQSERVICEUTIL_EXPORT bool isService(int argc, char **argv);
+    XQSERVICEUTIL_EXPORT QString interfaceName(int argc, char **argv);
+    XQSERVICEUTIL_EXPORT QString operationName(int argc, char **argv);
+    XQSERVICEUTIL_EXPORT QString serviceName();
+    XQSERVICEUTIL_EXPORT QString serviceName(int argc, char **argv);
 }
 
 #endif

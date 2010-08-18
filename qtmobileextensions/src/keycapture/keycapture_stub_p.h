@@ -35,47 +35,22 @@ public:
         
     bool closeRemote(XQKeyCapture::CapturingFlags, XQKeyCapture::HandlingEvents);
     
-    bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool captureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
-    
-    bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
-    
-    bool captureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool captureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool cancelCaptureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool cancelCaptureLongKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType);
-    
-    bool cancelCaptureLongKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType);
-    
-    bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool cancelCaptureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
     QString errorString() const;
 
     int errorId() const;
+    
+private:
+    bool doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+            Qt::KeyboardModifiers aModifier,
+            CaptureRequest::CaptureRequestType type,
+            XQKeyCapture::LongFlags aLongType =
+                    XQKeyCapture::LongWaitNotApplicable);
+
+    bool doCancelCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
+            Qt::KeyboardModifiers aModifier,
+            CaptureRequest::CaptureRequestType type,
+            XQKeyCapture::LongFlags aLongType =
+                    XQKeyCapture::LongWaitNotApplicable);
 
 private:
     static int mRemoteEventType_KeyPress;

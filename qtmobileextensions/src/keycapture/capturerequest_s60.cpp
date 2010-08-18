@@ -60,25 +60,25 @@ int CaptureRequest::request()
         TX_LOG_ARGS( QString("!mGroup"));
     } else {
         switch (mRequestType) {
-            case CaptureRequestTypeNormal:
-                mRequestHandle = mGroup->CaptureKey(mKey, translatedModifierMask(),
-                    translatedModifier());
-                TX_LOG_ARGS( QString("CaptureKey done"))
-                break;
-            case CaptureRequestTypeLong:
-                mRequestHandle = mGroup->CaptureLongKey(mKey, mKey,
-                    translatedModifierMask(), translatedModifier(), 0, longKeyFlags);
-                TX_LOG_ARGS( QString("CaptureLongKey done"))
-                break;
-            case CaptureRequestTypeUpAndDown:
-                mRequestHandle = mGroup->CaptureKeyUpAndDowns(mKey,
-                    translatedModifierMask(), translatedModifier());
-                TX_LOG_ARGS( QString("CaptureKeyUpAndDowns done"))
-                break;
-            default:
-                res = KErrNotSupported;
-                TX_LOG_ARGS( QString("request not done"))
-                break;
+        case CaptureRequestTypeNormal:
+            mRequestHandle = mGroup->CaptureKey(mKey, translatedModifierMask(),
+                translatedModifier());
+            TX_LOG_ARGS( QString("CaptureKey done"))
+            break;
+        case CaptureRequestTypeLong:
+            mRequestHandle = mGroup->CaptureLongKey(mKey, mKey,
+                translatedModifierMask(), translatedModifier(), 0, longKeyFlags);
+            TX_LOG_ARGS( QString("CaptureLongKey done"))
+            break;
+        case CaptureRequestTypeUpAndDown:
+            mRequestHandle = mGroup->CaptureKeyUpAndDowns(mKey,
+                translatedModifierMask(), translatedModifier());
+            TX_LOG_ARGS( QString("CaptureKeyUpAndDowns done"))
+            break;
+        default:
+            res = KErrNotSupported;
+            TX_LOG_ARGS( QString("request not done"))
+            break;
         }
         
         if (mRequestHandle < 0){
@@ -87,37 +87,21 @@ int CaptureRequest::request()
             //In Qt you might request capture CTRL key, in symbian you have to capture Left and Right CTRL keys
             bool additionalAction = false;
             TUint additionalKey = 0;
-			if (mRequestType == CaptureRequestTypeNormal && mRequestType == CaptureRequestTypeLong){
-				if (mKey == EKeyLeftShift) {
-					additionalAction = true;
-					additionalKey = EKeyRightShift;
-				}
-			
-				if (mKey == EKeyLeftCtrl) {
-					additionalAction = true;
-					additionalKey = EKeyRightCtrl;
-				}
-			
-				if (mKey == EKeyLeftFunc) {
-					additionalAction = true;
-					additionalKey = EKeyRightFunc;
-				}
-			} else { //for CaptureRequestTypeUpAndDown ise StdKeys
-				if (mKey == EStdKeyLeftShift) {
-					additionalAction = true;
-					additionalKey = EStdKeyRightShift;
-				}
-			
-				if (mKey == EStdKeyLeftCtrl) {
-					additionalAction = true;
-					additionalKey = EStdKeyRightCtrl;
-				}
-			
-				if (mKey == EStdKeyLeftFunc) {
-					additionalAction = true;
-					additionalKey = EStdKeyRightFunc;
-				}
-			}
+            switch(mKey){
+            case EKeyLeftShift:
+                additionalAction = true;
+                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightShift : EKeyRightShift;
+                break;
+            case EKeyLeftCtrl:
+                additionalAction = true;
+                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightCtrl : EKeyRightCtrl;
+                break;
+            case EKeyLeftFunc:
+                additionalAction = true;
+                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightFunc : EKeyRightFunc;
+                break;
+            }
+
             if (additionalAction && additionalKey != 0) {
                 TX_LOG_ARGS( QString("additionalAction needed"));
                 switch (mRequestType) {

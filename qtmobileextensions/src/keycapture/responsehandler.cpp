@@ -27,7 +27,7 @@
 #include <remconcoreapitargetobserver.h>    
 
 
-ResponseHandler::ResponseHandler(
+CResponseHandler::CResponseHandler(
     CRemConCoreApiTarget& aRemConCoreApiTarget )
     : CActive( CActive::EPriorityStandard ),
       iRemConCoreApiTarget( aRemConCoreApiTarget )
@@ -35,22 +35,22 @@ ResponseHandler::ResponseHandler(
     CActiveScheduler::Add( this );
     }
 
-ResponseHandler* ResponseHandler::NewL(
+CResponseHandler* CResponseHandler::NewL(
     CRemConCoreApiTarget& aRemConCoreApiTarget )
     {
-    ResponseHandler* self =
-        new (ELeave) ResponseHandler( aRemConCoreApiTarget );
+    CResponseHandler* self =
+        new (ELeave) CResponseHandler( aRemConCoreApiTarget );
 
     return self;
     }
 
-ResponseHandler::~ResponseHandler()
+CResponseHandler::~CResponseHandler()
     {
     Cancel();
     iResponseArray.Close();
     }
 
-void ResponseHandler::CompleteAnyKey(TRemConCoreApiOperationId aOperationId)
+void CResponseHandler::CompleteAnyKey(TRemConCoreApiOperationId aOperationId)
     {
     if ( !IsActive() )
         {
@@ -91,11 +91,13 @@ void ResponseHandler::CompleteAnyKey(TRemConCoreApiOperationId aOperationId)
         }
     }
 
-void ResponseHandler::DoCancel()
+void CResponseHandler::DoCancel()
     {
+    if ( iResponseArray.Count() )
+        iRemConCoreApiTarget.Cancel();
     }
 
-void ResponseHandler::RunL()
+void CResponseHandler::RunL()
     {
     // if any existing -> Send response
     if ( iResponseArray.Count() )
@@ -105,4 +107,7 @@ void ResponseHandler::RunL()
         iResponseArray.Remove( 0 );
         iResponseArray.Compress();
         }
+    
+    if ( iResponseArray.Count() )
+        SetActive();
     }

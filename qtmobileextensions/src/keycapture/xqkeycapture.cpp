@@ -22,6 +22,7 @@
 #include "xqkeycapture.h"
 
 #include "keycapture_p.h"
+#include "keymapper.h"
 #include <qnamespace.h>
 #include <qcoreevent.h>
 
@@ -99,7 +100,8 @@ QEvent::Type XQKeyCapture::remoteEventType_KeyRelease()
 bool XQKeyCapture::captureKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKey(aKey, aModifiersMask, aModifier);
+    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -112,7 +114,8 @@ bool XQKeyCapture::captureKey(Qt::Key aKey,
 bool XQKeyCapture::captureKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKey(aKey, aModifiersMask, aModifier);
+    return d->doCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -126,7 +129,8 @@ bool XQKeyCapture::captureLongKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XQKeyCapture::LongFlags aLongType)
 {
-    return d->captureLongKey(aKey, aModifiersMask, aModifier, aLongType);
+    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
 /*!
@@ -140,7 +144,8 @@ bool XQKeyCapture::captureLongKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMap, Qt::KeyboardModifiers aModifier,
     XQKeyCapture::LongFlags aLongType)
 {
-    return d->captureLongKey(aKey, aModifiersMap, aModifier, aLongType);
+    return d->doCapture(aKey, aModifiersMap, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
 /*!
@@ -153,7 +158,8 @@ bool XQKeyCapture::captureLongKey(TUint aKey,
 bool XQKeyCapture::captureKeyUpAndDowns(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCapture(d->mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -166,7 +172,8 @@ bool XQKeyCapture::captureKeyUpAndDowns(Qt::Key aKey,
 bool XQKeyCapture::captureKeyUpAndDowns(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCapture(aKey, aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -179,7 +186,9 @@ bool XQKeyCapture::captureKeyUpAndDowns(TUint aKey,
 bool XQKeyCapture::cancelCaptureKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKey(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey),
+        aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -192,7 +201,8 @@ bool XQKeyCapture::cancelCaptureKey(Qt::Key aKey,
 bool XQKeyCapture::cancelCaptureKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKey(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -206,8 +216,8 @@ bool XQKeyCapture::cancelCaptureLongKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XQKeyCapture::LongFlags aLongType)
 {
-    return d->cancelCaptureLongKey(aKey, aModifiersMask, aModifier,
-        aLongType);
+    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
 /*!
@@ -221,8 +231,8 @@ bool XQKeyCapture::cancelCaptureLongKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XQKeyCapture::LongFlags aLongType)
 {
-    return d->cancelCaptureLongKey(aKey, aModifiersMask, aModifier,
-        aLongType);
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, aLongType);
 }
 
 /*!
@@ -235,7 +245,9 @@ bool XQKeyCapture::cancelCaptureLongKey(TUint aKey,
 bool XQKeyCapture::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(d->mMapper->mapQtToS60ScanCodes(aKey),
+        aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -248,7 +260,8 @@ bool XQKeyCapture::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
 bool XQKeyCapture::cancelCaptureKeyUpAndDowns(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -283,7 +296,7 @@ bool XQKeyCapture::captureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKey(key, aModifiersMask, aModifier);
+        bool result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -302,7 +315,7 @@ bool XQKeyCapture::captureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKey(key, aModifiersMask, aModifier);
+        bool result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -322,7 +335,7 @@ bool XQKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureLongKey(key, aModifiersMask, aModifier, aLongType);
+        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -342,7 +355,7 @@ bool XQKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureLongKey(key, aModifiersMask, aModifier, aLongType);
+        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -361,7 +374,7 @@ bool XQKeyCapture::captureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -380,7 +393,7 @@ bool XQKeyCapture::captureKeyUpAndDowns(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -399,7 +412,7 @@ bool XQKeyCapture::cancelCaptureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKey(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -418,7 +431,7 @@ bool XQKeyCapture::cancelCaptureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKey(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -438,7 +451,7 @@ bool XQKeyCapture::cancelCaptureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
+        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -458,7 +471,7 @@ bool XQKeyCapture::cancelCaptureLongKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
+        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -477,7 +490,7 @@ bool XQKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -496,7 +509,7 @@ bool XQKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -525,10 +538,18 @@ XqKeyCapture::~XqKeyCapture()
  \param aModifier 
  \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
  */
+/*!
+ Selects a given key for capturing key pressing. Requires a Qt key code.
+ \param aKey A Qt key.
+ \param aModifiersMask
+ \param aModifier 
+ \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
+ */
 bool XqKeyCapture::captureKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKey(aKey, aModifiersMask, aModifier);
+    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -541,7 +562,8 @@ bool XqKeyCapture::captureKey(Qt::Key aKey,
 bool XqKeyCapture::captureKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKey(aKey, aModifiersMask, aModifier);
+    return d->doCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -555,7 +577,8 @@ bool XqKeyCapture::captureLongKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XqKeyCapture::LongFlags aLongType)
 {
-    return d->captureLongKey(aKey, aModifiersMask, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
 }
 
 /*!
@@ -569,7 +592,8 @@ bool XqKeyCapture::captureLongKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMap, Qt::KeyboardModifiers aModifier,
     XqKeyCapture::LongFlags aLongType)
 {
-    return d->captureLongKey(aKey, aModifiersMap, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+    return d->doCapture(aKey, aModifiersMap, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
 }
 
 /*!
@@ -582,7 +606,8 @@ bool XqKeyCapture::captureLongKey(TUint aKey,
 bool XqKeyCapture::captureKeyUpAndDowns(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCapture(d->mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -595,7 +620,8 @@ bool XqKeyCapture::captureKeyUpAndDowns(Qt::Key aKey,
 bool XqKeyCapture::captureKeyUpAndDowns(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->captureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCapture(aKey, aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -608,7 +634,9 @@ bool XqKeyCapture::captureKeyUpAndDowns(TUint aKey,
 bool XqKeyCapture::cancelCaptureKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKey(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey),
+        aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -621,7 +649,8 @@ bool XqKeyCapture::cancelCaptureKey(Qt::Key aKey,
 bool XqKeyCapture::cancelCaptureKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKey(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeNormal);
 }
 
 /*!
@@ -635,8 +664,8 @@ bool XqKeyCapture::cancelCaptureLongKey(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XqKeyCapture::LongFlags aLongType)
 {
-    return d->cancelCaptureLongKey(aKey, aModifiersMask, aModifier,
-        static_cast<XQKeyCapture::LongFlags>(aLongType));
+    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask,
+        aModifier, CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
 }
 
 /*!
@@ -650,8 +679,8 @@ bool XqKeyCapture::cancelCaptureLongKey(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
     XqKeyCapture::LongFlags aLongType)
 {
-    return d->cancelCaptureLongKey(aKey, aModifiersMask, aModifier,
-        static_cast<XQKeyCapture::LongFlags>(aLongType));
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
 }
 
 /*!
@@ -664,7 +693,9 @@ bool XqKeyCapture::cancelCaptureLongKey(TUint aKey,
 bool XqKeyCapture::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(d->mMapper->mapQtToS60ScanCodes(aKey),
+        aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -677,7 +708,8 @@ bool XqKeyCapture::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
 bool XqKeyCapture::cancelCaptureKeyUpAndDowns(TUint aKey,
     Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
 {
-    return d->cancelCaptureKeyUpAndDowns(aKey, aModifiersMask, aModifier);
+    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
+        CaptureRequest::CaptureRequestTypeUpAndDown);
 }
 
 /*!
@@ -712,7 +744,7 @@ bool XqKeyCapture::captureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKey(key, aModifiersMask, aModifier);
+        bool result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -731,7 +763,7 @@ bool XqKeyCapture::captureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKey(key, aModifiersMask, aModifier);
+        bool result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -751,7 +783,7 @@ bool XqKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureLongKey(key, aModifiersMask, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -771,7 +803,7 @@ bool XqKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureLongKey(key, aModifiersMask, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -790,7 +822,7 @@ bool XqKeyCapture::captureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -809,7 +841,7 @@ bool XqKeyCapture::captureKeyUpAndDowns(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -828,7 +860,7 @@ bool XqKeyCapture::cancelCaptureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKey(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -847,7 +879,7 @@ bool XqKeyCapture::cancelCaptureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKey(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -867,7 +899,7 @@ bool XqKeyCapture::cancelCaptureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureLongKey(key, aModifiersMask, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -887,7 +919,7 @@ bool XqKeyCapture::cancelCaptureLongKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureLongKey(key, aModifiersMask, aModifier, static_cast<XQKeyCapture::LongFlags>(aLongType));
+        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -906,7 +938,7 @@ bool XqKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -925,7 +957,7 @@ bool XqKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & d->cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }

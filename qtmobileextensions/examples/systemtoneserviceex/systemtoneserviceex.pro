@@ -20,6 +20,9 @@
 
 TEMPLATE = app
 TARGET = SystemToneServiceEx
+QT        += core gui
+
+
 
 INCLUDEPATH += ../../include
 
@@ -31,7 +34,8 @@ LIBS += -lflogger \
         -lxqsystemtoneservice
 
 symbian {
-TARGET.CAPABILITY = ALL -TCB
-TARGET.EPOCSTACKSIZE = 0x5000
-TARGET.EPOCHEAPSIZE  = 0x400 0x1000000
+	TARGET.EPOCSTACKSIZE = 0x14000
+    TARGET.EPOCALLOWDLLDATA = 1
+    TARGET.CAPABILITY = ALL -TCB
+    MMP_RULES += EXPORTUNFROZEN
 }

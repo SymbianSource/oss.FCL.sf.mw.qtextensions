@@ -51,9 +51,20 @@ TargetWrapper::~TargetWrapper()
     delete selector;
 }
 
+void TargetWrapper::close(XQKeyCapture::CapturingFlags flags)
+{
+    captureFlags &= ~flags;
+    reset();
+}
+
 void TargetWrapper::init(XQKeyCapture::CapturingFlags flags)
 {
-    captureFlags = flags;
+    captureFlags |= flags;
+    reset();
+}
+
+void TargetWrapper::reset()
+{
     try {
         delete selector;
     
@@ -61,12 +72,12 @@ void TargetWrapper::init(XQKeyCapture::CapturingFlags flags)
         
         if (captureFlags & XQKeyCapture::CaptureBasic) {
             QT_TRAP_THROWING(target = CRemConCoreApiTarget::NewL(*selector, *this));
-            QT_TRAP_THROWING(handler = ResponseHandler::NewL(*target));
+            QT_TRAP_THROWING(handler = CResponseHandler::NewL(*target));
         }
          
         if (captureFlags & XQKeyCapture::CaptureCallHandlingExt) {
             QT_TRAP_THROWING(targetEx = CRemConCallHandlingTarget::NewL(*selector, *this));
-            QT_TRAP_THROWING(handlerEx = ResponseHandlerEx::NewL(*targetEx));
+            QT_TRAP_THROWING(handlerEx = CResponseHandlerEx::NewL(*targetEx));
         }
         
         QT_TRAP_THROWING(selector->OpenTargetL());

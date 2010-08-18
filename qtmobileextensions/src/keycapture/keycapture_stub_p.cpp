@@ -49,123 +49,32 @@ bool KeyCapturePrivate::closeRemote(XQKeyCapture::CapturingFlags flags, XQKeyCap
     return false;
 }
 
-void KeyCapturePrivate::captureKey(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask,
-    Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::captureKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::captureKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::captureLongKey(Qt::Key aKey,
+bool KeyCapturePrivate::doCapture(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask,
         Qt::KeyboardModifiers aModifier,
+        CaptureRequest::CaptureRequestType aType,
         XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);
     Q_UNUSED(aModifier);
+    Q_UNUSED(aType);
+    Q_UNUSED(aLongType);
+    return false;
 }
 
-bool KeyCapturePrivate::captureLongKey(TUint aKey,
+bool KeyCapturePrivate::doCancelCapture(TUint aKey,
         Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
+        Qt::KeyboardModifiers aModifier, 
+        CaptureRequest::CaptureRequestType aType,
         XQKeyCapture::LongFlags aLongType)
 {
     Q_UNUSED(aKey);
     Q_UNUSED(aModifiersMask);
     Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::captureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::captureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureLongKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureLongKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
-}
-
-bool KeyCapturePrivate::cancelCaptureKeyUpAndDowns(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    Q_UNUSED(aKey);
-    Q_UNUSED(aModifiersMask);
-    Q_UNUSED(aModifier);
+    Q_UNUSED(aType);
+    Q_UNUSED(aLongType);
+    return false;
 }
 
 QString KeyCapturePrivate::errorString() const

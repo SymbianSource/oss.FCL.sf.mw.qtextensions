@@ -82,6 +82,7 @@ class XQServiceManagerPrivate
         TApaAppInfo  iAppInfo;
         int iLatestError;
         RApaLsSession iApaSession;
+        XQAiwInterfaceDescriptor iImplDescriptor; 
     };
 
 XQServiceManager::XQServiceManager()
@@ -155,7 +156,6 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
     QList<XQAiwInterfaceDescriptor> interfaces;
     TUid appUid;
     interfaces.clear(); 
-    // Catenate to get full name
     TInt error=d->Discover(serviceName + "." + interfaceName, appUid, interfaces,
                            XQServiceManagerPrivate::MatchServiceAndInterfaceName);
     return interfaces;
@@ -163,7 +163,7 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
 
 
 /*!
-    Finds implementations for the given interface
+    Finds the first implementation for the given interface name.
     \param interfaceName Interfacename to match
     \return List of implementations
 */
@@ -178,7 +178,7 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QS
 }
 
 /*!
-    Finds implementations for the given interface implemented by given service
+    Finds the first implementation for the given service + interface names
     \param serviceName Service name
     \param interfaceName Interfacename to match
     \return List of implementations
@@ -194,7 +194,6 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QS
                            XQServiceManagerPrivate::MatchServiceAndInterfaceName, true);
     return interfaces;
 }
-
 
 
 /*!
@@ -244,6 +243,7 @@ int XQServiceManagerPrivate::StartServer(const QString& aService,  bool embedded
     TPtrC serverName( reinterpret_cast<const TUint16*>(aService.utf16()) );
     if (util->mDescriptor.isValid()) 
     {
+        iImplDescriptor=util->mDescriptor;  // Descriptor given by caller
         appUid.iUid = util->mDescriptor.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
         XQSERVICE_DEBUG_PRINT("ApplicationUid from descriptor: %x", appUid.iUid);
     }
@@ -254,6 +254,10 @@ int XQServiceManagerPrivate::StartServer(const QString& aService,  bool embedded
     {
         // Find the first implementation
         error = Discover(serverName,appUid,interfaces, XQServiceManagerPrivate::MatchServiceAndInterfaceName, true);
+        if (interfaces.count())
+        {
+            iImplDescriptor=interfaces[0];  // Descriptor search upon start
+        }
     }
     if (error)
         {
@@ -362,7 +366,8 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         QStringList l = util->mOperation.split("("); 
         QString oper = l.value(0); //  // Pick only the function name and ignore parameters
         
-        startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName) + util->mDescriptor.interfaceName() );
+        startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName) + iImplDescriptor.interfaceName() );
+        startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgServiceName) + iImplDescriptor.serviceName() );
         startupArgs += (" " + QString::fromLatin1(XQServiceUtils::StartupArgOperationName) + oper);
         
         XQSERVICE_DEBUG_PRINT("\tStartupArgs:%s", qPrintable(startupArgs));

@@ -39,7 +39,14 @@ HbDialerView::HbDialerView(DialerService* service,QGraphicsItem *parent)
 {
     XQSERVICE_DEBUG_PRINT("HbDialerView::HbDialerView");
     sndEmbedded = NULL;
-    setTitle(tr("HB Dialer Service"));
+    if (XQServiceUtil::isService())
+    {
+        setTitle(tr("HB Dialer As Service"));
+    }
+    else
+    {
+        setTitle(tr("HB Dialer As Non-Service"));
+    }
 
     HbToolBar* toolBar = this->toolBar();
     

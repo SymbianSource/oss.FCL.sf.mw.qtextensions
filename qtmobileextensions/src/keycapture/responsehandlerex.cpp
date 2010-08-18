@@ -28,7 +28,7 @@
 
 #include <remconcallhandlingtarget.h>
 
-ResponseHandlerEx::ResponseHandlerEx(
+CResponseHandlerEx::CResponseHandlerEx(
         CRemConCallHandlingTarget& aRemConCallHandlingTarget) :
     CActive(CActive::EPriorityStandard), iRemConCallHandlingTarget(
             aRemConCallHandlingTarget)
@@ -36,22 +36,22 @@ ResponseHandlerEx::ResponseHandlerEx(
     CActiveScheduler::Add(this);
 }
 
-ResponseHandlerEx* ResponseHandlerEx::NewL(
+CResponseHandlerEx* CResponseHandlerEx::NewL(
         CRemConCallHandlingTarget& aRemConCallHandlingTarget)
 {
-    ResponseHandlerEx* self = new (ELeave) ResponseHandlerEx(
+    CResponseHandlerEx* self = new (ELeave) CResponseHandlerEx(
             aRemConCallHandlingTarget);
 
     return self;
 }
 
-ResponseHandlerEx::~ResponseHandlerEx()
+CResponseHandlerEx::~CResponseHandlerEx()
 {
     Cancel();
     iResponseArray.Close();
 }
 
-void ResponseHandlerEx::CompleteAnyKey(int id)
+void CResponseHandlerEx::CompleteAnyKey(int id)
 {
     if (!IsActive())
         {
@@ -66,11 +66,13 @@ void ResponseHandlerEx::CompleteAnyKey(int id)
         }
 }
 
-void ResponseHandlerEx::DoCancel()
+void CResponseHandlerEx::DoCancel()
 {
+    if ( iResponseArray.Count() )
+        iRemConCallHandlingTarget.Cancel();
 }
 
-void ResponseHandlerEx::RunL()
+void CResponseHandlerEx::RunL()
 {
     // if any existing -> Send response
     if (iResponseArray.Count())
@@ -80,4 +82,7 @@ void ResponseHandlerEx::RunL()
         iResponseArray.Remove(0);
         iResponseArray.Compress();
         }
+    
+    if ( iResponseArray.Count() )
+        SetActive();
 }

@@ -20,6 +20,7 @@
 */
 
 #include "xqservicelog.h"
+#include <xqserviceutil.h>
 
 #include <QApplication>
 #include "serviceapp.h"
@@ -27,16 +28,21 @@
 int main(int argc, char **argv)
 {
     // qInstallMsgHandler(XQSERVICEMESSAGEHANDLER);
-    XQSERVICE_DEBUG_PRINT("ServiceApp::main1");
-    int len=0;
-    for (int i=0; i < argc; i++)
-    {
-        XQSERVICE_DEBUG_PRINT("ServiceApp::arg[%d]=%s", i, argv[i]);
-        len += strlen(argv[i]);
-    }
-    XQSERVICE_DEBUG_PRINT("ServiceApp::main2, cmdarg len=%d", len);
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main");
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:isService (argv)=%d", XQServiceUtil::isService(argc,argv));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:interfaceName (argv)=%s", qPrintable(XQServiceUtil::interfaceName(argc,argv)));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:serviceName (argv)=%s", qPrintable(XQServiceUtil::serviceName(argc,argv)));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:isEmbbedded (argv)=%d", XQServiceUtil::isEmbedded(argc,argv));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:operationName (argv)=%s", qPrintable(XQServiceUtil::operationName(argc,argv)));
+    
     QApplication a( argc, argv );
-    XQSERVICE_DEBUG_PRINT("ServiceApp::main3");
+
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:isService =%d", XQServiceUtil::isService());
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:interfaceName=%s", qPrintable(XQServiceUtil::interfaceName()));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:serviceName =%s", qPrintable(XQServiceUtil::serviceName()));
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:isEmbbedded =%d", XQServiceUtil::isEmbedded());
+    XQSERVICE_DEBUG_PRINT("ServiceApp::main:operationName =%s", qPrintable(XQServiceUtil::operationName()));
+    
     ServiceApp *cl = new ServiceApp();
     cl->show();
     int rv = a.exec();

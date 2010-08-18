@@ -26,16 +26,16 @@
 #include "keymapper.h"
 #include <e32keys.h>
 
-QKeyMapperPrivate::QKeyMapperPrivate()
+QKeyMapper::QKeyMapper()
 {
     fillKeyMap();
 }
 
-QKeyMapperPrivate::~QKeyMapperPrivate()
+QKeyMapper::~QKeyMapper()
 {
 }
 
-void QKeyMapperPrivate::fillKeyMap()
+void QKeyMapper::fillKeyMap()
 {
     using namespace Qt;
     keyMapping.append(KeyMapping(EKeyBackspace, EStdKeyBackspace, Key_Backspace));
@@ -121,7 +121,7 @@ void QKeyMapperPrivate::fillKeyMap()
     keyMapping.append(KeyMapping(EKeyNo, EStdKeyNo, Key_No));    	
 }
 
-int QKeyMapperPrivate::mapS60KeyToQt(TUint s60key)
+int QKeyMapper::mapS60KeyToQt(TUint s60key)
 {
 	int res = Qt::Key_unknown;
 	for ( int i = 0, size = keyMapping.count(); i<size; i++){
@@ -133,7 +133,7 @@ int QKeyMapperPrivate::mapS60KeyToQt(TUint s60key)
 	return res;
 }
 
-int QKeyMapperPrivate::mapS60ScanCodesToQt(TUint s60scanCode)
+int QKeyMapper::mapS60ScanCodesToQt(TUint s60scanCode)
 {
 	int res = Qt::Key_unknown;
 	for ( int i = 0, size = keyMapping.count(); i<size; i++){
@@ -145,7 +145,7 @@ int QKeyMapperPrivate::mapS60ScanCodesToQt(TUint s60scanCode)
 	return res;
 }
 
-int QKeyMapperPrivate::mapQtToS60Key(int qtKey)
+int QKeyMapper::mapQtToS60Key(int qtKey)
 {
     int res = KErrUnknown;
 	for ( int i = 0, size = keyMapping.count(); i<size; i++){
@@ -157,7 +157,7 @@ int QKeyMapperPrivate::mapQtToS60Key(int qtKey)
 	return res;
 }
 
-int QKeyMapperPrivate::mapQtToS60ScanCodes(int qtKey)
+int QKeyMapper::mapQtToS60ScanCodes(int qtKey)
 {
 	int res = KErrUnknown;
 	for ( int i = 0, size = keyMapping.count(); i<size; i++){

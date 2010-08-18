@@ -35,6 +35,79 @@
 #include <apacmdln.h>
 #include <eikenv.h>
 
+// ======== LOCAL FUNCTIONS ========
+static bool isKeySet(const QString &key)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil isKeySet %s", qPrintable(key));
+    QStringList args = QCoreApplication::arguments();
+    foreach (QString arg, args)
+    {
+        XQSERVICE_DEBUG_PRINT("arg: %s", qPrintable(arg));
+        if (!arg.compare(key,Qt::CaseInsensitive))
+        {
+            XQSERVICE_DEBUG_PRINT("Key set");
+            return true;
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("Key not set");
+    return false;
+    
+}
+
+static bool isKeySet(int argc, char **argv, const QString &key)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil argv isKeySet %s", qPrintable(key));
+    for (int i=0; i < argc; i++)
+    {
+        QString arg(argv[i]);
+        XQSERVICE_DEBUG_PRINT("arg: %s", qPrintable(arg));
+        if (!arg.compare(key,Qt::CaseInsensitive)) {
+            XQSERVICE_DEBUG_PRINT("Key set");
+            return true;
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("Key not set");
+    return false;
+
+}
+
+
+
+static QString keyValue(const QString &key)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil keyValue %s", qPrintable(key));
+    QString ret;
+    QStringList args = QCoreApplication::arguments();
+    foreach (QString arg, args) {
+        if (arg.contains(key,Qt::CaseInsensitive)) {
+            QStringList l= arg.split("=");
+            ret = l.value(1);
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("key value=%s", qPrintable(ret));
+    return ret;
+}
+
+
+static QString keyValue(int argc, char **argv, const QString &key)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil argv keyValue %s", qPrintable(key));
+    QString ret;
+    for (int i=0; i < argc; i++)
+    {
+        QString arg(argv[i]);
+        XQSERVICE_DEBUG_PRINT("arg: %s", qPrintable(arg));
+        if (arg.contains(key,Qt::CaseInsensitive)) {
+            QStringList l= arg.split("=");
+            ret = l.value(1);
+        }
+    }
+    XQSERVICE_DEBUG_PRINT("key value=%s", qPrintable(ret));
+    return ret;
+}
+
+
+// ======== MEMBER FUNCTIONS ========
 void XQServiceUtil::toBackground( bool value )
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::toBackground");
@@ -63,60 +136,62 @@ void XQServiceUtil::toBackground( bool value )
 bool XQServiceUtil::isEmbedded()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::isEmbedded");
-    QStringList args = QCoreApplication::arguments();
-    foreach (QString arg, args) {
-        XQSERVICE_DEBUG_PRINT("arg: %s", qPrintable(arg));
-        if (!arg.compare(QString::fromLatin1(XQServiceUtils::StartupArgEmbedded),Qt::CaseInsensitive)) {
-            XQSERVICE_DEBUG_PRINT("Is embedded");
-            return true;
-        }
-    }
-    XQSERVICE_DEBUG_PRINT("Not embedded");
-    return false;
+    return isKeySet(QString::fromLatin1(XQServiceUtils::StartupArgEmbedded));
 }
 
 bool XQServiceUtil::isService()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::isService");
-    QStringList args = QCoreApplication::arguments();
-    foreach (QString arg, args) {
-        XQSERVICE_DEBUG_PRINT("arg: %s", qPrintable(arg));
-        if (!arg.compare(QString::fromLatin1(XQServiceUtils::StartupArgService),Qt::CaseInsensitive)) {
-            XQSERVICE_DEBUG_PRINT("Is service");
-            return true;
-        }
-    }
-    XQSERVICE_DEBUG_PRINT("Not service");
-    return false;
+    return isKeySet(QString::fromLatin1(XQServiceUtils::StartupArgService));
 }
 
 QString XQServiceUtil::interfaceName()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::interfaceName");
-    QString ret;
-    QStringList args = QCoreApplication::arguments();
-    foreach (QString arg, args) {
-        if (arg.contains(QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName),Qt::CaseInsensitive)) {
-            QStringList l= arg.split("=");
-            ret = l.value(1);
-        }
-    }
-    XQSERVICE_DEBUG_PRINT("interfaceName=%s", qPrintable(ret));
-    return ret;
+    return keyValue(QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName));
 }
 
 QString XQServiceUtil::operationName()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::operationName");
-    QString ret;
-    QStringList args = QCoreApplication::arguments();
-    foreach (QString arg, args) {
-        if (arg.contains(QString::fromLatin1(XQServiceUtils::StartupArgOperationName),Qt::CaseInsensitive)) {
-            QStringList l= arg.split("=");
-            ret = l.value(1);
-        }
-    }
-    XQSERVICE_DEBUG_PRINT("operationName=%s", qPrintable(ret));
-    return ret;
+    return keyValue(QString::fromLatin1(XQServiceUtils::StartupArgOperationName));
+}
+
+QString XQServiceUtil::serviceName()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::serviceName");
+    return keyValue(QString::fromLatin1(XQServiceUtils::StartupArgServiceName));
+}
+
+bool XQServiceUtil::isEmbedded(int argc, char **argv)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::isEmbedded argv");
+    return isKeySet(argc,argv,QString::fromLatin1(XQServiceUtils::StartupArgEmbedded));
+}
+
+
+bool XQServiceUtil::isService(int argc, char **argv)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::isService argv");
+    return isKeySet(argc,argv,QString::fromLatin1(XQServiceUtils::StartupArgService));
+}
+
+QString XQServiceUtil::interfaceName(int argc, char **argv)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::interfaceName");
+    return keyValue(argc,argv,QString::fromLatin1(XQServiceUtils::StartupArgInterfaceName));
+}
+
+
+QString XQServiceUtil::operationName(int argc, char **argv)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::operationName argv");
+    return keyValue(argc,argv,QString::fromLatin1(XQServiceUtils::StartupArgOperationName));
+}
+
+QString XQServiceUtil::serviceName(int argc, char **argv)
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::serviceName argv");
+    return keyValue(argc,argv,QString::fromLatin1(XQServiceUtils::StartupArgServiceName));
 }
 

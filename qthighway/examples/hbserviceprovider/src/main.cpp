@@ -20,6 +20,7 @@
 */
 
 #include "xqservicelog.h"
+#include <xqserviceutil.h>
 
 #include <hbapplication.h>
 #include <hbserviceprovidermainwindow.h>
@@ -28,8 +29,20 @@ int main(int argc, char **argv)
 {
     // qInstallMsgHandler(XQSERVICEMESSAGEHANDLER);
     XQSERVICE_DEBUG_PRINT("HbServiceProvider::main");
+
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:isService (argv)=%d", XQServiceUtil::isService(argc,argv));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:interfaceName (argv)=%s", qPrintable(XQServiceUtil::interfaceName(argc,argv)));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:serviceName (argv)=%s", qPrintable(XQServiceUtil::serviceName(argc,argv)));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:isEmbbedded (argv)=%d", XQServiceUtil::isEmbedded(argc,argv));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:operationName (argv)=%s", qPrintable(XQServiceUtil::operationName(argc,argv)));
     
     HbApplication app( argc, argv ); 
+
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:isService =%d", XQServiceUtil::isService());
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:interfaceName=%s", qPrintable(XQServiceUtil::interfaceName()));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:serviceName =%s", qPrintable(XQServiceUtil::serviceName()));
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:isEmbbedded =%d", XQServiceUtil::isEmbedded());
+    XQSERVICE_DEBUG_PRINT("HbServiceProvider::main:operationName =%s", qPrintable(XQServiceUtil::operationName()));
 
     // Let's figure out why application was started?
     if(app.activateReason()== Hb::ActivationReasonActivity )

@@ -34,17 +34,17 @@ class XQServiceRequest_Private : public XQServiceRequestCompletedAsync
 {
 public:
     XQServiceRequest_Private(XQServiceRequest* parent)
-        : m_Synchronous(true), m_Parent(parent),serviceManager(NULL)
+        : mSynchronous(true), mParent(parent),mServiceManager(NULL)
     {    
         XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::XQServiceRequest_Private(1)");
         
     };
 
-    XQServiceRequest_Private(const QString& service, 
+    XQServiceRequest_Private(const QString& fullServiceName, 
                              const QString& message, 
                              const bool &synchronous, 
                              XQServiceRequest* parent)
-        : m_Service(service), m_Message(message), m_Synchronous(synchronous), m_Parent(parent),serviceManager(NULL)
+        : mService(fullServiceName), mMessage(message), mSynchronous(synchronous), mParent(parent),mServiceManager(NULL)
     {    
         XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::XQServiceRequest_Private(2)");
     };
@@ -53,16 +53,17 @@ public:
                              const QString& message, 
                              const bool &synchronous, 
                             XQServiceRequest* parent)
-            : m_Message(message), m_Synchronous(synchronous), m_Parent(parent),serviceManager(NULL)
+            : mMessage(message), mSynchronous(synchronous), mParent(parent),mServiceManager(NULL)
     {
         XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::XQServiceRequest_Private(3)");
+        
         // Construct service name understood by the QtHighway FW
         // (The descriptor has been created from the  XML)
-        m_Service = descriptor.serviceName() + "." + descriptor.interfaceName();
-        XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private(3)::service=%s", qPrintable(m_Service));
+        mService = descriptor.serviceName() + "." + descriptor.interfaceName();
+        XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private(3)::service=%s", qPrintable(mService));
 
         // Remember the descriptor
-        m_RequestUtil.mDescriptor = descriptor; 
+        mRequestUtil.mDescriptor = descriptor; 
     };
     
     ~XQServiceRequest_Private();
@@ -70,33 +71,33 @@ public:
     void requestCompletedAsync(const QVariant &retValue);
     void requestErrorAsync(int err);
     
-    QList<QVariant> m_arguments;
-    QString m_Service;
-    QString m_Message;
-    bool m_Synchronous;
-    XQServiceRequest* m_Parent;
-    XQRequestUtil m_RequestUtil;
-    XQServiceManager* serviceManager;
-    QString m_uniqueChannelName;
+    QList<QVariant> mArguments;
+    QString mService;
+    QString mMessage;
+    bool mSynchronous;
+    XQServiceRequest* mParent;
+    XQRequestUtil mRequestUtil;
+    XQServiceManager* mServiceManager;
+    QString mUniqueChannelName;
     
 };
 
 XQServiceRequest_Private::~XQServiceRequest_Private()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::~XQServiceRequest_Private");
-    delete serviceManager;
+    delete mServiceManager;
 };
 
 void XQServiceRequest_Private::requestCompletedAsync(const QVariant &retValue)
 {    
     XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::requestCompletedAsync");
-    emit m_Parent->requestCompleted(retValue);
+    emit mParent->requestCompleted(retValue);
 }
 
 void XQServiceRequest_Private::requestErrorAsync(int err)
 {    
     XQSERVICE_DEBUG_PRINT("XQServiceRequest_Private::requestErrorAsync");
-    emit m_Parent->requestError(err);
+    emit mParent->requestError(err);
 }
 
 /*!
@@ -107,7 +108,7 @@ void XQServiceRequest_Private::requestErrorAsync(int err)
 XQServiceRequest::XQServiceRequest()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::XQServiceRequest(1)");
-    m_data = new XQServiceRequest_Private(this);
+    mData = new XQServiceRequest_Private(this);
 }
 
 /*!
@@ -119,7 +120,7 @@ XQServiceRequest::XQServiceRequest(const QString& service, const QString& messag
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::XQServiceRequest(2)");
     XQSERVICE_DEBUG_PRINT("service: %s, message: %s, synchronous: %d", qPrintable(service), qPrintable(message), synchronous);
-    m_data = new XQServiceRequest_Private(service,message,synchronous,this);
+    mData = new XQServiceRequest_Private(service,message,synchronous,this);
 }
 
 /*!
@@ -129,8 +130,8 @@ XQServiceRequest::XQServiceRequest(const QString& service, const QString& messag
 XQServiceRequest::XQServiceRequest(const XQServiceRequest& orig)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::XQServiceRequest(3)");
-    m_data = new XQServiceRequest_Private(orig.m_data->m_Service,orig.m_data->m_Message,orig.m_data->m_Synchronous,this);
-    m_data->m_arguments = orig.m_data->m_arguments;
+    mData = new XQServiceRequest_Private(orig.mData->mService,orig.mData->mMessage,orig.mData->mSynchronous,this);
+    mData->mArguments = orig.mData->mArguments;
 }
 
 /*!
@@ -144,7 +145,7 @@ XQServiceRequest::XQServiceRequest(const XQAiwInterfaceDescriptor &descriptor, c
     XQSERVICE_DEBUG_PRINT("service: %s, interface %s, message: %s, synchronous: %d",
                           qPrintable(descriptor.serviceName()), qPrintable(descriptor.interfaceName()),
                           qPrintable(message), synchronous);
-    m_data = new XQServiceRequest_Private(descriptor,message,synchronous,this);
+    mData = new XQServiceRequest_Private(descriptor,message,synchronous,this);
 }
 
 /*!
@@ -158,10 +159,10 @@ XQServiceRequest& XQServiceRequest::operator=(const XQServiceRequest& orig)
     if( &orig == this )
         return *this;
 
-    m_data->m_Service = orig.m_data->m_Service;
-    m_data->m_Message = orig.m_data->m_Message;
-    m_data->m_arguments = orig.m_data->m_arguments;
-    m_data->m_RequestUtil = orig.m_data->m_RequestUtil;
+    mData->mService = orig.mData->mService;
+    mData->mMessage = orig.mData->mMessage;
+    mData->mArguments = orig.mData->mArguments;
+    mData->mRequestUtil = orig.mData->mRequestUtil;
 
     return *this;
 }
@@ -172,9 +173,9 @@ XQServiceRequest& XQServiceRequest::operator=(const XQServiceRequest& orig)
 */
 XQServiceRequest::~XQServiceRequest()
 {
-    XQSERVICE_DEBUG_PRINT("XQServiceRequest::~XQServiceRequest %s", qPrintable(m_data->m_uniqueChannelName));
-    XQServiceAdaptor::cancelPendingSend(m_data->m_uniqueChannelName);
-    delete m_data;
+    XQSERVICE_DEBUG_PRINT("XQServiceRequest::~XQServiceRequest %s", qPrintable(mData->mUniqueChannelName));
+    XQServiceAdaptor::cancelPendingSend(mData->mUniqueChannelName);
+    delete mData;
 }
 
 /*!
@@ -185,10 +186,10 @@ XQServiceRequest::~XQServiceRequest()
 bool XQServiceRequest::isNull() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::isNull");
-    bool ret = m_data->m_Service.isEmpty() || m_data->m_Service.isNull() || m_data->m_Message.isNull();
-	XQSERVICE_DEBUG_PRINT("m_data->m_Service.isEmpty() = %d", m_data->m_Service.isEmpty());
-	XQSERVICE_DEBUG_PRINT("m_data->m_Service.isNull() = %d", m_data->m_Service.isNull());
-	XQSERVICE_DEBUG_PRINT("m_data->m_Message.isNull() = %d", m_data->m_Message.isNull());
+    bool ret = mData->mService.isEmpty() || mData->mService.isNull() || mData->mMessage.isNull();
+	XQSERVICE_DEBUG_PRINT("mData->mService.isEmpty() = %d", mData->mService.isEmpty());
+	XQSERVICE_DEBUG_PRINT("mData->mService.isNull() = %d", mData->mService.isNull());
+	XQSERVICE_DEBUG_PRINT("mData->mMessage.isNull() = %d", mData->mMessage.isNull());
 	XQSERVICE_DEBUG_PRINT("return %d", ret);
 	return ret;
 }
@@ -196,13 +197,13 @@ bool XQServiceRequest::isNull() const
 bool XQServiceRequest::isSynchronous() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::isSynchronous");
-    return m_data->m_Synchronous;
+    return mData->mSynchronous;
 }
 
 void XQServiceRequest::setSynchronous(const bool& synchronous)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setSynchronous");
-    m_data->m_Synchronous = synchronous;
+    mData->mSynchronous = synchronous;
 }
 /*!
   \fn QString XQServiceRequest::send()
@@ -224,52 +225,53 @@ bool XQServiceRequest::send()
 bool XQServiceRequest::send(QVariant& retData)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::send(2)");
-    if (isNull()) {
-        XQSERVICE_DEBUG_PRINT("Request is null");
-        return false;
-    }
-    
-    if (m_data->m_Service.isNull())
-        return false;
-
-    // Handle sharable file argument(s), if any
-    if (!handleSharableFileArgs())
+    if (isNull())
     {
+        XQSERVICE_DEBUG_PRINT("XQServiceRequest::send error: null request");
         XQService::serviceThreadData()->setLatestError(XQService::EArgumentError);
         return false;
     }
     
-    m_data->m_RequestUtil.setSynchronous(m_data->m_Synchronous); // Ensure option is set !
-    m_data->m_RequestUtil.mOperation = m_data->m_Message;  // Save the operation name for startup
+    // Handle sharable file argument(s), if any
+    if (!handleSharableFileArgs())
+    {
+        XQSERVICE_DEBUG_PRINT("XQServiceRequest::send error:invalid sharable file");
+        XQService::serviceThreadData()->setLatestError(XQService::EArgumentError);
+        return false;
+    }
+    
+    mData->mRequestUtil.setSynchronous(mData->mSynchronous); // Ensure option is set !
+    mData->mRequestUtil.mOperation = mData->mMessage;  // Save the operation name for startup
     
     // !!!
     // Add the info as extra argument to the request
     // This shall be removed by the server
     // !!!
-    addArg(qVariantFromValue(m_data->m_RequestUtil.mInfo));
+    addArg(qVariantFromValue(mData->mRequestUtil.mInfo));
        
     // Pass always the util instance onwards as user data.
     // It can be utilized by the XQServiceManager::startServer
     // e.g. to optimize startup of a service server
 
     // Create unique channel name to separate multiple client requests to same channel name.
-    quint32 handle = (unsigned int)m_data;
-    m_data->m_uniqueChannelName = QString("%1:").arg(handle) + m_data->m_Service;
-    XQSERVICE_DEBUG_PRINT("XQServiceRequest::send(2):uniqueChannel=%s", qPrintable(m_data->m_uniqueChannelName));
-    return XQServiceAdaptor::send(m_data->m_uniqueChannelName,  message(), m_data->m_arguments, retData, m_data->m_Synchronous,m_data,
-                                 (const void *)&m_data->m_RequestUtil);
+    quint32 handle = (unsigned int)mData;
+    mData->mUniqueChannelName = QString("%1:").arg(handle) + mData->mService;
+    XQSERVICE_DEBUG_PRINT("XQServiceRequest::send(2):uniqueChannel=%s", qPrintable(mData->mUniqueChannelName));
+    return XQServiceAdaptor::send(mData->mUniqueChannelName,  message(), mData->mArguments, retData, mData->mSynchronous,mData,
+                                 (const void *)&mData->mRequestUtil);
 }
 /*!
   Sets the \a service to which the request will be sent.
 
   \sa service()
  */
-void XQServiceRequest::setService(const QString& service)
+void XQServiceRequest::setService(const QString& fullServiceName)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setService");
-    XQSERVICE_DEBUG_PRINT("service: %s", qPrintable(service));
-    m_data->m_Service = service;
-    m_data->m_arguments.clear();
+    XQSERVICE_DEBUG_PRINT("service: %s", qPrintable(fullServiceName));
+    mData->mService = fullServiceName;
+    mData->mArguments.clear();
+    mData->mRequestUtil.mDescriptor = XQAiwInterfaceDescriptor(); // Invalid descriptor
 }
 
 /*!
@@ -282,8 +284,8 @@ void XQServiceRequest::setService(const QString& service)
 QString XQServiceRequest::service() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::service");
-    XQSERVICE_DEBUG_PRINT("service: %s", qPrintable(m_data->m_Service));
-    return m_data->m_Service;
+    XQSERVICE_DEBUG_PRINT("service: %s", qPrintable(mData->mService));
+    return mData->mService;
 }
 
 /*!
@@ -295,27 +297,27 @@ void XQServiceRequest::setMessage(const QString& message)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setMessage");
     XQSERVICE_DEBUG_PRINT("message: %s", qPrintable(message));
-    m_data->m_Message = message;
-    m_data->m_arguments.clear();
+    mData->mMessage = message;
+    mData->mArguments.clear();
 }
 
 QString XQServiceRequest::message() const
 { 
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::message");
-    XQSERVICE_DEBUG_PRINT("message: %s", qPrintable(m_data->m_Message));
-    return m_data->m_Message;
+    XQSERVICE_DEBUG_PRINT("message: %s", qPrintable(mData->mMessage));
+    return mData->mMessage;
 }
 
 const QList<QVariant> &XQServiceRequest::arguments() const 
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::arguments");
-    return m_data->m_arguments; 
+    return mData->mArguments; 
 }
 
 void XQServiceRequest::setArguments(const QList<QVariant> &arguments)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setArguments");
-    m_data->m_arguments = arguments;
+    mData->mArguments = arguments;
 }
 
 int XQServiceRequest::latestError()
@@ -327,13 +329,13 @@ int XQServiceRequest::latestError()
 void XQServiceRequest::setInfo(const XQRequestInfo &info)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setInfo");
-    m_data->m_RequestUtil.mInfo = info;
+    mData->mRequestUtil.mInfo = info;
 }
 
 XQRequestInfo XQServiceRequest::info() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::info");
-    return m_data->m_RequestUtil.mInfo;
+    return mData->mRequestUtil.mInfo;
 }
     
 /*!
@@ -382,7 +384,7 @@ void XQServiceRequest::addArg(const QVariant& v)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::addArg %s,%d", v.typeName());
     XQSERVICE_DEBUG_PRINT("v: %s", qPrintable(v.toString()));
-    m_data->m_arguments.append(v);
+    mData->mArguments.append(v);
 }
 
 
@@ -401,15 +403,15 @@ bool XQServiceRequest::handleSharableFileArgs()
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::handleSharableFile");
 
     bool ret = true;
-    m_data->m_RequestUtil.mSharableFileArgs.clear();
+    mData->mRequestUtil.mSharableFileArgs.clear();
     
-    for(int i=0; i < m_data->m_arguments.size(); i++)
+    for(int i=0; i < mData->mArguments.size(); i++)
     {
-        if (QString(m_data->m_arguments[i].typeName()) == QString("XQSharableFile"))
+        if (QString(mData->mArguments[i].typeName()) == QString("XQSharableFile"))
         {
             XQSERVICE_DEBUG_PRINT("XQServiceRequest::sharable file detected");
             // Pick up the sharable file(s) to utility so that no need to scan any more later
-            XQSharableFile file = m_data->m_arguments[i].value<XQSharableFile>();
+            XQSharableFile file = mData->mArguments[i].value<XQSharableFile>();
             if (!file.isValid())
             {
                 // No point to pass invalid file handle onwards
@@ -417,20 +419,20 @@ bool XQServiceRequest::handleSharableFileArgs()
                 ret = false;
                 break;
             }
-            if (m_data->m_RequestUtil.mSharableFileArgs.count() > 0)
+            if (mData->mRequestUtil.mSharableFileArgs.count() > 0)
             {
                 XQSERVICE_DEBUG_PRINT("\t Too many sharable files");
                 ret = false;
                 break;
             }
-            m_data->m_RequestUtil.mSharableFileArgs.append(file);
+            mData->mRequestUtil.mSharableFileArgs.append(file);
             XQSERVICE_DEBUG_PRINT("XQServiceRequest::sharable file added");
         }
     }
 
     if (!ret)
     {
-        m_data->m_RequestUtil.mSharableFileArgs.clear();
+        mData->mRequestUtil.mSharableFileArgs.clear();
     }
 
     return ret;
@@ -447,7 +449,7 @@ QByteArray XQServiceRequest::serializeArguments(const XQServiceRequest &action)
     QBuffer *buffer = new QBuffer(&ret);
     buffer->open(QIODevice::WriteOnly);
     QDataStream stream(buffer);
-    stream << action.m_data->m_arguments;
+    stream << action.mData->mArguments;
 
     delete buffer;
     return ret;
@@ -460,7 +462,7 @@ void XQServiceRequest::deserializeArguments(XQServiceRequest &action,
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::deserializeArguments");
     QDataStream stream(data);
-    stream >> action.m_data->m_arguments;
+    stream >> action.mData->mArguments;
 }
 
 /*!
@@ -470,10 +472,10 @@ void XQServiceRequest::deserializeArguments(XQServiceRequest &action,
 template <typename Stream> void XQServiceRequest::serialize(Stream &stream) const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::serialize");
-    stream << m_data->m_arguments;
-    stream << m_data->m_Service;
-    stream << m_data->m_Message;
-    stream << m_data->m_Synchronous;
+    stream << mData->mArguments;
+    stream << mData->mService;
+    stream << mData->mMessage;
+    stream << mData->mSynchronous;
 }
 
 /*!
@@ -483,10 +485,10 @@ template <typename Stream> void XQServiceRequest::serialize(Stream &stream) cons
 template <typename Stream> void XQServiceRequest::deserialize(Stream &stream)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::deserialize");
-    stream >> m_data->m_arguments;
-    stream >> m_data->m_Service;
-    stream >> m_data->m_Message;
-    stream >> m_data->m_Synchronous;
+    stream >> mData->mArguments;
+    stream >> mData->mService;
+    stream >> mData->mMessage;
+    stream >> mData->mSynchronous;
 }
 
 Q_IMPLEMENT_USER_METATYPE(XQServiceRequest)

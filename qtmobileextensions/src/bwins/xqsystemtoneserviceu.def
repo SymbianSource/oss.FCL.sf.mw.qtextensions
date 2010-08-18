@@ -7,4 +7,5 @@ EXPORTS
 	??0XQSystemToneService@@QAE@PAVQObject@@@Z @ 6 NONAME ; XQSystemToneService::XQSystemToneService(class QObject *)
 	?stopAlarm@XQSystemToneService@@QAEXI@Z @ 7 NONAME ; void XQSystemToneService::stopAlarm(unsigned int)
 	?playAlarm@XQSystemToneService@@QAEXW4AlarmType@1@AAI@Z @ 8 NONAME ; void XQSystemToneService::playAlarm(enum XQSystemToneService::AlarmType, unsigned int &)
+	?playAlarm@XQSystemToneService@@QAEXW4ToneType@1@AAI@Z @ 9 NONAME ; void XQSystemToneService::playAlarm(enum XQSystemToneService::ToneType, unsigned int &)
 

@@ -50,8 +50,8 @@ class QMenu;
 #endif
 
 
-class ResponseHandler;
-class ResponseHandlerEx;
+class CResponseHandler;
+class CResponseHandlerEx;
 
 class TargetWrapper : public MRemConCoreApiTargetObserver, public MRemConCallHandlingTargetObserver
 {
@@ -61,6 +61,7 @@ public:
     ~TargetWrapper();
     
     void init(XQKeyCapture::CapturingFlags flags);
+    void close(XQKeyCapture::CapturingFlags flags);
 
 public:
     // -- MRemConCoreApiTargetObserver overloaded methods --    
@@ -88,6 +89,7 @@ public:
      
 protected:    
      
+    void reset();
     void initMapping();
 
     QWidget *getTargetWidget();
@@ -103,10 +105,10 @@ private:
     CRemConCoreApiTarget *target;
     CRemConCallHandlingTarget *targetEx;
 
-    ResponseHandler *handler;
-    ResponseHandlerEx *handlerEx;
+    CResponseHandler *handler;
+    CResponseHandlerEx *handlerEx;
     
-    XQKeyCapture::CapturingFlags captureFlags;
+    QFlags<XQKeyCapture::CapturingFlags> captureFlags;
     
     QMap<TRemConCoreApiOperationId, Qt::Key> keyMapping;
 };

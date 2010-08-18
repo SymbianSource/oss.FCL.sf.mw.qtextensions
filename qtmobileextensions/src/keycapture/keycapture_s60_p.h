@@ -31,7 +31,7 @@ class RWindowGroup;
 class RWsSession;
 class TargetWrapper;
 
-class QKeyMapperPrivate;
+class QKeyMapper;
 #ifdef _XQKEYCAPTURE_UNITTEST_
 class MyTestWindowGroup;
 #endif
@@ -47,44 +47,6 @@ public:
     
     bool closeRemote(XQKeyCapture::CapturingFlags flags);
 
-    bool captureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool captureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool captureLongKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
-    
-    bool captureLongKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier, XQKeyCapture::LongFlags aLongType);
-    
-    bool captureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool captureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool cancelCaptureKey(Qt::Key aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool cancelCaptureKey(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier);
-    
-    bool cancelCaptureLongKey(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType);
-    
-    bool cancelCaptureLongKey(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-        XQKeyCapture::LongFlags aLongType);
-    
-    bool cancelCaptureKeyUpAndDowns(Qt::Key aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
-    bool cancelCaptureKeyUpAndDowns(TUint aKey,
-        Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier);
-
     QString errorString() const;
 
     int errorId() const;
@@ -94,9 +56,6 @@ private:
     static int mRemoteEventType_KeyRelease;
     
 private:
-
-    bool resetRemote(XQKeyCapture::CapturingFlags flags);
-    
     bool doCapture(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
             Qt::KeyboardModifiers aModifier,
             CaptureRequest::CaptureRequestType type,
@@ -115,16 +74,17 @@ private:
     int mLastError;
     QString mLastErrorString;
 #ifndef _XQKEYCAPTURE_UNITTEST_
-    RWindowGroup* mWindowGroup; //not owned
+    RWindowGroup& mWindowGroup; //not owned
 #else
-    MyTestWindowGroup* mWindowGroup;
+    MyTestWindowGroup& mWindowGroup; //not owned
 #endif
     QList<CaptureRequest*> *mRequestsList;
-    QKeyMapperPrivate* mMapper;
+    QKeyMapper* mMapper;
     
     TargetWrapper *tgWrapper;
     
     friend class XQKeyCapture;
+    friend class XqKeyCapture;
     };
 
 #endif /* KEYCAPTUREPRIVATE_S60_H */

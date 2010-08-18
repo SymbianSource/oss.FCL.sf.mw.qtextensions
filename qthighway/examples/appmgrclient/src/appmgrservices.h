@@ -37,6 +37,7 @@
 #define ERR_IDIAL QLatin1String("xxxx.yyy")
 #define ERR_OPERATION1 QLatin1String("dial(QString,QString)")
 
+#define TESTCASE_INFO_KEY QLatin1String("XQTestCase")
 
 // Few dummy metatypes
 class MetaDummy1

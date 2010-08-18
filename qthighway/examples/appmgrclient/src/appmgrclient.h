@@ -63,16 +63,16 @@ private slots:
         void handleOk(const QVariant &result);
         void handleError(int errorCode, const QString& errorMessage);
         void test4ActionTriggered();
-        void showRecipients(const QVariant &value);
 
               
 private:
-        void test(XQAiwRequest **req,const QString& interface, const QString& operation);
-        void test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation);
-        void test(XQAiwRequest **req, const QString &arg);
+        bool test(XQAiwRequest **req,const QString& interface, const QString& operation);
+        bool test(XQAiwRequest **req, XQAiwInterfaceDescriptor &impl, const QString& operation);
+        bool test(XQAiwRequest **req, const QString &arg);
         void connectSignals(XQAiwRequest *req);
         void createTestFile(const QString &dir, const QString &file);
         bool testRunning(const QString & service, const QString & interface);
+        void assert(const QString &testName, bool testResult);
 
 private:
         QCheckBox* mCheckEmbedded;
@@ -99,6 +99,7 @@ private:
         XQAiwRequest* req8;
         XQAiwRequest* req9;
         XQAiwRequest* req10;
+        XQAiwRequest* anyReq;
 
         int mImplIndex;
         
@@ -106,6 +107,7 @@ private:
         RFile file;
 
         QString mAppName;
+        QString mTestCase;
 };
 
 

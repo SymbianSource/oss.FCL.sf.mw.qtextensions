@@ -61,6 +61,16 @@ void XQSystemToneServicePrivate::stopAlarm(unsigned int contextId)
     }
 }
 
+unsigned int XQSystemToneServicePrivate::playAlarm(XQSystemToneService::ToneType toneType)
+{
+    unsigned int ctx = 0;
+    if (sts) {
+        sts->PlayAlarm(mapToneType(toneType), ctx, *this);
+        emit q_ptr->alarmStarted(ctx);
+    }
+    return ctx;
+}
+
 CSystemToneService::TToneType XQSystemToneServicePrivate::mapToneType(XQSystemToneService::ToneType toneType)
 {
     return static_cast<CSystemToneService::TToneType>(toneType);

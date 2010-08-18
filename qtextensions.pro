@@ -22,5 +22,4 @@ TEMPLATE = subdirs
 SUBDIRS = qtecomplugins \
           qthighway \
           qtmobileextensions \
-          qtmobility \
           qhbstyle

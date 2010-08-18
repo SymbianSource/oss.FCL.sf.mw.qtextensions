@@ -51,6 +51,13 @@
 #define XQI_WLAN_SNIFFER  QLatin1String("com.nokia.symbian.IWlanSniffer")
 #define XQOP_WLAN_SNIFFER  QLatin1String("listView(void)")
 
+/*!
+ WLAN Login interface and operations for
+ the WLAN Login start and stop. 
+*/
+#define XQI_WLAN_LOGIN  QLatin1String("com.nokia.symbian.IWlanLogin")
+#define XQOP1_WLAN_LOGIN QLatin1String("start(int,int,QUrl)")
+#define XQOP2_WLAN_LOGIN QLatin1String("stop(void)")
 
 /*!
  Incomplete list of interfaces.

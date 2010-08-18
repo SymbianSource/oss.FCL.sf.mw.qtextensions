@@ -41,6 +41,7 @@ class NewDialerService;
 class NewUriService;
 class NewFileService;
 
+
 class ServiceApp : public QWidget
 {
     Q_OBJECT
@@ -228,6 +229,7 @@ class NewFileService : public XQServiceProvider
 };
 
 
+#define TESTCASE_INFO_KEY QLatin1String("XQTestCase")
 
 
 #endif

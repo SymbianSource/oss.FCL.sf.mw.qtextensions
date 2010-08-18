@@ -42,7 +42,7 @@ class XQSERVICE_EXPORT XQServiceRequest : public QObject
 public:
     
     XQServiceRequest();
-    XQServiceRequest(const QString& service, const QString& message, const bool& synchronous = true);
+    XQServiceRequest(const QString& fullServiceName, const QString& message, const bool& synchronous = true);
     XQServiceRequest(const XQServiceRequest& orig);
     XQServiceRequest(const XQAiwInterfaceDescriptor &descriptor, const QString& message, const bool& synchronous = true);
     
@@ -65,7 +65,7 @@ public:
     void setSynchronous(const bool &synchronous);
     bool isSynchronous() const;
 
-    void setService(const QString &service);
+    void setService(const QString &fullServiceName);
     QString service() const;
     void setMessage(const QString& message);
     QString message() const;
@@ -115,7 +115,7 @@ private:
     bool handleSharableFileArgs();
     
 private:
-    XQServiceRequest_Private *m_data;
+    XQServiceRequest_Private *mData;
 };
 
 inline bool operator==( const XQServiceRequest &m1, const XQServiceRequest &m2 )

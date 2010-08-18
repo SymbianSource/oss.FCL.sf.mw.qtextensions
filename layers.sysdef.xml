@@ -20,11 +20,9 @@
     		<unit name="qtecompluginsexamples" unitID="qtextensions.qtextensionsexamples.qtecompluginsexamples" bldFile="&layer_real_source_path;/qtecomplugins/examples" mrp="" proFile="examples.pro" qmakeArgs="-r" filter="qtextensionsexamples"/>
       	<unit name="qthighwayexamples" unitID="qtextensions.qtextensionsexamples.qthighwayexamples" bldFile="&layer_real_source_path;/qthighway/examples" mrp="" proFile="examples.pro" qmakeArgs="-r" filter="qtextensionsexamples"/>
       	<unit name="qtmobileextensionsexamples" unitID="qtextensions.qtmobileextensionsexamples.qtecompluginsexamples" bldFile="&layer_real_source_path;/qtmobileextensions/examples" mrp="" proFile="examples.pro" qmakeArgs="-r" filter="qtextensionsexamples"/>
-      	<unit name="qtmobilityexamples" unitID="qtextensions.qtextensionsexamples.qtmobilityexamples" bldFile="&layer_real_source_path;/qtmobility/examples" mrp="" proFile="examples.pro" qmakeArgs="-r" filter="qtextensionsexamples"/>
       </module>
       <module name="qtextensionstests">
       	<unit name="qthighwaytests" unitID="qtextensions.qtextensionstests.qthighwaytests" bldFile="&layer_real_source_path;/qthighway/tests" mrp="" proFile="tests.pro" qmakeArgs="-r" filter="qtextensionstests"/>
-      	<unit name="qtmobilitytests" unitID="qtextensions.qtextensionstests.qtmobilitytests" bldFile="&layer_real_source_path;/qtmobility/tests" mrp="" proFile="tests.pro" qmakeArgs="-r" filter="qtextensionstests"/>
       </module>
     </layer>
   </systemModel>
