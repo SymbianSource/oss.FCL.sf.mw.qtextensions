@@ -28,15 +28,14 @@ namespace QtService
 // ============================== MEMBER FUNCTIONS ============================
 
 /*!
- \class RServiceIPCSession
-
- Symbian class encapsulating RMessage2 interface
+    \class RServiceIPCSession
+    \brief Symbian class encapsulating RMessage2 interface
  */
 
 /*!
- Send a message
- @param aFunction function code
- @return message completion code
+    Send a message.
+    \param aFunction Function code.
+    \return Message completion code.
  */
 TInt RServiceIPCSession::SendReceiveL(TInt aFunction) const
 {
@@ -51,10 +50,10 @@ TInt RServiceIPCSession::Send(TInt aFunction, const TIpcArgs& aArgs) const
 }
 
 /*!
- Send a message
- @param aFunction function code
- @param aArgs parameter to server
- @return message completion code
+    Send a message.
+    \param aFunction Function code.
+    \param aArgs Parameter to server.
+    \return Message completion code.
  */
 TInt RServiceIPCSession::SendReceiveL(TInt aFunction, const TIpcArgs& aArgs) const
 {
@@ -63,11 +62,11 @@ TInt RServiceIPCSession::SendReceiveL(TInt aFunction, const TIpcArgs& aArgs) con
 }
 
 /*!
- Send message asynchronously
- @param aFunction function code
- @param aStatus the request status object used to contain the 
- completion status of the request
- */
+    Send message asynchronously.
+    \param aFunction Function code.
+    \param aStatus The request status object used to contain the 
+                   completion status of the request.
+*/
 EXPORT_C void RServiceIPCSession::SendReceive(TInt aFunction,
                                               TRequestStatus& aStatus) const
 {
@@ -76,12 +75,12 @@ EXPORT_C void RServiceIPCSession::SendReceive(TInt aFunction,
 }
 
 /*!
- Send message asynchronously
- @param aFunction function code
- @param aArgs parameter to server
- @param aStatus the request status object used to contain the 
- completion status of the request
- */
+    Send message asynchronously.
+    \param aFunction Function code.
+    \param aArgs Parameter to server.
+    \param aStatus The request status object used to contain the
+                   completion status of the request.
+*/
 void RServiceIPCSession::SendReceive(TInt aFunction,
                                      const TIpcArgs& aArgs,
                                      TRequestStatus& aStatus) const
@@ -91,11 +90,11 @@ void RServiceIPCSession::SendReceive(TInt aFunction,
 }
 
 /*!
- Connect to server
- @param aServer server name
- @param aVersion version of the server
- @return KErrNone success, otherwise system error code
- */
+    Connect to server.
+    \param aServer server name.
+    \param aVersion version of the server.
+    \return KErrNone success, otherwise system error code.
+*/
 TInt RServiceIPCSession::Connect(const TDesC& aServer, const TVersion& aVersion)
 {
     QString server = QString::fromUtf16(aServer.Ptr(), aServer.Length());
@@ -105,9 +104,9 @@ TInt RServiceIPCSession::Connect(const TDesC& aServer, const TVersion& aVersion)
 }
 
 /*!
- Get version info
- @return version info
- */
+    Get version info.
+    \return Version info.
+*/
 TVersion RServiceIPCSession::Version() const
 {
     XQSERVICE_DEBUG_PRINT("RServiceIPCSession::Version");
@@ -115,10 +114,10 @@ TVersion RServiceIPCSession::Version() const
 }
 
 /*!
- Start the server 
- @param aImage binary name to start
- @return KErrNone if started properly
- */
+    Start the server .
+    \param aImage Binary name to start.
+    \return KErrNone if started properly.
+*/
 TInt RServiceIPCSession::StartServer(const TDesC& aImage)
 {
     XQSERVICE_DEBUG_PRINT("RServiceIPCSession::StartServer");

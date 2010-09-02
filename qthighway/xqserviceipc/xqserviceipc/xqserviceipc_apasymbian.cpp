@@ -43,14 +43,13 @@ const TInt KServerBuildVersionNumber = 0;
 
 
 /*!
- \class CApaSymbianIPC
-
- Symbian Client backend for the service IPC
- */
+    \class CApaSymbianIPC
+    \brief Symbian Client backend for the service IPC
+*/
 
 /*!
- Constructor
- */
+    Constructor.
+*/
 CApaSymbianIPC::CApaSymbianIPC() :
     CActive(CActive::EPriorityStandard), iDataSize(0)
 {
@@ -59,8 +58,8 @@ CApaSymbianIPC::CApaSymbianIPC() :
 }
 
 /*!
- Destructor 
- */
+    Destructor.
+*/
 CApaSymbianIPC::~CApaSymbianIPC()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::~CApaSymbianIPC");
@@ -70,8 +69,8 @@ CApaSymbianIPC::~CApaSymbianIPC()
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor.
+*/
 void CApaSymbianIPC::ConstructL()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::ConstructL");
@@ -79,8 +78,8 @@ void CApaSymbianIPC::ConstructL()
 }
 
 /*!
- Two Phased Constructor
- */
+    Two Phased Constructor.
+*/
 CApaSymbianIPC* CApaSymbianIPC::NewL()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::NewL");
@@ -92,10 +91,10 @@ CApaSymbianIPC* CApaSymbianIPC::NewL()
 }
 
 /*!
- Connect to the server
- @param aServerName name of the server to connect to
- @return true if connected, false if not
- */
+    Connect to the server.
+    \param aServerName Name of the server to connect to.
+    \return true if connected, false if not.
+*/
 bool CApaSymbianIPC::connect( const QString& aServerName )
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::connect");
@@ -114,8 +113,8 @@ bool CApaSymbianIPC::connect( const QString& aServerName )
 }
 
 /*!
- Disconnect from the server
- */
+    Disconnect from the server.
+*/
 void CApaSymbianIPC::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::disconnect");
@@ -131,10 +130,11 @@ void CApaSymbianIPC::disconnect()
 }
 
 /*!
- Starts the service
- @param aServerName server name
- @param aExeName server executable name
- */
+    Starts the service.
+    \param aServerName Server name.
+    \param aExeName Server executable name.
+    \return true if start was successful.
+*/
 bool CApaSymbianIPC::startServer( const QString& aServerName, 
                                   const QString& /*aExeName*/, 
                                   quint64& processId,
@@ -165,10 +165,11 @@ bool CApaSymbianIPC::startServer( const QString& aServerName,
 }
 
 /*!
- Send a request synchronously
- @param aRequestType type of request to send to the server
- @param aData data to send to the server
- */
+    Send a request synchronously.
+    \param aRequestType Type of request to send to the server.
+    \param aData Data to send to the server.
+    \return true if send was successful.
+*/
 bool CApaSymbianIPC::sendSync( const QString& aRequestType, const QByteArray& aData )
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::sendSync");
@@ -204,9 +205,10 @@ bool CApaSymbianIPC::sendSync( const QString& aRequestType, const QByteArray& aD
 }
 
 
-/*
- * read sync
- */
+/*!
+    Read sync.
+    \return Result of read as QByteArray.
+*/
 QByteArray CApaSymbianIPC::readAll()
 {
     // this is sync operation
@@ -248,10 +250,10 @@ QByteArray CApaSymbianIPC::doReadAllL()
 
 
 /*!
- Send a request asynchronously
- @param aRequestType type of request to send to the server
- @param aData data to send to the server
- */
+    Send a request asynchronously.
+    \param aRequestType Type of request to send to the server.
+    \param aData Data to send to the server.
+*/
 void CApaSymbianIPC::sendAsync(const QString& aRequestType,
 							   const QByteArray& aData )
 {
@@ -305,9 +307,9 @@ void CApaSymbianIPC::readAll(QByteArray& aArray)
 }
 
 /*!
- Reads all data pending in the buffer, leaves if an error occured
- @return QByteArray containing the result data
- */
+    Reads all data pending in the buffer, leaves if an error occured
+    \return QByteArray Containing the result data.
+*/
 void CApaSymbianIPC::doReadAllL(QByteArray& aArray)
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::doReadAllL");
@@ -331,10 +333,10 @@ void CApaSymbianIPC::doReadAllL(QByteArray& aArray)
 
 
 /*!
- Maps error codes from Symbian error codes to Service IPC error codes
- @param aError Symbian error code
- @return mapped error code
- */
+    Maps error codes from Symbian error codes to Service IPC error codes
+    \param aError Symbian error code.
+    \return Mapped error code.
+*/
 int CApaSymbianIPC::doMapErrors(TInt aError)
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::doMapErrors");
@@ -378,9 +380,9 @@ int CApaSymbianIPC::doMapErrors(TInt aError)
     return error;
 }
 /*!
- Waits until data is available for reading 
- @return bool always true, no need to wait
- */
+    Waits until data is available for reading.
+    \return bool always true, no need to wait.
+*/
 bool CApaSymbianIPC::waitForRead()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::waitForRead");
@@ -389,8 +391,8 @@ bool CApaSymbianIPC::waitForRead()
 }
 
 /*!
- Active object callback
- */
+    Active object callback
+*/
 TInt CApaSymbianIPC::RunError(TInt err)
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::error %d", err);
@@ -399,6 +401,9 @@ TInt CApaSymbianIPC::RunError(TInt err)
     return KErrNone;
 }
 
+/*!
+    Active object RunL function.
+*/
 void CApaSymbianIPC::RunL()
 {
     int err = iStatus.Int();
@@ -441,8 +446,8 @@ void CApaSymbianIPC::RunL()
 }
 
 /*!
- Active object cancel
- */
+    Active object cancel
+*/
 void CApaSymbianIPC::DoCancel()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::DoCancel");
@@ -464,8 +469,8 @@ void CApaSymbianIPC::StartExitMonitor()
 }
 
 /*!
- HandleServerAppExit
- */
+    HandleServerAppExit
+*/
 void CApaSymbianIPC::HandleServerAppExit(int aReason)
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianIPC::HandleServerAppExit");

@@ -54,12 +54,12 @@ enum
 
 /*!
     \class CApaSymbianServer
-    Symbian client server implementation
+    \brief Symbian client server implementation
 */
 
 /*!
- Constructor
- */
+    Constructor.
+*/
 CApaSymbianServer::CApaSymbianServer() /*:
 CPolicyServer( EServerPriority,  KServerPolicy)*/                                                 
 {
@@ -68,15 +68,15 @@ CPolicyServer( EServerPriority,  KServerPolicy)*/
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor
+*/
 void CApaSymbianServer::ConstructL()
 {
 }
 
 /*!
- Two phased constructor
- */
+    Two phased constructor
+*/
 CApaSymbianServer* CApaSymbianServer::NewL()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::NewL");
@@ -88,17 +88,18 @@ CApaSymbianServer* CApaSymbianServer::NewL()
 }
 
 /*!
- Destructor
- */
+    Destructor
+*/
 CApaSymbianServer::~CApaSymbianServer()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::~CApaSymbianServer");
 }
 
 /*!
- Start listening for new service requests
- @param aServerName name of the server
- */
+    Start listening for new service requests.
+    \param aServerName name of the server.
+    \return true if successful.
+*/
 bool CApaSymbianServer::listen( const QString& aServerName )
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::listen");
@@ -123,8 +124,8 @@ bool CApaSymbianServer::listen( const QString& aServerName )
 }
 
 /*!
- Shutdown the server and stop serving clients 
- */
+    Shutdown the server and stop serving clients.
+*/
 void CApaSymbianServer::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::disconnect");
@@ -133,10 +134,10 @@ void CApaSymbianServer::disconnect()
 }
 
 /*!
- Create a new session, derived from CPolicyServer
- @param aVersion version of the server
- @param aMessage message object
- */
+    Create a new session, derived from CPolicyServer.
+    \param aVersion Version of the server.
+    \param aMessage Message object.
+*/
 CSession2* CApaSymbianServer::NewSessionL(const TVersion& aVersion,
                                           const RMessage2& aMessage) const
 {

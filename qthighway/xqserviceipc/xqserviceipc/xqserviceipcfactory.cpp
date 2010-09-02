@@ -29,31 +29,31 @@
 #endif // __SYMBIAN32__
 namespace QtService
 {
-/*!
- \class ServiceFwIPCFactory
-
- Factory class for constructing the IPC backend
- */
 
 /*!
- Constructor
- */
+    \class ServiceFwIPCFactory
+    \brief Factory class for constructing the IPC backend
+*/
+
+/*!
+    Constructor.
+*/
 ServiceFwIPCFactory::ServiceFwIPCFactory()
 {
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 ServiceFwIPCFactory::~ServiceFwIPCFactory()
 {
 }
 
 /*!
- Check to see if the particular IPC type is supported
- @param aIPCType type of the IPC
- @return true if the IPC type is supported, false otherwise
- */
+    Check to see if the particular IPC type is supported.
+    \param aIPCType Type of the IPC.
+    \return true If the IPC type is supported, false otherwise.
+*/
 bool ServiceFwIPCFactory::isIPCTypeSupported(TServiceIPCBackends aIPCType)
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCFactory::isIPCTypeSupported");
@@ -71,10 +71,10 @@ bool ServiceFwIPCFactory::isIPCTypeSupported(TServiceIPCBackends aIPCType)
 }
 
 /*!
- Create an instance of the Service IPC backend
- @param aBackend Type of backend to create
- @return ServiceFwIPCPrivate instance
- */
+    Create an instance of the Service IPC backend.
+    \param aBackend Type of backend to create.
+    \return ServiceFwIPCPrivate instance.
+*/
 ServiceFwIPCPrivate* ServiceFwIPCFactory::createBackend(TServiceIPCBackends aBackend)
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCFactory::createBackend");

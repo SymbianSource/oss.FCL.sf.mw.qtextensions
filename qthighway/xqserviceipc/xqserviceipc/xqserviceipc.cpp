@@ -29,13 +29,13 @@ namespace QtService
 {
 
 /*!
- \class ServiceFwIPC
- Public interface class for IPC operations
- */
+    \class ServiceFwIPC
+    \brief Public interface class for IPC operations
+*/
 
 /*!
- Destructor
- */
+    Destructor
+*/
 ServiceFwIPC::~ServiceFwIPC()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::~ServiceFwIPC");
@@ -43,10 +43,10 @@ ServiceFwIPC::~ServiceFwIPC()
 }
 
 /*!
- Constructor 
- @param aBackend IPC backend to use
- @param aParent Parent to this QObject
- */
+    Constructor.
+    \param aParent Parent to this QObject
+    \param aBackend IPC backend to use
+*/
 ServiceFwIPC::ServiceFwIPC(QObject* aParent, TServiceIPCBackends aBackend) :
                            QObject(aParent), iAsyncRequestPending(false)
 {
@@ -58,10 +58,10 @@ ServiceFwIPC::ServiceFwIPC(QObject* aParent, TServiceIPCBackends aBackend) :
 }
 
 /*!
- Connect to the server
- @param aServerName name of the server to connect to
- @return true if connected, false if not
- */
+    Connect to the server.
+    \param aServerName name of the server to connect to.
+    \return true if connected, false if not.
+*/
 bool ServiceFwIPC::connect(const QString& aServerName)
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::connect");
@@ -69,9 +69,8 @@ bool ServiceFwIPC::connect(const QString& aServerName)
 }
 
 /*!
- Disconnect from the server
- @return void
- */
+    Disconnect from the server.
+*/
 void ServiceFwIPC::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::disconnect");
@@ -79,11 +78,11 @@ void ServiceFwIPC::disconnect()
 }
 
 /*!
- Starts the service
- @param aServerName name of the server
- @param aExeName executable of the server
- @return true if connected
- */
+    Starts the service.
+    \param aServerName Name of the server.
+    \param aExeName Executable of the server.
+    \return true if connected.
+*/
 bool ServiceFwIPC::startServer(const QString& aServerName,
                                   const QString& aExeName,
                                   quint64& processId,
@@ -94,11 +93,11 @@ bool ServiceFwIPC::startServer(const QString& aServerName,
 }
 
 /*!
- Send a request synchronously
- @param aRequestType name of the request
- @param aData data to send
- @return true if sent successful, otherwise false
- */
+    Send a request synchronously.
+    \param aRequestType Name of the request.
+    \param aData Data to send.
+    \return true if sent successful, otherwise false.
+*/
 bool ServiceFwIPC::sendSync(const QString& aRequestType,
                             const QByteArray& aData)
 {
@@ -115,12 +114,11 @@ bool ServiceFwIPC::sendSync(const QString& aRequestType,
 
 
 /*!
- Send a request asynchronously
- @param aRequestType name of the request
- @param aData data to send
- @note Errors will be emitted via errors() signal
- @return void                                              
- */
+    Send a request asynchronously.
+    \param aRequestType Name of the request.
+    \param aData Data to send.
+    \note Errors will be emitted via error() signal.
+*/
 void ServiceFwIPC::sendAsync(const QString& aRequestType,
                              const QByteArray& aData)
 {
@@ -132,17 +130,19 @@ void ServiceFwIPC::sendAsync(const QString& aRequestType,
     iAsyncRequestPending = true;
 }
 
-/**
-* Async read
- */
+/*!
+    Asynchronous read.
+    \param aArray Array where read data will be put.
+*/
 void ServiceFwIPC::readAll(QByteArray& aArray)
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::readAll(1)");
     d->readAll(aArray);
 }
 
-/**
-* sync read
+/*!
+    Synchronous read.
+    \return Array which where read data is put.
 */
 QByteArray ServiceFwIPC::readAll()
 {
@@ -151,9 +151,9 @@ QByteArray ServiceFwIPC::readAll()
 }
 
 /*!
- Waits until data is available for reading 
- @return true if data is available for reading
- */
+    Waits until data is available for reading.
+    \return true if data is available for reading.
+*/
 bool ServiceFwIPC::waitForRead()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::waitForRead");
@@ -161,10 +161,10 @@ bool ServiceFwIPC::waitForRead()
 }
 
 /*!
- Check if an async request is already pending
- @return true if an async request is pending
- false otherwise
- */
+    Check if an async request is already pending.
+    \return true if an async request is pending,
+            false otherwise.
+*/
 bool ServiceFwIPC::requestPending()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPC::requestPending");
@@ -182,20 +182,24 @@ void ServiceFwIPC::setUserData(const void *data)
 
 
 /*!
- \fn QtService::ServiceFwIPC::error( int aError )
+    \fn QtService::ServiceFwIPC::error( int aError )
  
- Signal emitted to handle any errors
- @param aError error code
- @note: For local socket implementation, the error can be interpreted 
- as QLocalSocket::LocalSocketError
- @return void
- */
+    Signal emitted to handle any errors.
+    \param aError error code
+    \note For local socket implementation, the error can be interpreted 
+          as QLocalSocket::LocalSocketError
+*/
 
 /*!
- \fn QtService::ServiceFwIPC::readyRead()
+    \fn QtService::ServiceFwIPC::readyRead()
 
- Handle when a reply has been received for async requests\n
- Emitted when the entire data packet has been received
- @return void
- */
+    Handle when a reply has been received for async requests.
+    Emitted when the entire data packet has been received
+*/
+
+/*!
+    \fn QtService::ServiceFwIPC::ReadDone()
+
+    Emitted when reading has completed.
+*/
 // END OF FILE

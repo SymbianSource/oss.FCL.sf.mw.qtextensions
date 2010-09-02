@@ -37,14 +37,14 @@ const TInt KIPCOperationWithSharableFile = KIPCOperation+2;  // Sharable file su
 
 
 /*!
- \class CApaServerSymbianSession
- Symbian Session class
- */
+    \class CApaServerSymbianSession
+    \brief Symbian Session class
+*/
 
 /*!
- Constructor
- @param aObserver observer to the server
- */
+    Constructor.
+    \param aObserver Observer to the server.
+*/
 CApaServerSymbianSession::CApaServerSymbianSession(MServiceIPCObserver* aObserver) :
     ServiceIPCSession(aObserver)
 {
@@ -52,16 +52,16 @@ CApaServerSymbianSession::CApaServerSymbianSession(MServiceIPCObserver* aObserve
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor.
+*/
 void CApaServerSymbianSession::ConstructL()
 {
 }
 
 /*!
- Two-Phased Constructor
- @param aObserver observer to the server
- */
+    Two-Phased Constructor.
+    \param aObserver Observer to the server.
+*/
 CApaServerSymbianSession* CApaServerSymbianSession::NewL(MServiceIPCObserver* aObserver)
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::NewL");
@@ -74,8 +74,8 @@ CApaServerSymbianSession* CApaServerSymbianSession::NewL(MServiceIPCObserver* aO
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 CApaServerSymbianSession::~CApaServerSymbianSession()
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::~CApaServerSymbianSession");
@@ -87,10 +87,10 @@ CApaServerSymbianSession::~CApaServerSymbianSession()
 }
 
 /*!
- Write some data in response to a request
- @param aData some data to write as response
- @return bool if write was successful
- */
+    Write some data in response to a request.
+    \param aData Some data to write as response.
+    \return bool If write was successful.
+*/
 bool CApaServerSymbianSession::write( const QByteArray& aData )
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::write");
@@ -101,9 +101,9 @@ bool CApaServerSymbianSession::write( const QByteArray& aData )
 }
 
 /*!
- Complete a Request
- @return bool if request completed 
- */
+    Complete a request.
+    \return true if request completed 
+*/
 bool CApaServerSymbianSession::completeRequest()
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::completeRequest");
@@ -119,8 +119,8 @@ bool CApaServerSymbianSession::completeRequest()
 }
 
 /*!
- Close a session and gracefully shutdown
- */
+    Close a session and gracefully shutdown.
+*/
 void CApaServerSymbianSession::close()
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::close");
@@ -128,10 +128,9 @@ void CApaServerSymbianSession::close()
 }
 
 /*!
- From CSession2
- Service request
- @param aMessage message object
- */
+    From CSession2. Service request.
+    \param aMessage Message object.
+*/
 void CApaServerSymbianSession::ServiceL(const RMessage2& aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::ServiceL");
@@ -176,10 +175,10 @@ void CApaServerSymbianSession::ServiceL(const RMessage2& aMessage)
 }
 
 /*!
- From CSession2
- Handle any disconnection from the client
- @param aMessage message Object
- */
+    From CSession2.
+    Handle any disconnection from the client.
+    \param aMessage Message Object.
+*/
 void CApaServerSymbianSession::Disconnect(const RMessage2 &aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::Disconnect");
@@ -191,9 +190,9 @@ void CApaServerSymbianSession::Disconnect(const RMessage2 &aMessage)
 }
 
 /*!
- Handle an IPC request
- @param aMessage message Object
- */
+    Handle an IPC request.
+    \param aMessage Message Object.
+*/
 void CApaServerSymbianSession::handleRequestL( const RMessage2& aMessage )
 {
     XQSERVICE_DEBUG_PRINT("CApaServerSymbianSession::handleRequestL");
@@ -264,7 +263,8 @@ void CApaServerSymbianSession::handleRequestL( const RMessage2& aMessage )
 }
 
 /*!
-    Handle getting the result buffer
+    Handle getting the result buffer.
+    \param aMessage Message Object.
 */
 void CApaServerSymbianSession::handleGetBufferL( const RMessage2& aMessage )
 {
@@ -276,10 +276,10 @@ void CApaServerSymbianSession::handleGetBufferL( const RMessage2& aMessage )
  }
 
 /*!
- Read a 16 bit descriptor from the message
- @param aMessage message to read from, 
- @param aMsgSlot slot to read from
- */
+    Read a 16 bit descriptor from the message.
+    \param aMessage Message to read from.
+    \param aMsgSlot Slot to read from.
+*/
 HBufC* CApaServerSymbianSession::ReadDesLC(const RMessage2& aMessage,
                                            TInt aMsgSlot)
 {
@@ -292,9 +292,9 @@ HBufC* CApaServerSymbianSession::ReadDesLC(const RMessage2& aMessage,
 }
 
 /*!
- Read a 8 bit descriptor from the message
- @param aMessage message to read from, 
- @param aMsgSlot slot to read from
+    Read a 8 bit descriptor from the message.
+    \param aMessage Message to read from.
+    \param aMsgSlot Slot to read from.
  */
 HBufC8* CApaServerSymbianSession::ReadDes8LC(const RMessage2& aMessage,
                                              TInt aMsgSlot)

@@ -75,32 +75,32 @@ namespace XQService
 	    {
 	    ENoError=0, 
 	    EConnectionError = QtService::IPC_ERR_START_VALUE ,  /*!< Error in IPC Connection */
-	    EConnectionClosed,                      /*!< IPC Connection is closed */
-	    EServerNotFound,                        /*!< Can not find server */
-	    EIPCError,                              /*!< Known IPC error */
-	    EUnknownError,                          /*!< Unknown IPC error */
-        ERequestPending,                        /*!< Already pending request */
-        EMessageNotFound,                       /*!< Message slot not found */
-        EArgumentError                          /*!< Argument error */
+	    EConnectionClosed,                      /*!< IPC Connection is closed             */
+	    EServerNotFound,                        /*!< Can not find server                  */
+	    EIPCError,                              /*!< Known IPC error                      */
+	    EUnknownError,                          /*!< Unknown IPC error                    */
+        ERequestPending,                        /*!< Already pending request              */
+        EMessageNotFound,                       /*!< Message slot not found               */
+        EArgumentError                          /*!< Argument error                       */
 	    };
 
     enum ServiceMetadataErrors
     {
-        EMetaNoService = QtService::METADATA_ERR_START_VALUE,    /* Can not find service root node in XML file*/
-        EMetaNoServiceName,                          /* Can not find service name in XML file */
-        EMetaNoServiceFilepath,                      /* Can not find service filepath in XML file */
-        EMetaNoServiceInterface,                     /* No interface for the service in XML file*/
-        EMetaNoInterfaceVersion,                     /* Can not find interface version in XML file */
-        EMetaNoInterfaceName,                        /* Can not find interface name in XML file*/
-        EMetaUnableToOpenFile,                      /* Error opening XML file*/
-        EMetaInvalidXmlFile,                         /* Not a valid XML file*/
-        EMetaParseService,                            /* Error parsing service node */
-        EMetaParseInterface,                          /* Error parsing interface node */
-        EMetaDuplicatedInterface,                     /* The same interface is defined twice */
+        EMetaNoService = QtService::METADATA_ERR_START_VALUE,    /*!< Can not find service root node in XML file                  */
+        EMetaNoServiceName,                          /*!< Can not find service name in XML file                                   */
+        EMetaNoServiceFilepath,                      /*!< Can not find service filepath in XML file                               */
+        EMetaNoServiceInterface,                     /*!< No interface for the service in XML file                                */
+        EMetaNoInterfaceVersion,                     /*!< Can not find interface version in XML file                              */
+        EMetaNoInterfaceName,                        /*!< Can not find interface name in XML file                                 */
+        EMetaUnableToOpenFile,                       /*!< Error opening XML file                                                  */
+        EMetaInvalidXmlFile,                         /*!< Not a valid XML file                                                    */
+        EMetaParseService,                           /*!< Error parsing service node                                              */
+        EMetaParseInterface,                         /*!< Error parsing interface node                                            */
+        EMetaDuplicatedInterface,                    /*!< The same interface is defined twice                                     */
         EMetaInvalidVersion,
-        EMetaDuplicatedTag,                           /* The tag appears twice */
-        EMetaInvalidCustomTag,                       /* The customproperty tag is not corectly formatted or otherwise incorrect*/
-        EMetaDuplicatedCustomKey                     /* The customproperty appears twice*/
+        EMetaDuplicatedTag,                          /*!< The tag appears twice                                                   */
+        EMetaInvalidCustomTag,                       /*!< The customproperty tag is not corectly formatted or otherwise incorrect */
+        EMetaDuplicatedCustomKey                     /*!< The customproperty appears twice                                        */
     };
 
     enum ServiceManagerErrors

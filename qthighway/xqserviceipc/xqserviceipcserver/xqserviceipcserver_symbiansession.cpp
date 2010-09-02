@@ -40,14 +40,14 @@ const TInt KIPCOperationWithSharableFile = 3;  // Sharable file support
 
 
 /*!
- \class CServiceSymbianSession
- Symbian Session class
- */
+    \class CServiceSymbianSession
+    \brief Symbian Session class
+*/
 
 /*!
- Constructor
- @param aObserver observer to the server
- */
+    Constructor.
+    \param aObserver Observer to the server.
+*/
 CServiceSymbianSession::CServiceSymbianSession(MServiceIPCObserver* aObserver) :
     ServiceIPCSession(aObserver)
 {
@@ -55,16 +55,16 @@ CServiceSymbianSession::CServiceSymbianSession(MServiceIPCObserver* aObserver) :
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor.
+*/
 void CServiceSymbianSession::ConstructL()
 {
 }
 
 /*!
- Two-Phased Constructor
- @param aObserver observer to the server
- */
+    Two-Phased Constructor.
+    \param aObserver Observer to the server.
+*/
 CServiceSymbianSession* CServiceSymbianSession::NewL(MServiceIPCObserver* aObserver)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::NewL");
@@ -77,8 +77,8 @@ CServiceSymbianSession* CServiceSymbianSession::NewL(MServiceIPCObserver* aObser
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 CServiceSymbianSession::~CServiceSymbianSession()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::~CServiceSymbianSession");
@@ -90,10 +90,10 @@ CServiceSymbianSession::~CServiceSymbianSession()
 }
 
 /*!
- Write some data in response to a request
- @param aData some data to write as response
- @return bool if write was successful
- */
+    Write some data in response to a request.
+    \param aData Some data to write as response.
+    \return bool if write was successful.
+*/
 bool CServiceSymbianSession::write(const QByteArray& aData)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::write");
@@ -104,9 +104,9 @@ bool CServiceSymbianSession::write(const QByteArray& aData)
 }
 
 /*!
- Complete a Request
- @return bool if request completed 
- */
+    Complete a Request.
+    \return bool if request completed 
+*/
 bool CServiceSymbianSession::completeRequest()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::completeRequest");
@@ -117,8 +117,8 @@ bool CServiceSymbianSession::completeRequest()
 }
 
 /*!
- Close a session and gracefully shutdown
- */
+    Close a session and gracefully shutdown.
+*/
 void CServiceSymbianSession::close()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::close");
@@ -126,10 +126,10 @@ void CServiceSymbianSession::close()
 }
 
 /*!
- From CSession2
- Service request
- @param aMessage message object
- */
+    From CSession2.
+    Service request.
+    \param aMessage Message object.
+*/
 void CServiceSymbianSession::ServiceL(const RMessage2& aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::ServiceL");
@@ -164,10 +164,10 @@ void CServiceSymbianSession::ServiceL(const RMessage2& aMessage)
 }
 
 /*!
- From CSession2
- Handle any disconnection from the client
- @param aMessage message Object
- */
+    From CSession2.
+    Handle any disconnection from the client.
+    \param aMessage Message object.
+*/
 void CServiceSymbianSession::Disconnect(const RMessage2 &aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::Disconnect");
@@ -175,9 +175,9 @@ void CServiceSymbianSession::Disconnect(const RMessage2 &aMessage)
 }
 
 /*!
- Handle an IPC request
- @param aMessage message Object
- */
+    Handle an IPC request.
+    \param aMessage Message object.
+*/
 void CServiceSymbianSession::handleRequestL(const RMessage2& aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::handleRequestL");
@@ -248,8 +248,9 @@ void CServiceSymbianSession::handleRequestL(const RMessage2& aMessage)
 }
 
 /*!
- Handle getting the result buffer
- */
+    Handle getting the result buffer.
+    \param aMessage Message object.
+*/
 void CServiceSymbianSession::handleGetBufferL(const RMessage2& aMessage)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianSession::handleGetBufferL");
@@ -260,9 +261,9 @@ void CServiceSymbianSession::handleGetBufferL(const RMessage2& aMessage)
 }
 
 /*!
- Read a 16 bit descriptor from the message
- @param aMessage message to read from, 
- @param aMsgSlot slot to read from
+    Read a 16 bit descriptor from the message.
+    \param aMessage Message to read from.
+    \param aMsgSlot Slot to read from.
  */
 HBufC* CServiceSymbianSession::ReadDesLC(const RMessage2& aMessage,
                                          TInt aMsgSlot)
@@ -276,10 +277,10 @@ HBufC* CServiceSymbianSession::ReadDesLC(const RMessage2& aMessage,
 }
 
 /*!
- Read a 8 bit descriptor from the message
- @param aMessage message to read from, 
- @param aMsgSlot slot to read from
- */
+    Read a 8 bit descriptor from the message.
+    \param aMessage Message to read from.
+    \param aMsgSlot Slot to read from.
+*/
 HBufC8* CServiceSymbianSession::ReadDes8LC(const RMessage2& aMessage,
                                            TInt aMsgSlot)
 {
@@ -312,9 +313,9 @@ bool AdoptSharableFile(const RMessage2& aMsg, XQSharableFile *file)
     return ret;
 }
 
-//
-// Get client capabilities from the IPC request
-//
+/*!
+    Get client capabilities from the IPC request.
+*/
 quint32 ClientCapabilities(const RMessage2& aMsg)
 {
     quint32 caps = 0;

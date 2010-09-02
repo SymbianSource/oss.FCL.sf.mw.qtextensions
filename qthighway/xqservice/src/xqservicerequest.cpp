@@ -30,6 +30,14 @@
 #include <QStringList>
 #include <xqservicemanager.h>
 
+/*!
+    \class XQServiceRequest_Private
+    \inpublicgroup QtBaseModule
+
+    \ingroup ipc
+    \brief Private implementation of the XQServiceRequest.
+*/
+
 class XQServiceRequest_Private : public XQServiceRequestCompletedAsync
 {
 public:
@@ -101,9 +109,190 @@ void XQServiceRequest_Private::requestErrorAsync(int err)
 }
 
 /*!
-  Construct a null service request.
-  setService() and setMessage() must be called before send(), but the
-  service may be written prior to the calls.
+    \class XQServiceRequest
+    \inpublicgroup QtBaseModule
+
+    \ingroup ipc
+    \brief Allows applications to request services from other applications.
+    
+    The XQServiceRequest class allows applications to request services from other applications.
+    A XQServiceRequest encapsulates a service name and the message to be sent to that service.
+    
+    \note One should be using XQApplicationManager and the related XQAiwRequest instead of XQServiceRequest.
+          The XQApplicationManager and related classes encapsulate basic, target-architecture approved
+          support for out-of-process Application Interworking, e.g. support for launching URLs
+          (including activity URLs), normal files, sharable files, etc. (whatever needed).
+    
+    \b Examples: \n
+    
+    How to create synchronous request without parameters and return value? 
+    \note The full name (yourservice.Interface) need to be used (with dot (.) between service name and interface name).
+    
+    \code
+        XQServiceRequest request("yourservice.<b>Interface</b>", "functionName1()");
+        bool res = request.send();
+        if  (!res) {
+            int error = request.latestError();
+        }
+    \endcode
+    
+    How to create synchronous request with several parameters and return value?
+    
+    \code
+        QString parameter1("+3581234567890");
+        int parameter2 = 3;
+        XQServiceRequest request("yourservice.<b>Interface</b>", "functionName2(QString, int)");
+        request << parameter1;
+        request << parameter2;
+        int returnvalue;
+        bool res = request.send(returnvalue);
+        if  (!res) {
+            int error = request.latestError();
+        }
+    \endcode
+    
+    How to create asynchronous request without return value?
+    
+    \code
+        QString parameter1("+3581234567890");
+        int parameter2 = 3;
+        XQServiceRequest request("yourservice.Interface", "functionName2(QString, int)", false);
+        request << parameter1;
+        request << parameter2;
+        bool res = request.send();
+        if (!res) {
+            int error = request.latestError();
+        }
+    \endcode
+    
+    How to create asynchronous request with return value?
+    
+    \code
+        QString parameter1("+3581234567890");
+        int parameter2 = 3;
+        XQServiceRequest request("yourservice.Interface", "functionName2(QString, int)", false);
+        request << parameter1;
+        request << parameter2;
+        connect(request, SIGNAL(requestCompleted(QVariant)), this, SLOT(requestCompleted(QVariant)));
+        bool res = request.send();
+        if (!res) {
+            int error = request.latestError();
+        }
+
+        ...
+
+        void requestCompleted(const QVariant& value)
+        {
+            int returnvalue = value.toInt();
+        }
+    \endcode
+    
+    How to use declare custom type?
+    
+    Header:
+    \code
+        class CustomType 
+        { 
+        public: 
+            CustomType (){}; 
+            virtual ~CustomType(){};
+
+            QString mString1; 
+            QString mString2; 
+            QUuid mUid;
+
+            template <typename Stream> void serialize(Stream &stream) const; 
+            template <typename Stream> void deserialize(Stream &stream); 
+        };
+
+        Q_DECLARE_USER_METATYPE(CustomType)
+    \endcode
+    
+    Implementation:
+    \code        
+        template <typename Stream> void CustomType::serialize(Stream &s) const 
+            { 
+            s << mString1; 
+            s << mString2; 
+            s << mUid; 
+            }
+
+        template <typename Stream> void CustomType::deserialize(Stream &s) 
+            { 
+            s >> mString1; 
+            s >> mString2; 
+            s >> mUid; 
+            }
+
+        Q_IMPLEMENT_USER_METATYPE(CustomType)
+    \endcode
+    
+    How to declare custom type that doesn't need data stream operators?
+    
+    Header:
+    \code
+        typedef QList<CustomType> CustomTypeList;
+
+        Q_DECLARE_USER_METATYPE_NO_OPERATORS(CustomTypeList)
+    \endcode
+    
+    Implementation:
+    \code
+        Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(CustomTypeList)
+    \endcode
+*/
+
+/*!
+    \fn bool XQServiceRequest::send(T& retValue)
+
+    Sends the request. If the request is synchronous, then client is blocked
+    until service provider completes the request or request fails for some reason.
+    If the request is asynchronous, then client won't be blocked.
+    \param retValue Defines refence to a value service provider will return after service.
+    \return False if there was no application that could service the request, otherwise true.
+*/
+
+/*!
+    \fn XQServiceRequest &XQServiceRequest::operator<< (const T &var)
+
+    Adds \a var to the list of arguments for this service request.
+    \param var Defines the argument value to add to the list of arguments.
+*/
+
+/*!
+    \fn XQServiceRequest &XQServiceRequest::operator<< (const char *var)
+
+    Adds \a var to the list of arguments for this service request.
+    \param var Defines the argument value to add to the list of arguments.
+*/
+
+/*!
+    \fn void XQServiceRequest::requestCompleted(const QVariant& value)
+
+    This signal is emitted when service provider returns a return value asynchronously back to the client.
+    \param value Result of the request.
+*/
+
+/*!
+    \fn void XQServiceRequest::requestError(int err);
+
+    This signal is emitted when error has happened in request handling.
+    \param err Error code as integer value.
+    \sa XQService::ServiceIPCErrors
+*/
+
+/*!
+    \fn void XQServiceRequest::addVariantArg(const QVariant& var)
+
+    Adds the variant value to the list of arguments, so that the variant's
+    value is serialized in send() rather than the variant itself.
+    \param var Value to be added to the list of arguments.
+*/
+
+/*!
+    Construct a null service request.
+    setService() and setMessage() must be called before send(), but the
+    service may be written prior to the calls.
  */
 XQServiceRequest::XQServiceRequest()
 {
@@ -112,9 +301,17 @@ XQServiceRequest::XQServiceRequest()
 }
 
 /*!
-  Construct a service request that will send \a message to
-  a \a service when send() is called. The service may be written
-  prior to the calls.
+    Construct a service request that will send \a message to
+    a \a service when send() is called. The service may be written
+    prior to the calls.
+    \param service Defines the full service name to send message. The full name is:
+                   - The name of the service in the service configuration file
+                   - Character *.* (dot)
+                   - The name of the interface from the service XML.
+    \param message Defines the message to send to the service provider i.e. it is
+                 the signature of the service provider function to be called.
+    \param synchronous Defines should message be sent synchronously or asynchronously.
+                     By default message is sent synchronously.
 */
 XQServiceRequest::XQServiceRequest(const QString& service, const QString& message, const bool &synchronous)
 {
@@ -124,8 +321,9 @@ XQServiceRequest::XQServiceRequest(const QString& service, const QString& messag
 }
 
 /*!
-  Copy constructor. Any data previously written to the \a orig
-  service will be in the copy.
+    Copy constructor. Any data previously written to the \a orig
+    service will be in the copy.
+    \param orig XQServiceRequest from which data will be copied to this object.
 */
 XQServiceRequest::XQServiceRequest(const XQServiceRequest& orig)
 {
@@ -135,9 +333,12 @@ XQServiceRequest::XQServiceRequest(const XQServiceRequest& orig)
 }
 
 /*!
-  Construct a service request by service descriptor which contains exact details of the service and interface.
-  a \a service when send() is called. The service may be written
-  prior to the calls.
+    Construct a service request by service descriptor which contains exact details of the service and interface.
+    The service may be written prior to the calls.
+    \param descriptor Defines details of the service and it's interface.
+    \param message Message to be sent when send() is called.
+    \param synchronous Defines should message be sent synchronously or asynchronously.
+                       By default message is sent synchronously.
 */
 XQServiceRequest::XQServiceRequest(const XQAiwInterfaceDescriptor &descriptor, const QString& message, const bool &synchronous)
 {
@@ -149,9 +350,9 @@ XQServiceRequest::XQServiceRequest(const XQAiwInterfaceDescriptor &descriptor, c
 }
 
 /*!
-  Assignment operator.
-  Any data previously written to the \a orig
-  service will be in the copy.
+    Assignment operator.
+    Any data previously written to the \a orig
+    service will be in the copy.
 */
 XQServiceRequest& XQServiceRequest::operator=(const XQServiceRequest& orig)
 {
@@ -168,8 +369,8 @@ XQServiceRequest& XQServiceRequest::operator=(const XQServiceRequest& orig)
 }
 
 /*!
-  Destructs the service request. Unlike QtopiaIpcEnvelope, the
-  request is not automatically sent.
+    Destroys the service request. Unlike QtopiaIpcEnvelope, the
+    request is not automatically sent.
 */
 XQServiceRequest::~XQServiceRequest()
 {
@@ -179,9 +380,9 @@ XQServiceRequest::~XQServiceRequest()
 }
 
 /*!
-  Returns true if either the service() or message() is not set.
-
-  \sa service(), message()
+    Checks if request is NULL.
+    \return True if either the service() or message() is not set.
+    \sa service(), message()
  */
 bool XQServiceRequest::isNull() const
 {
@@ -194,21 +395,35 @@ bool XQServiceRequest::isNull() const
 	return ret;
 }
 
+/*!
+    Checks if request is synchronous or asynchronous.
+    \return True if request is synchronous, false if request is asynchronous.
+    \sa setSynchronous()
+ */
 bool XQServiceRequest::isSynchronous() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::isSynchronous");
     return mData->mSynchronous;
 }
 
+/*!
+    Sets request to be synchronous or asynchronous.
+    \param synchronous If set to true, request will be synchronous.
+                       If set to false, request will be asynchronous.
+    \sa isSynchronous()
+ */
 void XQServiceRequest::setSynchronous(const bool& synchronous)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setSynchronous");
     mData->mSynchronous = synchronous;
 }
 /*!
-  \fn QString XQServiceRequest::send()
-  Sends the request. Returns false if there was no application that could
-  service the request.
+    Sends the request. If the request is synchronous, then client is blocked
+    until service provider completes the request or request fails for some reason.
+    If the request is asynchronous, then client won't be blocked. If the request
+    is asynchronous and clients wants to receive a return value from the service
+    provider, then clients should connect to the requestCompleted() signal.
+    \return False if there was no application that could service the request, otherwise true.
 */
 bool XQServiceRequest::send()
 {
@@ -218,9 +433,11 @@ bool XQServiceRequest::send()
 }
 
 /*!
-  \fn QString XQServiceRequest::send()
-  Sends the request. Returns false if there was no application that could
-  service the request.
+    Sends the request. If the request is synchronous, then client is blocked
+    until service provider completes the request or request fails for some reason.
+    If the request is asynchronous, then client won't be blocked.
+    \param retData Defines refence to a value service provider will return after service.
+    \return False if there was no application that could service the request, otherwise true.
 */
 bool XQServiceRequest::send(QVariant& retData)
 {
@@ -261,9 +478,11 @@ bool XQServiceRequest::send(QVariant& retData)
                                  (const void *)&mData->mRequestUtil);
 }
 /*!
-  Sets the \a service to which the request will be sent.
-
-  \sa service()
+    Sets the full name of the service to which the request will be sent.
+    \param fullServiceName Full name of the service to send message to. See
+                           XQServiceRequest(const QString& service, const QString& message, const bool &synchronous)
+                           for the full name definition.
+    \sa service()
  */
 void XQServiceRequest::setService(const QString& fullServiceName)
 {
@@ -275,11 +494,9 @@ void XQServiceRequest::setService(const QString& fullServiceName)
 }
 
 /*!
-  \fn QString XQServiceRequest::service() const
-
-  Returns the service to which this request will be sent.
-
-  \sa setService()
+    Gets the service name to which this request will be sent.
+    \return Full service name to which request will be sent.
+    \sa setService()
 */
 QString XQServiceRequest::service() const
 {
@@ -290,7 +507,9 @@ QString XQServiceRequest::service() const
 
 /*!
     Sets the \a message to be sent to the service.
-
+    \param message Defines the message to send to a service provider. The message
+                   is a valid Qt slot signature published by the service provider.
+                   For example, "view(QString)".
     \sa message()
 */
 void XQServiceRequest::setMessage(const QString& message)
@@ -301,6 +520,11 @@ void XQServiceRequest::setMessage(const QString& message)
     mData->mArguments.clear();
 }
 
+/*!
+    Gets the message set for the request.
+    \return Message of the request as QString.
+    \sa setMessage()
+*/
 QString XQServiceRequest::message() const
 { 
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::message");
@@ -308,77 +532,68 @@ QString XQServiceRequest::message() const
     return mData->mMessage;
 }
 
+/*!
+    Gets the complete list of arguments for this service request.
+    \return List of arguments set to the request.
+    \sa setArguments()
+*/
 const QList<QVariant> &XQServiceRequest::arguments() const 
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::arguments");
     return mData->mArguments; 
 }
 
+/*!
+    Sets \a arguments for this service request.
+    \param arguments Complete list of arguments for this service request
+                     i.e. the values to be transferred to service provider
+                     function to be called.
+    \sa arguments()
+*/
 void XQServiceRequest::setArguments(const QList<QVariant> &arguments)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setArguments");
     mData->mArguments = arguments;
 }
 
+/*!
+    Gets the latest error that happened in the request execution.
+    \return The latest error that happened in the request execution.
+            Errors are defined in xqserviceglobal.h. 
+    \sa XQService::ServiceIPCErrors.
+*/
 int XQServiceRequest::latestError()
     {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::latestError");
     return XQServiceAdaptor::latestError();
     }
 
+/*!
+    Sets additional options for the request, like embedding or start to background.
+    \param info Additional info to be set to the request.
+    \sa info()
+*/
 void XQServiceRequest::setInfo(const XQRequestInfo &info)
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::setInfo");
     mData->mRequestUtil.mInfo = info;
 }
 
+/*!
+    Gets current info set for the request.
+    \return Info data set to the request.
+    \sa setInfo()
+*/
 XQRequestInfo XQServiceRequest::info() const
 {
     XQSERVICE_DEBUG_PRINT("XQServiceRequest::info");
     return mData->mRequestUtil.mInfo;
 }
-    
-/*!
-  \fn QString XQServiceRequest::message() const
-
-  Returns the message of the request.
-
-  \sa setMessage()
-*/
-
-/*!
-    \fn const QList<QVariant> &XQServiceRequest::arguments() const
-
-    Returns the complete list of arguments for this service request.
-*/
-
-/*!
-    \fn void XQServiceRequest::setArguments(const QList<QVariant> &arguments)
-
-    Sets the complete list of \a arguments for this service request.
-*/
-
-/*!
-    \fn XQServiceRequest &XQServiceRequest::operator<< (const T &var)
-
-    Adds \a var to the list of arguments for this service request.
-*/
-
-/*!
-    \fn XQServiceRequest &XQServiceRequest::operator<< (const char *var)
-
-    Adds \a var to the list of arguments for this service request.
-*/
-
-/*!
-    \fn void XQServiceRequest::addArg(const QVariant& var)
-
-    Adds the variant \a var to the list of arguments, so that the variant's
-    value is serialized in send() rather than the variant itself.
-*/
 
 /*!
     \internal
+    Adds the variant \a var to the list of arguments, so that the variant's
+    value is serialized in send() rather than the variant itself.
 */
 void XQServiceRequest::addArg(const QVariant& v)
 {
@@ -387,16 +602,10 @@ void XQServiceRequest::addArg(const QVariant& v)
     mData->mArguments.append(v);
 }
 
-
-/*!
-    \fn void XQServiceRequest::handleSharableFileArg()
-
-    Picks the XQSharableFile argument, if any, into the request util
-    By this way scan parameter list only once.
-*/
-
 /*!
     \internal
+    Picks the XQSharableFile argument, if any, into the request util
+    This way scan parameter is listed only once.
 */
 bool XQServiceRequest::handleSharableFileArgs()
 {
@@ -440,7 +649,9 @@ bool XQServiceRequest::handleSharableFileArgs()
 
 
 /*!
-    \internal
+    Serializes all the arguments from the service request.
+    \param action Defines the request having arguments to be serialized.
+    \return Serialized arguments in byte array.
 */
 QByteArray XQServiceRequest::serializeArguments(const XQServiceRequest &action)
 {
@@ -455,7 +666,9 @@ QByteArray XQServiceRequest::serializeArguments(const XQServiceRequest &action)
     return ret;
 }
 /*!
-    \internal
+    Deserializes all the arguments from the byte array to service request.
+    \param action Defines the request where arguments are deserialized.
+    \param data Defines the byte array of serialized arguments.
 */
 void XQServiceRequest::deserializeArguments(XQServiceRequest &action,
         const QByteArray &data)
@@ -466,8 +679,8 @@ void XQServiceRequest::deserializeArguments(XQServiceRequest &action,
 }
 
 /*!
-    \internal
-    \fn void XQServiceRequest::serialize(Stream &stream) const
+    Serializes this request to the stream.
+    \param stream Defines stream this request is serialized to.
 */
 template <typename Stream> void XQServiceRequest::serialize(Stream &stream) const
 {
@@ -479,8 +692,8 @@ template <typename Stream> void XQServiceRequest::serialize(Stream &stream) cons
 }
 
 /*!
-    \internal
-    \fn void XQServiceRequest::deserialize(Stream &stream)
+    Deserializes this request from the stream.
+    \param stream Defines the stream this request is deserialized from.
 */
 template <typename Stream> void XQServiceRequest::deserialize(Stream &stream)
 {

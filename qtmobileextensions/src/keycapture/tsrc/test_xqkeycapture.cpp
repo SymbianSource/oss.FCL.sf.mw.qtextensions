@@ -119,6 +119,7 @@ private slots:
 	void testKeyMapperFile();
 
 private:
+	QString clearString(const QString& line);
 	QString clearString(const QString& line, const QString& prefix, const QString& comment);
     
 private:
@@ -1569,6 +1570,13 @@ void TestXQKeyCapture::testErrorId()
     keyCapture->errorId();
 }
 
+QString TestXQKeyCapture::clearString(const QString& line) {
+    QString s(line);
+    s.replace(" ", "");
+    s.replace("\t", "");
+    return s.trimmed();
+}
+
 QString TestXQKeyCapture::clearString(const QString& line, const QString& prefix, const QString& comment) {
     QString s(line);
     s.replace(prefix, comment);
@@ -1582,45 +1590,64 @@ QString TestXQKeyCapture::clearString(const QString& line, const QString& prefix
 ////////////////////////////////////////////////////////////////
 void TestXQKeyCapture::testKeyMapperFile()
 {
-    QString prefix("    keyMapping.append(KeyMapping(");
+    // test only for emulator build
+    #ifdef __WINSCW__   
+    
+    QString firstline("static const KeyMapping keyMapping[] = {");
+    QString lastline("};");
     QString comment("//");
     
     QStringList qt;
     QStringList kc;
 
     QFile qtFile("c:\\qkeymapper_s60.cpp");
-    QVERIFY(qtFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QVERIFY2(qtFile.open(QIODevice::ReadOnly | QIODevice::Text), "Failed to open: qtFile");
     
     QFile kcFile("c:\\keymapper.cpp");
-    QVERIFY(kcFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QVERIFY2(kcFile.open(QIODevice::ReadOnly | QIODevice::Text), "Failed to open: kcFile");
     
     QTextStream inQtFile(&qtFile);
+    bool test(false);
     while (!inQtFile.atEnd()) {
         QString line = inQtFile.readLine();
-        if (line.contains(prefix) && !line.contains(comment)) {
-            qt.append(clearString(line, prefix, comment));
+        // trim everything that is on right side of comment and add to list if needed
+        if (test) qt.append(clearString(line.split(comment).at(0)));
+        if (line.contains(firstline)) {
+            test = true;
+        }
+        if (line.contains(lastline)) {
+            test = false;
         }
     }
-
+    test = false;
     QTextStream inKcFile(&kcFile);
     while (!inKcFile.atEnd()) {
         QString line = inKcFile.readLine();
-        if (line.contains(prefix) && !line.contains(comment)) {
-            kc.append(clearString(line, prefix, comment));
+        // trim everything that is on right side of comment and add to list if needed
+        if (test) kc.append(clearString(line.split(comment).at(0)));
+        if (line.contains(firstline)) {
+            test = true;
+        }
+        if (line.contains(lastline)) {
+            test = false;
         }
     }
     
-    QVERIFY(qt.size() == kc.size());
+    QVERIFY2(qt.count() == kc.count(), "Amount of lines inside key definition is different");
     
     for(int i = 0; i < kc.size(); i++) {
         QString keys = kc.at(i);
-        QVERIFY(qt.contains(keys));
+        QVERIFY2(qt.contains(keys), "qtFile does not contain key(s) from capture keys");
     }
     
     for(int i = 0; i < qt.size(); i++) {
         QString keys = qt.at(i);
-        QVERIFY(kc.contains(keys));
+        QVERIFY2(kc.contains(keys), "kcFile does not conatin qt keys");
     }    
+#else
+    // Skip test on hw
+    QSKIP( "This test is valid only on emulator", SkipSingle);
+#endif // __WINSCW__
 }
 
 

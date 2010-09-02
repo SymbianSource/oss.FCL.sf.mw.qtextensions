@@ -49,7 +49,7 @@
  the WLAN Sniffer list view. 
 */
 #define XQI_WLAN_SNIFFER  QLatin1String("com.nokia.symbian.IWlanSniffer")
-#define XQOP_WLAN_SNIFFER  QLatin1String("listView(void)")
+#define XQOP_WLAN_SNIFFER  QLatin1String("listView()")
 
 /*!
  WLAN Login interface and operations for
@@ -57,7 +57,7 @@
 */
 #define XQI_WLAN_LOGIN  QLatin1String("com.nokia.symbian.IWlanLogin")
 #define XQOP1_WLAN_LOGIN QLatin1String("start(int,int,QUrl)")
-#define XQOP2_WLAN_LOGIN QLatin1String("stop(void)")
+#define XQOP2_WLAN_LOGIN QLatin1String("stop()")
 
 /*!
  Incomplete list of interfaces.

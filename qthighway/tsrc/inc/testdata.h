@@ -315,7 +315,7 @@ public:
             FileDrm drm;
             drm[XQApplicationManager::IsProtected] = QVariant(1);
             drm[XQApplicationManager::IsForwardable] = QVariant(1);
-            drm[XQApplicationManager::Description] = QVariant();
+            drm[XQApplicationManager::Description] = QVariant(QString(""));
             drm[XQApplicationManager::MimeType] = QVariant(QString("audio/x-ms-wma"));
             
             files[QString(drive + ":\\data\\Others\\STC1_128_44_16_2_CBR.wma")] = drm;

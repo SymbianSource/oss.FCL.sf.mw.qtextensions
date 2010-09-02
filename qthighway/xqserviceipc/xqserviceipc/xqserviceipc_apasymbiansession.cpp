@@ -36,14 +36,13 @@ namespace QtService
 
 /*!
     \class RApaIPCSession
-
-    Symbian class encapsulating RMessage2 interface
+    \brief Symbian class encapsulating RMessage2 interface
 */
 
 /*!
-    Send a message
-    @param aFunction function code
-    @return message completion code
+    Send a message.
+    \param aFunction Function code.
+    \return message Completion code.
 */
 TInt RApaIPCSession::SendReceiveL(TInt aFunction) const
 {
@@ -52,10 +51,10 @@ TInt RApaIPCSession::SendReceiveL(TInt aFunction) const
 }
 
 /*!
-    Send a message
-    @param aFunction function code
-    @param aArgs parameter to server
-    @return message completion code
+    Send a message.
+    \param aFunction Function code.
+    \param aArgs Parameter to server.
+    \return Message completion code.
 */
 TInt RApaIPCSession::SendReceiveL(TInt aFunction, const TIpcArgs& aArgs) const
 {
@@ -64,10 +63,10 @@ TInt RApaIPCSession::SendReceiveL(TInt aFunction, const TIpcArgs& aArgs) const
 }
 
 /*!
-    Send message asynchronously
-    @param aFunction function code
-    @param aStatus the request status object used to contain the 
-           completion status of the request
+    Send message asynchronously.
+    \param aFunction Function code.
+    \param aStatus The request status object used to contain the 
+           completion status of the request.
 */
 EXPORT_C void RApaIPCSession::SendReceive(TInt aFunction,
                                           TRequestStatus& aStatus) const
@@ -78,11 +77,11 @@ EXPORT_C void RApaIPCSession::SendReceive(TInt aFunction,
 }
 
 /*!
-    Send message asynchronously
-    @param aFunction function code
-    @param aArgs parameter to server
-    @param aStatus the request status object used to contain the 
-           completion status of the request
+    Send message asynchronously.
+    \param aFunction Function code.
+    \param aArgs Parameter to server.
+    \param aStatus The request status object used to contain the 
+           completion status of the request.
 */
 void RApaIPCSession::SendReceive(TInt aFunction,
                                        const TIpcArgs& aArgs,
@@ -94,10 +93,10 @@ void RApaIPCSession::SendReceive(TInt aFunction,
 }
 
 /*!
-    Connect to server
-    @param aServer server name
-    @param aVersion version of the server
-    @return KErrNone success, otherwise system error code
+    Connect to server.
+    \param aServer Server name.
+    \param aVersion Version of the server.
+    \return KErrNone on success, otherwise system error code.
 */
 TInt RApaIPCSession::Connect(const TDesC& aServer, 
                                  const TVersion& aVersion)
@@ -109,8 +108,8 @@ TInt RApaIPCSession::Connect(const TDesC& aServer,
 }
 
 /*!
-    Get version info
-    @return version info
+    Get version info.
+    \return Version info.
 */
 TVersion RApaIPCSession::Version() const
 {
@@ -118,13 +117,20 @@ TVersion RApaIPCSession::Version() const
     return iVersion;
 }
 
-
+/*!
+    Get service uid.
+    \return Service uid.
+*/
 TUid RApaIPCSession::ServiceUid() const
 {
     XQSERVICE_DEBUG_PRINT("RApaIPCSession::ServiceUid");
     return iUid;
 }
 
+/*!
+    Set service uid.
+    \param uid Service uid to set.
+*/
 void RApaIPCSession::setServiceUid(TInt uid)
 {
     XQSERVICE_DEBUG_PRINT("RApaIPCSession::setServiceUid %x", uid);

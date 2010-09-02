@@ -37,15 +37,12 @@
 
 class QKeyEvent;
 
-class KeyMapping 
-{
-public:
-    KeyMapping(TKeyCode aS60KeyCode, TStdScanCode aS60ScanCode, Qt::Key aQtKey) : s60KeyCode(aS60KeyCode), s60ScanCode(aS60ScanCode), qtKey(aQtKey) { };
-	
+
+struct KeyMapping{
     TKeyCode s60KeyCode;
-    TStdScanCode s60ScanCode; 
+    TStdScanCode s60ScanCode;
     Qt::Key qtKey;
-}; 
+};
 
 class QKeyMapper
 {
@@ -54,9 +51,6 @@ public:
     ~QKeyMapper();
 
 #if defined(Q_OS_SYMBIAN)
-private:
-    QList<KeyMapping> keyMapping;
-    void fillKeyMap();
 public:
     int mapS60KeyToQt(TUint s60key);
     int mapS60ScanCodesToQt(TUint s60key);

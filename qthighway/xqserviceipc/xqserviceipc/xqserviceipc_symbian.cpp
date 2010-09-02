@@ -41,14 +41,13 @@ const TInt KServerBuildVersionNumber = 0;
 
 
 /*!
- \class CServiceSymbianIPC
-
- Symbian Client backend for the service IPC
- */
+    \class CServiceSymbianIPC
+    \brief Symbian Client backend for the service IPC
+*/
 
 /*!
- Constructor
- */
+    Constructor.
+*/
 CServiceSymbianIPC::CServiceSymbianIPC() :
     CActive(CActive::EPriorityStandard), iDataSize(0)
 {
@@ -57,8 +56,8 @@ CServiceSymbianIPC::CServiceSymbianIPC() :
 }
 
 /*!
- Destructor 
- */
+    Destructor.
+*/
 CServiceSymbianIPC::~CServiceSymbianIPC()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::~CServiceSymbianIPC");
@@ -68,15 +67,15 @@ CServiceSymbianIPC::~CServiceSymbianIPC()
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor.
+*/
 void CServiceSymbianIPC::ConstructL()
 {
 }
 
 /*!
- Two Phased Constructor
- */
+    Two Phased Constructor.
+*/
 CServiceSymbianIPC* CServiceSymbianIPC::NewL()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::NewL");
@@ -88,10 +87,10 @@ CServiceSymbianIPC* CServiceSymbianIPC::NewL()
 }
 
 /*!
- Connect to the server
- @param aServerName name of the server to connect to
- @return true if connected, false if not
- */
+    Connect to the server.
+    \param aServerName Name of the server to connect to.
+    \return true if connected, false if not.
+*/
 bool CServiceSymbianIPC::connect(const QString& aServerName)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::connect");
@@ -106,8 +105,8 @@ bool CServiceSymbianIPC::connect(const QString& aServerName)
 }
 
 /*!
- Disconnect from the server
- */
+    Disconnect from the server.
+*/
 void CServiceSymbianIPC::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::disconnect");
@@ -116,10 +115,11 @@ void CServiceSymbianIPC::disconnect()
 }
 
 /*!
- Starts the service
- @param aServerName server name
- @param aExeName server executable name
- */
+    Starts the service.
+    \param aServerName Server name.
+    \param aExeName Server executable name.
+    \return true if successful.
+*/
 bool CServiceSymbianIPC::startServer(const QString& /*aServerName*/,
                                      const QString& aExeName,
                                      quint64& /*processId*/,
@@ -132,10 +132,11 @@ bool CServiceSymbianIPC::startServer(const QString& /*aServerName*/,
 }
 
 /*!
- Send a request synchronously
- @param aRequestType type of request to send to the server
- @param aData data to send to the server
- */
+    Send a request synchronously.
+    \param aRequestType Type of request to send to the server.
+    \param aData Data to send to the server.
+    \return true if successful.
+*/
 bool CServiceSymbianIPC::sendSync(const QString& aRequestType,
                                   const QByteArray& aData)
 {
@@ -170,8 +171,9 @@ bool CServiceSymbianIPC::sendSync(const QString& aRequestType,
 }
 
 
-/*
-* read sync
+/*!
+    Read sync.
+    \return Result of the read.
 */
 QByteArray CServiceSymbianIPC::readAll()
 {
@@ -192,8 +194,8 @@ QByteArray CServiceSymbianIPC::readAll()
     return rtn;
 }
 
-/**
-* read sync
+/*!
+    Read sync.
 */
 QByteArray CServiceSymbianIPC::doReadAllL()
 {
@@ -218,10 +220,10 @@ QByteArray CServiceSymbianIPC::doReadAllL()
 
 
 /*!
- Send a request asynchronously
- @param aRequestType type of request to send to the server
- @param aData data to send to the server
- */
+    Send a request asynchronously.
+    \param aRequestType Type of request to send to the server.
+    \param aData Data to send to the server.
+*/
 void CServiceSymbianIPC::sendAsync(const QString& aRequestType,
                                    const QByteArray& aData)
 {
@@ -255,9 +257,10 @@ void CServiceSymbianIPC::sendAsync(const QString& aRequestType,
     iState = ESend;
     SetActive();
 }
-/*
- * read async
- */
+/*!
+    Read async.
+    \param aArray Array where result will be put.
+*/
 void CServiceSymbianIPC::readAll(QByteArray& aArray)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::readAll");
@@ -274,9 +277,9 @@ void CServiceSymbianIPC::readAll(QByteArray& aArray)
 }
 
 /*!
- Reads all data pending in the buffer, leaves if an error occured
- @return QByteArray containing the result data
- */
+    Reads all data pending in the buffer, leaves if an error occured.
+    \param aArray QByteArray containing the result data.
+*/
 void CServiceSymbianIPC::doReadAllL(QByteArray& aArray)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::doReadAllL");
@@ -298,10 +301,10 @@ void CServiceSymbianIPC::doReadAllL(QByteArray& aArray)
 
 
 /*!
- Maps error codes from Symbian error codes to Service IPC error codes
- @param aError Symbian error code
- @return mapped error code
- */
+    Maps error codes from Symbian error codes to Service IPC error codes.
+    \param aError Symbian error code.
+    \return Mapped error code.
+*/
 int CServiceSymbianIPC::doMapErrors(TInt aError)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::doMapErrors");
@@ -339,9 +342,9 @@ int CServiceSymbianIPC::doMapErrors(TInt aError)
     return error;
 }
 /*!
- Waits until data is available for reading 
- @return bool always true, no need to wait
- */
+    Waits until data is available for reading 
+    \return bool Always true, no need to wait
+*/
 bool CServiceSymbianIPC::waitForRead()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::waitForRead");   
@@ -350,8 +353,8 @@ bool CServiceSymbianIPC::waitForRead()
 }
 
 /*!
- Active object callback
- */
+    Active object callback.
+*/
 TInt CServiceSymbianIPC::RunError(TInt err)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::error");
@@ -359,6 +362,9 @@ TInt CServiceSymbianIPC::RunError(TInt err)
     return KErrNone;
 }
 
+/*!
+    Active object RunL() function.
+*/
 void CServiceSymbianIPC::RunL()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::RunL");   
@@ -401,8 +407,8 @@ void CServiceSymbianIPC::RunL()
 }
 
 /*!
- Active object cancel
- */
+    Active object cancel.
+*/
 void CServiceSymbianIPC::DoCancel()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianIPC::DoCancel");

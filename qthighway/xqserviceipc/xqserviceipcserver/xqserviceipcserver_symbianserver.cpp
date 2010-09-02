@@ -53,13 +53,13 @@ enum
 // ======== MEMBER FUNCTIONS ========
 
 /*!
- \class CServiceSymbianServer
- Symbian client server implementation
- */
+    \class CServiceSymbianServer
+    \brief Symbian client server implementation
+*/
 
 /*!
- Constructor
- */
+    Constructor.
+*/
 CServiceSymbianServer::CServiceSymbianServer() :
     CPolicyServer(EServerPriority, KServerPolicy)
 {
@@ -67,15 +67,15 @@ CServiceSymbianServer::CServiceSymbianServer() :
 }
 
 /*!
- 2nd phased constructor
- */
+    2nd phased constructor.
+*/
 void CServiceSymbianServer::ConstructL()
 {
 }
 
 /*!
- Two phased constructor
- */
+    Two phased constructor.
+*/
 CServiceSymbianServer* CServiceSymbianServer::NewL()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianServer::NewL");
@@ -87,17 +87,18 @@ CServiceSymbianServer* CServiceSymbianServer::NewL()
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 CServiceSymbianServer::~CServiceSymbianServer()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianServer::~CServiceSymbianServer");
 }
 
 /*!
- Start listening for new service requests
- @param aServerName name of the server
- */
+    Start listening for new service requests.
+    \param aServerName Name of the server.
+    \return true if successful.
+*/
 bool CServiceSymbianServer::listen(const QString& aServerName)
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianServer::listen");
@@ -121,8 +122,8 @@ bool CServiceSymbianServer::listen(const QString& aServerName)
 }
 
 /*!
- Shutdown the server and stop serving clients 
- */
+    Shutdown the server and stop serving clients.
+*/
 void CServiceSymbianServer::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("CServiceSymbianServer::disconnect");
@@ -131,10 +132,10 @@ void CServiceSymbianServer::disconnect()
 }
 
 /*!
- Create a new session, derived from CPolicyServer
- @param aVersion version of the server
- @param aMessage message object
- */
+    Create a new session, derived from CPolicyServer.
+    \param aVersion Version of the server.
+    \param aMessage Message object.
+*/
 CSession2* CServiceSymbianServer::NewSessionL(const TVersion& aVersion,
                                               const RMessage2& aMessage) const
 {

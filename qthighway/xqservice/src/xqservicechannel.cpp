@@ -71,7 +71,9 @@
 /*!
     Constructs a XQService channel with the given \a parent, and registers it
     with the server using the given \a channel name.
-
+    \param channel Channel name.
+    \param isServer 
+    \param parent Parent of this object.
     \sa isRegistered(), channel()
 */
 

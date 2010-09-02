@@ -69,19 +69,39 @@
 
     This enum describes the possible property types which can be attached
     to a XQAiwInterfaceDescriptor.
+*/
 
-    \value      Capabilities            The capabilities property is a QStringList and
-                                        describes the capabilities that a service client
-                                        would require to use the service if capability 
-                                        checks are enforced.
-    \value      Location                This property points to the location
-                                        where the plug-in providing this service is stored.
-                                        If the service is plug-in based the location is the
-                                        name and/or path of the plugin.
-    \value      ServiceDescription      This property provides a general description for
-                                        the service.
-    \value      InterfaceDescription    This property provides a description for the interface 
-                                        implementation.
+/*! \var XQAiwInterfaceDescriptor::PropertyKey  XQAiwInterfaceDescriptor::Capabilities
+    
+    The capabilities property is a QStringList and
+    describes the capabilities that a service client
+    would require to use the service if capability 
+    checks are enforced.
+*/
+
+/*! \var XQAiwInterfaceDescriptor::PropertyKey  XQAiwInterfaceDescriptor::Location
+    
+    This property points to the location
+    where the plug-in providing this service is stored.
+    If the service is plug-in based the location is the
+    name and/or path of the plugin.
+*/
+
+/*! \var XQAiwInterfaceDescriptor::PropertyKey  XQAiwInterfaceDescriptor::ServiceDescription
+    
+    This property provides a general description for
+    the service.
+*/
+
+/*! \var XQAiwInterfaceDescriptor::PropertyKey  XQAiwInterfaceDescriptor::InterfaceDescription
+    
+    This property provides a description for the interface 
+    implementation.
+*/
+
+/*! \var XQAiwInterfaceDescriptor::PropertyKey  XQAiwInterfaceDescriptor::ImplementationId
+
+    Extension: settable property, contains implementation id
 */
 
 /*!
@@ -106,6 +126,8 @@ XQAiwInterfaceDescriptor::~XQAiwInterfaceDescriptor()
 
 /*!
     Creates a copy of XQAiwInterfaceDescriptor contained in \a other.
+    \param other Reference to the other XQAiwInterfaceDescriptor object, from
+                 which new object will be created
 */
 XQAiwInterfaceDescriptor::XQAiwInterfaceDescriptor(const XQAiwInterfaceDescriptor& other)
     : d(0)
@@ -117,6 +139,7 @@ XQAiwInterfaceDescriptor::XQAiwInterfaceDescriptor(const XQAiwInterfaceDescripto
 /*!
     Copies the content of the XQAiwInterfaceDescriptor object contained 
     in \a other into this one.
+    \param other Reference to XQAiwInterfaceDescriptor object, from which content will be copied
 */
 XQAiwInterfaceDescriptor& XQAiwInterfaceDescriptor::operator=(const XQAiwInterfaceDescriptor& other)
 {
@@ -136,8 +159,10 @@ XQAiwInterfaceDescriptor& XQAiwInterfaceDescriptor::operator=(const XQAiwInterfa
 }
 
 /*!
-    Compares a XQAiwInterfaceDescriptor to \a other. Returns true if they 
-    are equal and false otherwise.
+    Compares a XQAiwInterfaceDescriptor to \a other.
+    \param other Reference to XQAiwInterfaceDescriptor object, which will be compared
+                 to this one.
+    \return True if both instances are equal, false otherwise.
 */
 bool XQAiwInterfaceDescriptor::operator==(const XQAiwInterfaceDescriptor& other) const
 {
@@ -164,10 +189,14 @@ bool XQAiwInterfaceDescriptor::operator==(const XQAiwInterfaceDescriptor& other)
 
     Compares a XQAiwInterfaceDescriptor to \a other. Returns true
     if they are not equal and false otherwise.
+    \param other Reference to XQAiwInterfaceDescriptor object, which will be compared
+                 to this one.
+    \return False if both instances are equal, true otherwise.
 */
 
 /*!
-    Returns true if this descriptor is valid; otherwise returns false.
+    Checks if the descriptor is valid.
+    \return True if this descriptor is valid, false otherwise
 */
 bool XQAiwInterfaceDescriptor::isValid() const
 {
@@ -182,7 +211,9 @@ bool XQAiwInterfaceDescriptor::isValid() const
 }
 
 /*!
-    Returns true if this implementation is provided for all users on the system.
+    Checks if this implementation is provided for all users on the system.
+    \return True if this implementation is provided for all users on the system,
+            false otherwise
 
     \sa QServiceManager::Scope
 */
@@ -192,7 +223,8 @@ bool XQAiwInterfaceDescriptor::inSystemScope() const
 }
 
 /*!
-    Returns the name of service that provides this implementation.
+    Gets the name of service that provides this implementation.
+    \return Name of service
 */
 QString XQAiwInterfaceDescriptor::serviceName() const
 {
@@ -200,7 +232,8 @@ QString XQAiwInterfaceDescriptor::serviceName() const
 }
 
 /*!
-    Returns the name of the interface that is implemented.
+    Gets the name of the interface that is implemented.
+    \return Name of the interface
 */
 QString XQAiwInterfaceDescriptor::interfaceName() const
 {
@@ -209,11 +242,11 @@ QString XQAiwInterfaceDescriptor::interfaceName() const
 
 
 /*!
-    Returns the version of the interface. 
-    
+    Gets the version of the interface. 
     Subsequent versions of an interface are binary compatible 
     to previous versions of the same interface. If an intcerface 
     is broken it must use a new interface name.
+    \return Interface version as integer value
 */
 int XQAiwInterfaceDescriptor::majorVersion() const
 {
@@ -221,7 +254,8 @@ int XQAiwInterfaceDescriptor::majorVersion() const
 }
 
 /*!
-    Returns the version of the implementation. 
+    Gets the version of the implementation.
+    \return Implementation version as integer value
 */
 int XQAiwInterfaceDescriptor::minorVersion() const
 {
@@ -229,8 +263,9 @@ int XQAiwInterfaceDescriptor::minorVersion() const
 }
 
 /*!
-    Returns the value for the property \a key; otherwise returns 
-    an invalid QVariant.
+    Gets the value for the property.
+    \param key Key of the property
+    \return Value of the property, invalid QVariant if does not exist
 */
 QVariant XQAiwInterfaceDescriptor::property(XQAiwInterfaceDescriptor::PropertyKey key) const
 {
@@ -266,8 +301,9 @@ bool XQAiwInterfaceDescriptor::setProperty(XQAiwInterfaceDescriptor::PropertyKey
 
 
 /*!
-    Returns the value for the custom property \a key; otherwise 
-    returns a null string.
+    Gets the value for the property.
+    \param key Key of the custom property
+    \return Value of the custom property, invalid null if does not exist
 */
 QString XQAiwInterfaceDescriptor::customProperty(const QString& key) const
 {
@@ -282,6 +318,10 @@ QString XQAiwInterfaceDescriptor::customProperty(const QString& key) const
     return val;
 }
 
+/*!
+    Gets list of custom property keys.
+    \return list of custom property keys
+*/
 QStringList XQAiwInterfaceDescriptor::customPropertyKeys() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwInterfaceDescriptor::customPropertyKeys");
@@ -332,6 +372,9 @@ QDataStream &operator>>(QDataStream &in, XQAiwInterfaceDescriptor::PropertyKey &
 
     Writes service interface descriptor \a dc to the stream \a out and returns a reference
     to the stream.
+    \param out Stream to write to
+    \param dc Interface descriptor written to stream
+    \return Reference to the stream
 */
 
 QDataStream &operator<<(QDataStream &out, const XQAiwInterfaceDescriptor &dc)
@@ -360,6 +403,9 @@ QDataStream &operator<<(QDataStream &out, const XQAiwInterfaceDescriptor &dc)
 
     Reads a service interface descriptor into \a dc from the stream \a in and returns a
     reference to the stream.
+    \param in Stream to read from
+    \param dc Interface descriptor read from stream
+    \return Reference to the stream
 */
 QDataStream &operator>>(QDataStream &in, XQAiwInterfaceDescriptor &dc)
 {

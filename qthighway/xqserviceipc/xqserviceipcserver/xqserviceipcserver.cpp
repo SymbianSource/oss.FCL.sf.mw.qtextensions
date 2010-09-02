@@ -29,15 +29,15 @@
 namespace QtService
 {
 /*!
- \class ServiceFwIPCServer
- Service Framework IPC Server public class
- */
+    \class ServiceFwIPCServer
+    \brief Service Framework IPC Server public class
+*/
 
 /*!
-    Constructor
-    @param aBackend backend to instantiate
-    @param aObserver engine observer to call back to handle new requests
-    @param aParent QObject's parent
+    Constructor.
+    \param aObserver Engine observer to call back to handle new requests.
+    \param aParent QObject's parent.
+    \param aBackend Backend to instantiate.
 */
 ServiceFwIPCServer::ServiceFwIPCServer( MServiceIPCObserver* aObserver, 
                                         QObject* aParent, 
@@ -52,8 +52,8 @@ ServiceFwIPCServer::ServiceFwIPCServer( MServiceIPCObserver* aObserver,
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 ServiceFwIPCServer::~ServiceFwIPCServer()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCServer::~ServiceFwIPCServer");
@@ -61,10 +61,10 @@ ServiceFwIPCServer::~ServiceFwIPCServer()
 }
 
 /*!
- Start listening for new service requests
- @param aServerName name of the server
- @return bool if connected
- */
+    Start listening for new service requests.
+    \param aServerName Name of the server.
+    \return true if connected.
+*/
 bool ServiceFwIPCServer::listen(const QString& aServerName)
 {
     XQSERVICE_DEBUG_PRINT("aServerName: %s", qPrintable(aServerName));
@@ -73,9 +73,8 @@ bool ServiceFwIPCServer::listen(const QString& aServerName)
 }
 
 /*!
- Shutdown the server and stop serving clients 
- @return void
- */
+    Shutdown the server and stop serving clients.
+*/
 void ServiceFwIPCServer::disconnect()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCServer::disconnect");

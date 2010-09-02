@@ -33,10 +33,12 @@ namespace QtService {
     class ServiceIPCSession;
     class MServiceIPCObserver;
 
-    /**
-     *  Private implementation interface for service framework server
-     *  This class is the abstract interface for all server backends
-     */
+    /*!
+        \class ServiceFwIPCServerPrivate
+        \brief Private implementation interface for service framework server
+        
+        This class is the abstract interface for all server backends.
+    */
     class ServiceFwIPCServerPrivate : public QObjectPrivate
         {
     protected:
@@ -44,24 +46,23 @@ namespace QtService {
 
     public:
 
-        /**
-        * Start listening for new service requests
-        * @param aServerName name of the server
-        * @return true if listen was successful
+        /*!
+            Start listening for new service requests.
+            \param aServerName Name of the server.
+            \return true if listen was successful.
         */
         virtual bool listen( const QString& aServerName ) = 0;
 
-        /**
-        * Shutdown the server and stop serving clients 
-        * @return void
+        /*!
+            Shutdown the server and stop serving clients.
         */
         virtual void disconnect() = 0;
 
     protected:
 
-        /**
-        * Get the server observer
-        * @return MServiceIPCObserver* observer to this server
+        /*!
+            Get the server observer.
+            \return MServiceIPCObserver* observer to this server.
         */
         inline MServiceIPCObserver* Observer() { Q_Q(ServiceFwIPCServer); return q->iObserver; };
 

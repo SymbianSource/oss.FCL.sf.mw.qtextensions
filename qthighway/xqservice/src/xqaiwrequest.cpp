@@ -28,6 +28,132 @@
 #include "xqaiwuridriver.h"
 #include "xqaiwrequest.h"
 
+/*!
+    \class XQAiwRequest
+    \inpublicgroup QtBaseModule
+
+    \ingroup ipc
+    \brief Encapsulates the core functionality of the interworking requests
+    
+    The XQAiwRequest class encapsulates the core functionality of the interworking requests and hides the implementation details. 
+    This object is created by the XQApplicationManager::create factory method.
+    
+    This class is a part of API to be used by the applications instead of using XQServiceRequest directly.
+    
+    The Application Manager API offers centric place for applications UIs to handle application to application interworking use cases, like:
+    - Synchronous out-of-process service call from client to service provider, where service provider needs to complete the request before
+      control comes back to requesting client.
+    - Asynchronous out-of-process service call from client to service provider, where Service provider completes the request whenever suitable.
+      The control returns back requesting as soon the service provider has received the asynchronous call (can be applied to notifications as well).
+    - Embedded out-of-process service call. In this case window groups are chained and "Back" returns to client window.
+    - Any named Qt type in the Qt meta-object system can be used as a service call parameter or return value. Also own, custom meta-types are supported.
+    - Launched service provider application (.exe) if not already running when client makes service call to it.
+    - List and discover services dynamically.
+    - Apply UI related options upon service launch, like "launch as embedded", "launch to foreground" and "launch to backround".
+    - Opening files to be viewed by a file viewing interface.
+    - Opening URI to be viewed by a URI viewing interface. Includes also launching activity URIs (appto) as fire-and-forget manner.
+    - Miscellanous AIW support, like get service stasus or get DRM attributes.
+    
+    See the "examples/appmgrclient" included in the QtHighway release for usage examples.
+    
+    <b>Example usage:</b> \n
+    The usage pattern for all the XQAiwRequest variants implemented as service providers , interface, QUrl, QFile, is similar both embedded
+    and non-embedded usage.
+    \code
+        // Recommended way is to add XQApplicationManager as member variable to class
+        // Later on when caching of services
+        // You can use the class also as local variable.
+        class Client
+        {
+
+        public:
+             // Service access
+            bool accessService(void);
+
+        private slots:
+                void handleOk(const QVariant &result);
+                void handleError(int errorCode, const QString& errorMessage);
+        private:
+              XQApplicationManager mAiwMgr;
+        };
+
+
+        //  In client.cpp
+        bool Client::accessService(void)
+        {
+            QString parameter1("+3581234567890");
+            int parameter2 = 3;
+
+            bool embedded=true;  // or false
+
+            XQAiwRequest *request;
+            // Create request by interface name, the very first service implementation
+            // applied.
+            request = mAiwMgr.create("Interface", "functionName2(QString, int)", embedded);
+
+            // If dedicated service is wanted, apply this 
+            // request = mAiwMgr.create("Service", "Interface", 
+            //                          "functionName2(QString, int)", embedded);
+
+            if (request == NULL)
+            {
+                // Service not found 
+                return false;
+            }
+
+            // Connect result handling signal
+            connect(request, SIGNAL(requestOk(const QVariant&)), this, SLOT(handleOk(const QVariant&)));
+            // Connect error handling signal or apply lastError function instead.
+            connect(request, SIGNAL(requestError(int,const QString&)), this, SLOT(handleError(int,const QString&)));
+
+            // Set function parameters
+           QList<QVariant> args;
+           args << parameter1;
+           args << parameter2;
+           request->setArguments(args);
+
+           // In this example, request embedded launch (window groups chained)
+           request->setEmbedded(true);
+
+           // Send the request
+           bool res = request.send();
+           if  (!res) 
+           {
+               // Request failed. 
+              return false;
+           }
+         
+           // If making multiple requests to same service, you can save the request as member variable
+           // In this example all done.
+           delete request;
+           return true;
+        }
+
+        void Client::handleOk(const QVariant& result)
+        {
+           // Handle result here or just save them.
+           // Result could be a service specific error code also.
+           // 
+        }
+
+        void Client::handleError(int errorCode, const QString& errorMessage)
+        {
+           // Handle error
+        }
+    \endcode
+    
+    \sa XQApplicationManager
+*/
+
+/*!
+    Constructs interworking request to service application by the given interface \a descriptor
+    which points to the dedicated implementation. The service application is not started during
+    creation of the request.
+    \param descriptor Points to the dedicated service implementation. Obtained via the XQApplicationManager::list function.
+    \param operation Service function to be called, equals \a message parameter in XQServiceRequest.
+    \param embedded True if window groups should be chained, false otherwise
+    \return Constructed interworking request to service application object.
+*/
 XQAiwRequest::XQAiwRequest(const XQAiwInterfaceDescriptor& descriptor, const QString &operation, bool embedded)
     : QObject(),
       currentRequest(NULL),
@@ -52,6 +178,15 @@ XQAiwRequest::XQAiwRequest(const XQAiwInterfaceDescriptor& descriptor, const QSt
     }
 }
 
+/*!
+    Constructs interworking request to service application by the given uri and the interface \a descriptor
+    which points to the dedicated implementation. The service application is not started during
+    creation of the request.
+    \param uri Uri for the given interworking request to service application.
+    \param descriptor Points to the dedicated service implementation. Obtained via the XQApplicationManager::list function.
+    \param operation Service function to be called, equals \a message parameter in XQServiceRequest.
+    \return Constructed interworking request to service application object.
+*/
 XQAiwRequest::XQAiwRequest(
     const QUrl &uri, const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
     : QObject(),
@@ -80,7 +215,15 @@ XQAiwRequest::XQAiwRequest(
 }
 
 
-
+/*!
+    Constructs interworking request to service application by the file and the interface \a descriptor
+    which points to the dedicated implementation. The service application is not started during
+    creation of the request.
+    \param file File for the given interworking request to service application.
+    \param descriptor Points to the dedicated service implementation. Obtained via the XQApplicationManager::list function.
+    \param operation Service function to be called, equals \a message parameter in XQServiceRequest.
+    \return Constructed interworking request to service application object.
+*/
 XQAiwRequest::XQAiwRequest(
     const QFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
     : QObject(),
@@ -112,7 +255,15 @@ XQAiwRequest::XQAiwRequest(
        
 }
 
-
+/*!
+    Constructs interworking request to service application by the sharable file and the interface \a descriptor
+    which points to the dedicated implementation. The service application is not started during
+    creation of the request.
+    \param file Sharable file for the given interworking request to service application.
+    \param descriptor Points to the dedicated service implementation. Obtained via the XQApplicationManager::list function.
+    \param operation Service function to be called, equals \a message parameter in XQServiceRequest.
+    \return Constructed interworking request to service application object.
+*/
 XQAiwRequest::XQAiwRequest(
      const XQSharableFile &file, const XQAiwInterfaceDescriptor& descriptor, const QString &operation)
     : QObject(),
@@ -143,7 +294,7 @@ XQAiwRequest::XQAiwRequest(
 
 }
 
-            
+
 XQAiwRequest::~XQAiwRequest()
 {
     XQSERVICE_DEBUG_PRINT("~XQAiwRequest::XQAiwRequest");
@@ -169,7 +320,7 @@ XQAiwRequest::~XQAiwRequest()
 /*!
     Create a QAction related to request from the registration data. Caller can
     add the action to wanted UI widget. When the action  is triggered the XQAiwRequest
-    emits "triggered" signal for caller.
+    emits triggered() signal for caller.
     The XQAiwRequest owns the action (caller shall not delete the action object).
     \return QAction object, if there was action attached to request. Otherwise 0.
 */
@@ -193,8 +344,10 @@ QAction *XQAiwRequest::createAction()
 /*!
     Set arguments for the request. This shall be called before sending
     add the action to wanted UI widget. For the attached action, the
-    "triggered" signal emitted by the request is the last chance to
+    triggered() signal emitted by the request is the last chance to
     add aguments.
+    \param arguments List of arguments that will be transferred to service provider function
+                     to be called
 */
 void XQAiwRequest::setArguments(const QList<QVariant> &arguments)
 {
@@ -206,13 +359,17 @@ void XQAiwRequest::setArguments(const QList<QVariant> &arguments)
 /*!
     Returns the last error code occured.
     IPC errors:
-        EConnectionError  = -5000,  (Server might be busy)
-        EConnectionClosed = -4999,  
-        EServerNotFound   = -4998,
-        EIPCError         = -4997,
-        EUnknownError     = -4996,
-        ERequestPending   = -4995   (already pending request exists)
-        EM   = -4995   (already pending request exists)
+        - ENoError          = 0
+        - EConnectionError  = -5000,  (Server might be busy)
+        - EConnectionClosed = -4999,  
+        - EServerNotFound   = -4998,
+        - EIPCError         = -4997,
+        - EUnknownError     = -4996,
+        - ERequestPending   = -4995,  (already pending request exists)
+        - EMessageNotFound  = -4994,
+        - EArgumentError    = -4993
+    \return Error code as integer value.
+    \sa xqserviceglobal.h for error codes
 
 */
 int XQAiwRequest::lastError() const
@@ -226,6 +383,7 @@ int XQAiwRequest::lastError() const
     Returns the last error as text for debugging purposes.
     The content and details of the text may vary over API
     development time evolution.
+    \return Error code as QString value.
 */
 const QString& XQAiwRequest::lastErrorMessage() const
 {
@@ -237,6 +395,7 @@ const QString& XQAiwRequest::lastErrorMessage() const
 /*!
     Returns the implementation descriptor of a service attached to request.
     Caller can check meta-data information of the request.
+    \return Implementation descriptor attached to the request.
 */
 const XQAiwInterfaceDescriptor &XQAiwRequest::descriptor() const 
 {
@@ -245,9 +404,11 @@ const XQAiwInterfaceDescriptor &XQAiwRequest::descriptor() const
 }
 
 /*!
-    Send request on-ward.
-    The results are delivered via "requestOk" and "requestError" signals.
-    \return true on success, false otherwise
+    Starts the service application if necessary and sends request on-ward.
+    The results are delivered via requestOk() and requestError() signals.
+    If the request is synchronous, the client application is blocked until
+    service provider completes the request.
+    \return True on success, false otherwise
 */
 bool XQAiwRequest::send()
 {
@@ -275,7 +436,7 @@ bool XQAiwRequest::send()
 /*!
     Convinience method for sending a synchronous request on-ward.
     The returnValue delivered via the output parameter.
-    \return true on success, false otherwise
+    \return True on success, false otherwise
 */
 bool XQAiwRequest::send(QVariant &returnValue)
 {
@@ -302,60 +463,111 @@ bool XQAiwRequest::send(QVariant &returnValue)
    
 }
 
-
+/*!
+    Request service application to be launched in embedded mode.
+    \param embedded If set to true, service application will be launched
+                    in embedded mode
+*/
 void XQAiwRequest::setEmbedded(bool embedded)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::setEmbedded=%d",embedded);
     currentRequest->setEmbedded(embedded);
 }
+
+/*!
+    Get the value of embedded option of the request.
+    \return True if request is set to launch service application in embedded
+            mode, false otherwise
+*/
 bool XQAiwRequest::isEmbedded() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::isEmbedded");
     return currentRequest->isEmbedded();
 }
 
+/*!
+    Sets service operation. The XQApplicationManager::create() functions for
+    files and URLs set the default operation, but it can be overriden using
+    this function.
+    \param operation Operation to be set to the request.
+*/
 void XQAiwRequest::setOperation(const QString &operation)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::setOperation");
     currentRequest->setOperation(operation);
 }
 
+/*!
+    Returns operation attached to the request.
+    \return Operation attached to the request
+*/
 const QString &XQAiwRequest::operation() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::operation");
     return currentRequest->operation();
 }
 
-
+/*!
+    Sets request as synchronous or asynchronous, based on the \a synchronous value.
+    \param synchronous If set to true, request will be synchronous.
+                       If set to false, request will be asynchronous
+*/
 void XQAiwRequest::setSynchronous(bool synchronous)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::setSynchronous=%d", synchronous);
     currentRequest->setSynchronous(synchronous);
 }
+
+/*!
+    Returns the value of the synchronous option.
+    \return True if request is synchronous, false otherwise
+*/
 bool XQAiwRequest::isSynchronous() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::isSynchronous");
     return currentRequest->isSynchronous();
 }
 
+/*!
+    Requests service application to be launched to background initially,
+    or if already running, to go to background.
+    \param background If set to true, service application will be launched
+                      to background
+*/
 void XQAiwRequest::setBackground(bool background )
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::setbackground=%d", background);
     currentRequest->setBackground(background);
 }
 
+/*!
+    Returns the value of the background option.
+    \return True if request is set to launch service
+                 application to background
+*/
 bool XQAiwRequest::isBackground() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::isBackground");
     return currentRequest->isBackground();
 }
 
+/*!
+    Used to set additional UI behavior type options to the request.
+    Embedded and background options are handled by their own functions.
+    This function should not be used to implement additional data
+    parameters for operations!
+    \param info UI bahavior type option to be set to the request.
+*/
 void XQAiwRequest::setInfo(const XQRequestInfo &info)
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::setInfo");
     return currentRequest->setInfo(info);
 }
 
+/*!
+    Returns additional options attached to the request.
+    \return Additional options attached to the request.
+*/
 XQRequestInfo XQAiwRequest::info() const
 {
     XQSERVICE_DEBUG_PRINT("XQAiwRequest::info");

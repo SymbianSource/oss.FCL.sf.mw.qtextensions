@@ -28,68 +28,69 @@
 
 namespace QtService {
 
-    /**
-     *  Private implementation class for IPC
-     */
+    /*!
+        \class ServiceFwIPCPrivate
+        \brief Private implementation class for IPC
+    */
     class ServiceFwIPC;
     class ServiceFwIPCPrivate
     {
     public:
-        /**
-         * Virtual destructor
-         */
+        /*!
+            Virtual destructor
+        */
         virtual ~ServiceFwIPCPrivate() {};
 
     
         // Virtual functions 
     
-        /**
-         * Connect to the server
-         * @param aServerName name of the server to connect to
-         * @return true if connected, false if not
-         */
+        /*!
+            Connect to the server.
+            \param aServerName Name of the server to connect to.
+            \return true if connected, false if not.
+        */
         virtual bool connect(const QString& aServerName) = 0;
     
-        /**
-         * Disconnect from the server
-         */
+        /*!
+            Disconnect from the server.
+        */
         virtual void disconnect() = 0;
     
-        /**
-         * Starts the service
-         * @note: refer to public API ServiceFwIPC
-         */
+        /*!
+            Starts the service.
+            \note Refer to public API ServiceFwIPC.
+        */
         virtual bool startServer(const QString& aServerName,
                                  const QString& aExeName,
                                  quint64& processId,
                                  int options = 0 ) = 0;
     
-        /**
-         * Send a request synchronously
-         * @note: refer to public API ServiceFwIPC
-         */
+        /*!
+            Send a request synchronously.
+            \note Refer to public API ServiceFwIPC.
+        */
         virtual bool sendSync(const QString& aRequestType,
                               const QByteArray& aData) = 0;
     
-        /**
-         * Send a request asynchronously
-         * @note: refer to public API ServiceFwIPC
-         */
+        /*!
+            Send a request asynchronously.
+            \note Refer to public API ServiceFwIPC.
+        */
         virtual void sendAsync(const QString& aRequestType,
                                const QByteArray& aData) = 0;
     
-        /**
-         * Reads all data pending in the buffer
-         * @note: refer to public API ServiceFwIPC
-         */
+        /*!
+            Reads all data pending in the buffer.
+            \note Refer to public API ServiceFwIPC.
+        */
         virtual void readAll(QByteArray& aArray) = 0;
         
         virtual QByteArray readAll() = 0;
 		
-        /**
-         * Waits until data is available for reading 
-         * @note: refer to public API ServiceFwIPC
-         */
+        /*!
+            Waits until data is available for reading.
+            \note Refer to public API ServiceFwIPC.
+        */
         virtual bool waitForRead() = 0;
 
         virtual void setUserData(const void *data) {userData = data;};

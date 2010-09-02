@@ -22,7 +22,31 @@
 #include "xqserviceipcmarshal.h"
 
 /*!
-    \macro Q_DECLARE_USER_METATYPE(TYPE)
+    \file xqserviceipcmarshal.h
+*/
+
+/*!
+    \def Q_DECLARE_USER_METATYPE_NO_OPERATORS(TYPE)
+
+    This macro declares \a TYPE as a user-defined type within the Qt
+    metatype system. It should be used in header files, just after
+    the declaration of TYPE. A corresponding invocation of
+    Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(TYPE) should appear in
+    a source file. This macro should be used instead of
+    Q_DECLARE_USER_METATYPE when no need to declare datastream operators.
+    
+    This example declares the class MyClass that doesn't need to declare
+    datastream operators:
+    
+    \code
+        Q_DECLARE_USER_METATYPE(MyClass)
+    \endcode
+    
+    \sa Q_DECLARE_USER_METATYPE_ENUM(), Q_IMPLEMENT_USER_METATYPE(), Q_IMPLEMENT_USER_METATYPE_ENUM(), Q_REGISTER_USER_METATYPE()
+*/
+
+/*!
+    \def Q_DECLARE_USER_METATYPE(TYPE)
 
     This macro declares \a TYPE as a user-defined type within the
     Qt metatype system.  It should be used in header files, just
@@ -39,7 +63,7 @@
 */
 
 /*!
-    \macro Q_DECLARE_USER_METATYPE_TYPEDEF(TAG,TYPE)
+    \def Q_DECLARE_USER_METATYPE_TYPEDEF(TAG,TYPE)
 
     This macro declares \a TYPE as a user-defined type within the
     Qt metatype system, but declares it as a typedef for a pre-existing
@@ -53,7 +77,7 @@
     Q_IMPLEMENT_USER_METATYPE_TYPEDEF should appear in a source file.
 
     This example declares the types \c{Foo} and \c{Bar} as typedef aliases.
-s
+
     \code
         typedef Foo Bar;
         Q_DECLARE_USER_METATYPE(Foo)
@@ -64,7 +88,27 @@ s
 */
 
 /*!
-    \macro Q_DECLARE_USER_METATYPE_ENUM(TYPE)
+    \def Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(TYPE)
+
+    This macro implements the code necessary to register \a TYPE as a user-defined
+    type within the Qt metatype system.
+    
+    This example implements the registration, logic for the class MyClass that
+    doesn't need to declare datastream operators:
+    
+    \code
+        Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(MyClass)
+    \endcode
+    
+    On most systems, this macro will arrange for registration to be performed at program
+    startup. On systems that don't support global constructors properly, it may be
+    necessary to manually call Q_REGISTER_USER_METATYPE().
+
+    \sa Q_IMPLEMENT_USER_METATYPE_ENUM(), Q_IMPLEMENT_USER_METATYPE(), Q_DECLARE_METATYPE(), Q_REGISTER_USER_METATYPE()
+*/
+
+/*!
+    \def Q_DECLARE_USER_METATYPE_ENUM(TYPE)
 
     This macro declares \a TYPE as a user-defined enumerated type within
     the Qt metatype system.  It should be used in header files, just
@@ -84,7 +128,7 @@ s
 */
 
 /*!
-    \macro Q_IMPLEMENT_USER_METATYPE(TYPE)
+    \def Q_IMPLEMENT_USER_METATYPE(TYPE)
 
     This macro implements the code necessary to register \a TYPE
     as a user-defined type within the Qt metatype system.
@@ -104,7 +148,7 @@ s
 */
 
 /*!
-    \macro Q_IMPLEMENT_USER_METATYPE_TYPEDEF(TAG,TYPE)
+    \def Q_IMPLEMENT_USER_METATYPE_TYPEDEF(TAG,TYPE)
 
     This macro implements the code necessary to register \a TYPE
     as a user-defined typedef alias within the Qt metatype system.
@@ -129,7 +173,7 @@ s
 */
 
 /*!
-    \macro Q_IMPLEMENT_USER_METATYPE_ENUM(TYPE)
+    \def Q_IMPLEMENT_USER_METATYPE_ENUM(TYPE)
 
     This macro implements the code necessary to register \a TYPE
     as a user-defined type within the Qt metatype system.  \a TYPE
@@ -153,7 +197,7 @@ s
 */
 
 /*!
-    \macro Q_REGISTER_USER_METATYPE(TYPE)
+    \def Q_REGISTER_USER_METATYPE(TYPE)
 
     This macro can be called as a function to manually register \a TYPE
     as a user-defined type within the Qt metatype system.  It is only

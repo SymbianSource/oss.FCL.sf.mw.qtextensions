@@ -67,6 +67,10 @@ public:
     }
 };
 
+/*!
+    \class XQServiceChannelPrivate
+    \brief Private implementation of XQServiceChannelPrivate
+*/
 class XQServiceChannelPrivate : public QSharedData
 {
 public:

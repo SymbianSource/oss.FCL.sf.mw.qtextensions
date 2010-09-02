@@ -45,15 +45,26 @@ SOURCES += \
   ../xqkeycapture.cpp
   
 symbian { 
+
+    LIBS += -lremconinterfacebase -lremconcoreapi -lremconextensionapi
+	
     HEADERS += ../keycapture_s60_p.h \
             ../capturerequest_s60.h \
-			../keymapper.h
+			../keymapper.h \
+			../targetwrapper.h \
+			../responsehandler.h \
+			../responsehandlerex.h
+			
     SOURCES +=../keycapture_s60_p.cpp \
             ../capturerequest_s60.cpp \
-			../keymapper.cpp
+			../keymapper.cpp \
+			../targetwrapper.cpp \
+			../responsehandler.cpp \
+			../responsehandlerex.cpp
 	
-	sourcefiles.sources += r:\sf\mw\qt\src\gui\kernel\qkeymapper_s60.cpp
-	sourcefiles.sources += r:\sf\mw\qtextensions\qtmobileextensions\src\keycapture\keymapper.cpp
+	sourcefiles.sources += /sf/mw/qt/src/gui/kernel/qkeymapper_s60.cpp
+	sourcefiles.sources += ../keymapper.cpp
+
 	sourcefiles.path = /
     DEPLOYMENT += sourcefiles
 } else { 

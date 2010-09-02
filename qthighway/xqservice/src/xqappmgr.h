@@ -41,26 +41,30 @@ class XQAIW_EXPORT XQApplicationManager : public QObject
 
 public:
 
-    // For the contentAttributes()
+    /*!
+    For the getDrmAttributes() function
+    */
     enum DrmAttribute
     {
        DrmIntAttributeBase=0,      // Base value for the  DRM integer attributes
-       IsProtected   = DrmIntAttributeBase+0,
-       IsForwardable = DrmIntAttributeBase+1,
+       IsProtected   = DrmIntAttributeBase+0, /*!< */
+       IsForwardable = DrmIntAttributeBase+1, /*!< */
        // For others DrmIntAttributeBase+N, see N from the caf/caftypes.h
        
-       DrmStringAttributeBase = 100,  // Base value for the  DRM string attributes 
-       Description = DrmStringAttributeBase+0,
-       MimeType    = DrmStringAttributeBase+1
+       DrmStringAttributeBase = 100,  // Base value for the  DRM string attributes
+       Description = DrmStringAttributeBase+0, /*!< */
+       MimeType    = DrmStringAttributeBase+1 /*!< */
        // For others, DrmIntAttributeBase+N, see N from the caf/caftypes.h
     };
 
-    // For the serviceStatus() function
+    /*!
+    For the status() function
+    */
     enum ServiceStatus
     {
-        Unknown=0,  // Not known
-        Enabled,    // Service enabled
-        Disabled    // Service disabled, e.g. required config not OK,
+        Unknown=0,  /*!< Not known */
+        Enabled,    /*!< Service enabled */
+        Disabled    /*!< Service disabled, e.g. required config not OK */
     };
     
     XQApplicationManager();

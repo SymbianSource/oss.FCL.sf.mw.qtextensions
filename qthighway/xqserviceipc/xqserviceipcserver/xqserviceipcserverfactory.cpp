@@ -30,31 +30,31 @@ namespace QtService
 {
 
 /*!
- \class ServiceFwIPCServerFactory
- Factory class to construct IPC server backend
- */
+    \class ServiceFwIPCServerFactory
+    \brief Factory class to construct IPC server backend
+*/
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 ServiceFwIPCServerFactory::~ServiceFwIPCServerFactory()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCServerFactory::~ServiceFwIPCServerFactory");
 }
 
 /*!
- Constructor
- */
+    Constructor.
+*/
 ServiceFwIPCServerFactory::ServiceFwIPCServerFactory()
 {
     XQSERVICE_DEBUG_PRINT("ServiceFwIPCServerFactory::ServiceFwIPCServerFactory");
 }
 
 /*!
- Construct a backend 
- @param aBackend backend to construct
- @param aParent parent to this QObject
- */
+    Construct a backend.
+    \param aBackend Backend to construct.
+    \param aParent Parent to this QObject.
+*/
 ServiceFwIPCServerPrivate* ServiceFwIPCServerFactory::createBackend(QObject* aParent,
                                                                     TServiceIPCBackends aBackend)
 {

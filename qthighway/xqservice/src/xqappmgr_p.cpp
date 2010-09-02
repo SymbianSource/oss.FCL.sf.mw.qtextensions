@@ -32,6 +32,11 @@
 #include "xqaiwdecl.h"
 #include "xqappmgr_p.h"
 
+/*!
+    \class XQApplicationManagerPrivate
+    \brief Private implementation of the XQApplicationManager
+*/
+
 XQApplicationManagerPrivate::XQApplicationManagerPrivate():
    serviceMgr(0),
    aiwUtilities(0)

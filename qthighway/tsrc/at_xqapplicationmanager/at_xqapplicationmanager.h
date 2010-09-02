@@ -52,7 +52,6 @@ private slots:
     void create_file_implementation();
     void create_sharablefile();
     void create_sharablefile_implementation();
-    
 
     void cleanup();
     
@@ -69,6 +68,7 @@ private:
     XQApplicationManager *mAppManager;
     QVariant returnValue;
     bool mServiceAnswered;
+    XQSharableFile* testSharableFile;
  };
 
 

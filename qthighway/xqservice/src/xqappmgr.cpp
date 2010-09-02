@@ -26,6 +26,139 @@
 #include <QList>
 #include "xqappmgr_p.h"
 
+/*!
+    \class XQApplicationManager
+    \inpublicgroup QtBaseModule
+
+    \ingroup ipc
+    \brief Factory class to list interface descriptors and create interworking objects (XQAiwRequest)
+    
+    XQApplicationManager lists interface descriptors by interface and /or service name. It is also used to
+    create interworking objects (XQAiwRequest).
+    
+    This class is a part of API to be used by the applications instead of using XQServiceRequest directly.
+    
+    The Application Manager API offers centric place for applications UIs to handle application to application interworking use cases, like:
+    - Synchronous out-of-process service call from client to service provider, where service provider needs to complete the request before
+      control comes back to requesting client.
+    - Asynchronous out-of-process service call from client to service provider, where Service provider completes the request whenever suitable.
+      The control returns back requesting as soon the service provider has received the asynchronous call (can be applied to notifications as well).
+    - Embedded out-of-process service call. In this case window groups are chained and "Back" returns to client window.
+    - Any named Qt type in the Qt meta-object system can be used as a service call parameter or return value. Also own, custom meta-types are supported.
+    - Launched service provider application (.exe) if not already running when client makes service call to it.
+    - List and discover services dynamically.
+    - Apply UI related options upon service launch, like "launch as embedded", "launch to foreground" and "launch to backround".
+    - Opening files to be viewed by a file viewing interface.
+    - Opening URI to be viewed by a URI viewing interface. Includes also launching activity URIs (appto) as fire-and-forget manner.
+    - Miscellanous AIW support, like get service stasus or get DRM attributes.
+    
+    <b>Example usage:</b> \n
+    
+    The usage pattern for all the XQApplicationManager variants implemented as service providers , interface, QUrl, QFile, is similar both embedded
+    and non-embedded usage:
+    \code
+        // Recommended way is to add XQApplicationManager as member variable to class
+        // Later on when caching of services
+        // You can use the class also as local variable.
+        class Client
+        {
+
+        public:
+             // Service access
+            bool accessService(void);
+
+        private slots:
+                void handleOk(const QVariant &result);
+                void handleError(int errorCode, const QString& errorMessage);
+        private:
+              XQApplicationManager mAiwMgr;
+        };
+
+
+        //  In client.cpp
+        bool Client::accessService(void)
+        {
+            QString parameter1("+3581234567890");
+            int parameter2 = 3;
+
+            bool embedded=true;  // or false
+
+            XQAiwRequest *request;
+            // Create request by interface name, the very first service implementation
+            // applied.
+            request = mAiwMgr.create("Interface", "functionName2(QString, int)", embedded);
+
+            // If dedicated service is wanted, apply this 
+            // request = mAiwMgr.create("Service", "Interface", 
+            //                          "functionName2(QString, int)", embedded);
+
+            if (request == NULL)
+            {
+                // Service not found 
+                return false;
+            }
+            // ... Perform further processing
+        }
+    \endcode
+    
+    Access service by descriptor:
+    \code
+        QList<XQAiwInterfaceDescriptor> implementations = appmgr.list("Interface");
+
+       // Display service in UI and make selection possible.
+        foreach (XQAiwInterfaceDescriptor d, implementations)
+        {
+            qDebug() << "Service=" << d.serviceName();
+            qDebug() << "Interface=" << d.interfaceName();
+            qDebug("Implementation Id=%x",d.property(XQAiwInterfaceDescriptor::ImplementationId).toInt());
+        }
+
+
+        // Select correct implementation
+        XQAiwInterfaceDescriptor selectedImpl = doSelectService();
+
+        // The difference to the previous example is is how request is created
+        // via application mgr.
+
+        // ...See previous example
+        request = mAiwMgr.create(selectedImpl, embedded);
+        // ....See previous example
+    \endcode
+    
+    The XQApplicationManager supports opening activity (see Terminology) URIs (appto scheme) as fire-and-forget mannner:
+    \code
+        QUrl url("appto://10207C62?activityname=MusicMainView"); 
+
+        // The difference to the previous example is is how request is created
+        // via application mgr.
+        request = mAiwMgr.create(url);
+        if (request == NULL)
+        {
+            // No handlers for the URI
+            return;
+        }
+
+        // Set function parameters
+        QList<QVariant> args;
+        args << uri.toSring();
+        request->setArguments(args);
+
+        // Send the request
+        bool res = request.send();
+        if  (!res) 
+        {
+            // Request failed. 
+            int error = request->lastError();
+            // Handle error
+        }
+     
+       // All done.
+       delete request;
+    \endcode
+    
+    \sa XQAiwRequest
+*/
+
 XQApplicationManager::XQApplicationManager()
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::XQApplicationManager");
@@ -49,7 +182,7 @@ XQApplicationManager::~XQApplicationManager()
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
                      Apply the xqaiwdecl.h file for common constants.
-    \param embedded True if embedded (window groups chained) call, false otherwise
+    \param embedded True if embedded (window groups chained) call, false otherwise.
                     Can be set later via XQAiwRequest::setEmbedded.
     \return The application interworking request instance, NULL if no service is available
     \sa list(const QString &interface, const QString &operation)
@@ -94,11 +227,11 @@ XQAiwRequest* XQApplicationManager::create(
     the descriptor points to one implementation and thus selects correct
     implementation.
     
-    \param implementation Valid interface descriptor obtained by the "list" call.
+    \param implementation Valid interface descriptor obtained by the list() call.
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
                      Apply the xqaiwdecl.h file for common constants.
-    \param embedded True if embedded call, false otherwise
+    \param embedded True if embedded call, false otherwise.
                      Can be set later via XQAiwRequest::setEmbedded.
     \return The application interworking request instance, NULL if no service is available
     \sa list()
@@ -140,7 +273,7 @@ XQAiwRequest* XQApplicationManager::create(
     \param interface Interface name as mentioned in the service registry file
     \param operation The function signature to be called via the interface.
                      Can be set later via XQAiwRequest::setOperation.
-    \param embedded True if embedded (window groups chained) call, false otherwise
+    \param embedded True if embedded (window groups chained) call, false otherwise.
                      Can be set later via XQAiwRequest::setEmbedded.
     \return The application interworking request instance, NULL if no service is available
     \sa XQApplicationManager::create( const QString &interface, const QString &operation, bool embedded)
@@ -200,7 +333,12 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QString &interf
 }
 
 /*!
-    List implementation(s) descriptors by service and interface name.
+    List available implementations for the given \a service and \a interface names from the service registry.
+    The \a operation is reserved for future use.
+    \param service Service name as mentioned in the service registry file
+    \param interface Interface name as mentioned in the service registry file
+    \param operation The operation signature to be called.  Reserved for future use.
+    \return List of found interface descriptors that matched to both the \a service and \a interface names, otherwise empty list.
     \sa list(const QString &interface, const QString &operation)
 */
 QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(
@@ -211,8 +349,8 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(
 }
 
 /*!
-    Creates AIW request to view the  given URI (having a attached scheme)
-    The interface name applied implicitly isthe XQI_URI_VIEW (from xqaiwdecl.h),
+    Creates AIW request to view the  given URI (having a attached scheme).
+    The interface name applied implicitly is the XQI_URI_VIEW (from xqaiwdecl.h),
     unless there is custom handling attached to URI scheme.
     The first found service implementation is applied.
     A service declares support for scheme(s) (CSV list) by adding the custom property key
@@ -236,8 +374,8 @@ XQAiwRequest* XQApplicationManager::create( const QUrl &uri, bool embedded)
 }
 
 /*!
-    Creates AIW request to view the given URI by service implementation
-    The interface name applied implicitly is XQI_URI_VIEW (from xqaiwdecl.h),
+    Creates AIW request to view the given URI by service implementation.
+    The interface name applied implicitly is the XQI_URI_VIEW (from xqaiwdecl.h),
     unless there is custom handling attached to URI scheme.
     A service declares support for scheme(s) (CSV list) by adding the custom property key
     (see the constant XQCUSTOM_PROP_SCHEMES value) to the service XML.
@@ -275,6 +413,14 @@ XQAiwRequest* XQApplicationManager::create( const QFile &file, bool embedded)
     return d->create(file, NULL, embedded);
 }
 
+/*!
+    Same as basic create(const QFile &file, bool embedded), but applies the interface descriptor to select the dedicated implementation.
+    \param file The file to be viewed
+    \param implementation Valid interface descriptor obtained by the list(const QFile &file) call.
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \return The application interworking request instance, or NULL if no viewer found.
+    \sa xqaiwdecl.h for constants values
+*/
 XQAiwRequest* XQApplicationManager::create(
     const QFile &file, const XQAiwInterfaceDescriptor& implementation, bool embedded)
 {
@@ -284,8 +430,11 @@ XQAiwRequest* XQApplicationManager::create(
 
 
 /*!
-    List implementations that support handling the URI scheme of the given uri
-    The interface name applied implicitly is declared by the constant XQI_URI_VIEW
+    List implementations that support handling the URI scheme of the given uri.
+    The interface name applied implicitly is declared by the constant XQI_URI_VIEW.
+    \param uri The URI scheme that should be matched to the interface
+    \return List of found interface descriptors that matched to the URI scheme, otherwise empty list.
+    \sa list(const QString &interface, const QString &operation)
 */
 
 QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QUrl &uri)
@@ -295,8 +444,11 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QUrl &uri)
 }
 
 /*!
-    List implementations that support handling the MIME type of of the given file
-    The interface name applied implicitly is declared by the constant XQI_FILE_VIEW
+    List implementations that support handling the MIME type of the given file.
+    The interface name applied implicitly is declared by the constant XQI_FILE_VIEW.
+    \param file File which MIME type should be supported by the interface.
+    \return List of found interface descriptors for applications that can handle the file, otherwise empty list.
+    \sa list(const QString &interface, const QString &operation)
 */
 QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QFile &file)
 {
@@ -305,8 +457,11 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const QFile &file)
 }
 
 /*!
-    List implementations that support handling the MIME type of of the given sharable file
-    The interface name applied implicitly is declared by the constant XQI_FILE_VIEW
+    List implementations that support handling the MIME type of of the given sharable file.
+    The interface name applied implicitly is declared by the constant XQI_FILE_VIEW.
+    \param file Sharable file which MIME type should be supported by the interface.
+    \return List of found interface descriptors for applications that can handle the file, otherwise empty list.
+    \sa list(const QString &interface, const QString &operation)
 */
 QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const XQSharableFile &file)
 {
@@ -318,6 +473,9 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManager::list(const XQSharableFile 
     Create AIW request for the given file and the MIME type attached to the sharable file
     The interface name applied implicitly is declared by the constant XQI_FILE_VIEW
     By default, the operation name declared by constant XQOP_FILE_VIEW_SHARABLE is used.
+    \param file The sharable file to be viewed
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \return The application interworking request instance, or NULL if no viewer found.
 */
 XQAiwRequest* XQApplicationManager::create(const XQSharableFile &file, bool embedded)
 {
@@ -325,6 +483,14 @@ XQAiwRequest* XQApplicationManager::create(const XQSharableFile &file, bool embe
     return d->create(file, NULL, embedded);
 }
 
+/*!
+    Same as basic create(const XQSharableFile &file, bool embedded), but applies the interface descriptor to select the dedicated implementation.
+    \param file The sharable file to be viewed
+    \param implementation Valid interface descriptor obtained by the list(const XQSharableFile &file) call.
+    \param embedded True if embedded (window groups chained) call, false otherwise
+    \return The application interworking request instance, or NULL if no viewer found.
+    \sa xqaiwdecl.h for constants values
+*/
 XQAiwRequest* XQApplicationManager::create(
     const XQSharableFile &file, const XQAiwInterfaceDescriptor& implementation, bool embedded)
 {
@@ -332,32 +498,65 @@ XQAiwRequest* XQApplicationManager::create(
     return d->create(file, &implementation, embedded);
 }
 
+/*!
+    Returns error code of the last performed operation.
+    \return Error code of the last operation, 0 if no error occured.
+*/
 int XQApplicationManager::lastError() const
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::lastError");
     return d->lastError();
 }
 
-
+/*!
+    Tests whether given implementation is running. That is, the service provider has published
+    the full service name attached to the given interface descriptor.
+    \param implementation Interface that is tested for being run.
+    \return True if the implementation is running, false otherwise.
+*/
 bool XQApplicationManager::isRunning(const XQAiwInterfaceDescriptor& implementation) const
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::isRunning");
     return d->isRunning(implementation);
 }
 
-
+/*!
+    Gets the values of the DRM related \a attributeNames, like "IsProtected",
+    "IsForwardable", "MimeType" for a given \a file.
+    \param file File for which DRM attributes are retrieved
+    \param attributeNames List of attributes that should be retrieved (check #DrmAttribute)
+    \param attributeValues On success fills this list whith values, where each value is QVariant of the integer or string type.
+                           If attribute value does not exists or other error occurs when reading the attribute, the invalid QVariant
+                           value is returned.
+    \return True on success, upon error returns false (e.g file does not exists or other general error).
+*/
 bool XQApplicationManager::getDrmAttributes(const QFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::drmAttributes (file)");
     return d->getDrmAttributes(file, attributeNames, attributeValues);
 }
 
+/*!
+    Gets the values of the DRM related \a attributeNames, like "IsProtected",
+    "IsForwardable", "MimeType" for a given sharable file.
+    \param file Sharable file for which DRM attributes are retrieved
+    \param attributeNames List of attributes that should be retrieved (check #DrmAttribute)
+    \param attributeValues On success fills this list whith values, where each value is QVariant of the integer or string type.
+                           If attribute value does not exists or other error occurs when reading the attribute, the invalid QVariant
+                           value is returned.
+    \return True on success, upon error returns false (e.g file does not exists or other general error).
+*/
 bool XQApplicationManager::getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues)
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::drmAttributes (XQSharableFile)");
     return d->getDrmAttributes(file, attributeNames, attributeValues);
 }
 
+/*!
+    Checks the status of the given service interface.
+    \param implementation Interface which status is being checked.
+    \return Status of the service.
+*/
 XQApplicationManager::ServiceStatus XQApplicationManager::status(const XQAiwInterfaceDescriptor& implementation)
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::status");

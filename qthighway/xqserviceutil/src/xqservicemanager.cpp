@@ -33,6 +33,7 @@
 #include <QBuffer>
 #include <QString>
 #include <QCoreApplication>
+#include <QHash>
 
 #include "xqservicelog.h"
 #include <xqserviceglobal.h>
@@ -45,7 +46,127 @@
 #include "xqconversions.h"
 
 
+#define TIMER_DELAY 3000
 
+class CProcessInfo : public CActive
+    {
+    public:
+        static void AddProcessL(const TUid& appUid, RProcess& appProcess);
+        static void EnsureProcessCanStartL(const TUid& appUid);
+        
+    protected:
+        CProcessInfo(const TUid& appUid);
+        ~CProcessInfo();
+        void ConstructL(RProcess& appProcess);
+        void DoCancel();
+        void RunL();
+        
+    protected:
+        class ProcessInfoMap
+        {
+        public:
+            ~ProcessInfoMap()
+            {
+                foreach (CProcessInfo* info, map.values())
+                    delete info;
+            }
+            QHash<TInt32, CProcessInfo*> map;
+        };
+        
+        static ProcessInfoMap iProcessInfoMap;
+        const TUid iAppUid;
+    };
+
+
+
+CProcessInfo::ProcessInfoMap CProcessInfo::iProcessInfoMap;
+
+CProcessInfo::CProcessInfo(const TUid& appUid):
+        CActive(CActive::EPriorityStandard), 
+        iAppUid(appUid)
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::CProcessInfo");
+    
+    CActiveScheduler::Add(this);
+}
+
+CProcessInfo::~CProcessInfo()
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::~CProcessInfo");
+    
+    // Cancel asynch request, normally it should be done in DoCancel() 
+    // but we dont wont to cancel request when we cancel active object
+    User::CancelMiscNotifier(iStatus);
+    
+    Cancel();
+}
+
+void CProcessInfo::AddProcessL(const TUid& appUid, RProcess& appProcess)
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::AddProcessL");
+    
+    CProcessInfo* self = new(ELeave) CProcessInfo(appUid);
+    CleanupStack::PushL(self);
+    self->ConstructL(appProcess);
+    CleanupStack::Pop(self);
+}
+
+void CProcessInfo::EnsureProcessCanStartL(const TUid& appUid)
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::EnsureProcessCanStartL");
+    
+    CProcessInfo* previousProcess = iProcessInfoMap.map[appUid.iUid];
+    if (previousProcess) {
+        previousProcess->Cancel();
+        
+        // Timer is for ensure that wait will end. 
+        // Maybe there is possibility that destroing process notification could be lost.
+        RTimer securityTimer;
+        securityTimer.CreateLocal();
+        CleanupClosePushL(securityTimer);
+        
+        TRequestStatus timerStatus;
+        securityTimer.After(timerStatus, TIMER_DELAY);
+        User::WaitForRequest(previousProcess->iStatus, timerStatus);
+        
+        CleanupStack::PopAndDestroy();
+        delete previousProcess;
+        iProcessInfoMap.map.remove(appUid.iUid);
+    }
+}
+
+void CProcessInfo::RunL()
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::RunL");
+    
+    iProcessInfoMap.map.remove(iAppUid.iUid);
+    delete this;
+}
+
+void CProcessInfo::ConstructL(RProcess& appProcess)
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::ConstructL");
+    
+    SetActive();
+    
+    EnsureProcessCanStartL(iAppUid);
+    iProcessInfoMap.map.insert(iAppUid.iUid, this);
+    appProcess.NotifyDestruction(iStatus);
+}
+
+void CProcessInfo::DoCancel()
+{
+    XQSERVICE_DEBUG_PRINT("CProcessInfo::DoCancel");
+    
+    // Cancel asynch request, normally it should be done in DoCancel() 
+    // but we dont wont to cancel request when we cancel active object.
+    // Cancel asynch request is in ~CProcessInfo().
+}
+
+/*!
+    \class XQServiceManagerPrivate
+    \brief Private implementation of the XQServiceManager.
+*/
 class XQServiceManagerPrivate 
     {
     public:
@@ -85,12 +206,23 @@ class XQServiceManagerPrivate
         XQAiwInterfaceDescriptor iImplDescriptor; 
     };
 
+/*!
+    \class XQServiceManager
+    \brief Discovery and service startup. 
+*/
+
+/*!
+    Constructor.
+*/
 XQServiceManager::XQServiceManager()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceManager::XQServiceManager");
     d = new XQServiceManagerPrivate();
 }
 
+/*!
+    Destructor.
+*/
 XQServiceManager::~XQServiceManager()
 {
     XQSERVICE_DEBUG_PRINT("XQServiceManager::~XQServiceManager");
@@ -99,10 +231,11 @@ XQServiceManager::~XQServiceManager()
 
 /*!
     Starts service
-    \param service The full name of service (servicename + interfacename)
-    \param embedded Start in embedded mode
-    \param applicationUid Returned applicatiion
-    \return List of implementations
+    \param service The full name of service (servicename + interfacename).
+    \param embedded Start in embedded mode.
+    \param applicationUid Returned applicatiion.
+    \param threadId Returned process id of the application.
+    \return Error code if error occured, 0 otherwise.
 */
 int XQServiceManager::startServer(const QString& service, bool embedded, int& applicationUid, quint64& threadId)
 {
@@ -110,6 +243,15 @@ int XQServiceManager::startServer(const QString& service, bool embedded, int& ap
     return startServer(service,embedded,applicationUid,threadId,NULL);
 }
 
+/*!
+    Starts service
+    \param service The full name of service (servicename + interfacename).
+    \param embedded Start in embedded mode.
+    \param applicationUid Returned applicatiion.
+    \param threadId Returned process id of the application.
+    \param userData Additional user data.
+    \return Error code if error occured, 0 otherwise.
+*/
 int XQServiceManager::startServer(const QString& service, bool embedded, int& applicationUid, quint64& threadId,
                                  const void *userData)
 {
@@ -130,9 +272,9 @@ int XQServiceManager::startServer(const QString& service, bool embedded, int& ap
 
 
 /*!
-    Finds implementations for the given interface
-    \param interfaceName Interfacename to match
-    \return List of implementations
+    Finds implementations for the given interface.
+    \param interfaceName Interfacename to match.
+    \return List of implementations.
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QString &interfaceName ) const
     {
@@ -145,10 +287,10 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
     }
 
 /*!
-    Finds implementations for the given interface implemented by given service
-    \param serviceName Service name
-    \param interfaceName Interfacename to match
-    \return List of implementations
+    Finds implementations for the given interface implemented by given service.
+    \param serviceName Service name.
+    \param interfaceName Interfacename to match.
+    \return List of implementations.
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QString &serviceName, const QString &interfaceName ) const
 {
@@ -164,8 +306,8 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findInterfaces ( const QStrin
 
 /*!
     Finds the first implementation for the given interface name.
-    \param interfaceName Interfacename to match
-    \return List of implementations
+    \param interfaceName Interfacename to match.
+    \return List of implementations.
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QString &interfaceName ) const
 {
@@ -178,10 +320,10 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QS
 }
 
 /*!
-    Finds the first implementation for the given service + interface names
-    \param serviceName Service name
-    \param interfaceName Interfacename to match
-    \return List of implementations
+    Finds the first implementation for the given service + interface names.
+    \param serviceName Service name.
+    \param interfaceName Interfacename to match.
+    \return List of implementations.
 */
 QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QString &serviceName, const QString &interfaceName ) const
 {
@@ -197,7 +339,8 @@ QList<XQAiwInterfaceDescriptor>  XQServiceManager::findFirstInterface ( const QS
 
 
 /*!
-    Returns the latest error occured
+    Gets the latest error occured.
+    \return Latest error code as integer value.
 */
 int XQServiceManager::latestError() const
 {
@@ -205,7 +348,9 @@ int XQServiceManager::latestError() const
 }
 
 /*!
-    Returns the latest error occured
+    Checks if the given \a implmentation is running.
+    \param implementation Implementation to be checked.
+    \return true if given \a implementation is running, false otherwise.
 */
 bool XQServiceManager::isRunning(const XQAiwInterfaceDescriptor& implementation) const
 {
@@ -347,7 +492,9 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
                 embed = false;
             }
         }
-         
+        else {
+            CProcessInfo::EnsureProcessCanStartL(uid);
+        }
         TRequestStatus requestStatusForRendezvous;
         
         // start application with command line parameters
@@ -389,6 +536,10 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
         User::WaitForRequest( requestStatusForRendezvous ); // Make the  rendezvouz
         XQSERVICE_DEBUG_PRINT("XQServiceManagerPrivate::Rendezvous done %d", requestStatusForRendezvous.Int());
 
+        if (!embed) {
+            CProcessInfo::AddProcessL(uid, newApp);
+        }
+        
         User::LeaveIfError( requestStatusForRendezvous.Int()); 
         CleanupStack::PopAndDestroy(2,cmdLine); // newApp, cmdLine
         

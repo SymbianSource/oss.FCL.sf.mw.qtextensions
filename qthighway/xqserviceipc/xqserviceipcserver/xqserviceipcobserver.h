@@ -28,33 +28,31 @@ namespace QtService {
     
     class ServiceIPCRequest;
     
-    /**
-     *  Interface Observer class to handle IPC related events
-     */
+    /*!
+        \brief Interface Observer class to handle IPC related events
+    */
     class MServiceIPCObserver
     {
     public:
 
-        /**
-         * Handle a new request.
-         * @param aRequest request object, ownership NOT passed
-         * @return bool true if handled
-         */
+        /*!
+            Handle a new request.
+            \param aRequest Request object, ownership NOT passed.
+            \return true if handled.
+        */
         virtual bool handleRequest(ServiceIPCRequest *aRequest) = 0;
     
-        /**
-         * Handle cancellation of the given request object.
-         * @param aRequest request object that is going to be cancelled, ownership NOT passed
-         * @return void
-         */
+        /*!
+            Handle cancellation of the given request object.
+            \param aRequest Request object that is going to be cancelled, ownership NOT passed.
+        */
         virtual void handleCancelRequest(ServiceIPCRequest *aRequest) = 0;
 
-        /**
-         * About to delete the given request object. Observer can make necessary cleanup.
-         * @param aRequest request object that is going to be cancelled, ownership NOT passed
-         *                 Object will be deleted after callback returns
-         * @return void
-         */
+        /*!
+            About to delete the given request object. Observer can make necessary cleanup.
+            \param aRequest Request object that is going to be cancelled, ownership NOT passed.
+                            Object will be deleted after callback returns.
+        */
         virtual void handleDeleteRequest(ServiceIPCRequest *aRequest) = 0;
         
     };

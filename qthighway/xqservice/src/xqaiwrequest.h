@@ -86,8 +86,32 @@ public slots:
     
 signals:
 
+/*!
+    Emitted when the QAction attached to request has been triggered.
+    Upon this signal is the latest time to call
+    setArguments(const QList<QVariant> &arguments) if not done earlier.
+*/
     void triggered();
+    
+/*!
+    This signal is emitted when interworking request has been successfully
+    executed (synchronous or asynchronous). That is, the service has returned
+    data back according to the slot spec. The return value may be real data
+    or indicate an service specific error.
+    \param result Result of the executed request
+*/
     void requestOk(const QVariant& result);
+    
+/*!
+    This signal is emitted when an error has happened in interworking request
+    handling. That is, e.g. the required slot could not be called or connection
+    to server is lost. If the service itself return service specific errors,
+    those should be returned as successfull return value of the slot
+    (requestOk(const QVariant& result)).
+    \param errorCode Error code as integer value
+    \param errorMessage Contains needed R&D specific data that will be added to support error debugging
+    \sa xqserviceglobal.h for error codes.
+*/
     void requestError(int errorCode, const QString& errorMessage);
 
 protected:

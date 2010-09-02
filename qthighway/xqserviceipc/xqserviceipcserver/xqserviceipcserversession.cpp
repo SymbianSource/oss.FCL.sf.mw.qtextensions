@@ -27,14 +27,14 @@
 namespace QtService
 {
 /*!
- \class ServiceIPCSession
- Session class to hold the state of each connected client
- */
+    \class ServiceIPCSession
+    \brief Session class to hold the state of each connected client
+*/
 
 /*!
- Constructor
- @param aObserver observer to the session
- */
+    Constructor.
+    \param aObserver Observer to the session.
+*/
 ServiceIPCSession::ServiceIPCSession(MServiceIPCObserver* aObserver) :
     iPendingRequest(false), iObserver(aObserver), iCurRequest(NULL)
 {
@@ -42,32 +42,32 @@ ServiceIPCSession::ServiceIPCSession(MServiceIPCObserver* aObserver) :
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 ServiceIPCSession::~ServiceIPCSession()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCSession::~ServiceIPCSession");
 }
 
 /*!
- \fn QtService::ServiceIPCSession::write( const QByteArray& aData )
+    \fn QtService::ServiceIPCSession::write( const QByteArray& aData )
  
- Write some data in response to a request
- @param aData some data to write as response
- @return bool if write was successful
- */
+    Write some data in response to a request.
+    \param aData Some data to write as response.
+    \return bool If write was successful.
+*/
 
 /*!
- \fn QtService::ServiceIPCSession::completeRequest()
+    \fn QtService::ServiceIPCSession::completeRequest()
  
- Complete a Request
- @return bool if request completed 
- */
+    Complete a request.
+    \return bool if request completed .
+*/
 
 /*!
- \fn QtService::ServiceIPCSession::close()
+    \fn QtService::ServiceIPCSession::close()
  
- Close a session and gracefully shutdown
- */
+    Close a session and gracefully shutdown.
+*/
 }
 // END OF FILE

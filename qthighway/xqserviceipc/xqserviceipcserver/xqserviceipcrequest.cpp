@@ -29,16 +29,16 @@
 namespace QtService
 {
 /*!
- \class ServiceIPCRequest
- Class to encapsulate a service request
- */
+    \class ServiceIPCRequest
+    \brief Class to encapsulate a service request
+*/
 
 /*!
- Constructor
- @param aSession session associated with this request
- @param aDataLength amount of data to be received in this request
- @param aRequestOp operaion name
- */
+    Constructor.
+    \param aSession Session associated with this request.
+    \param aDataLength Amount of data to be received in this request.
+    \param aRequestOp Operation name.
+*/
 ServiceIPCRequest::ServiceIPCRequest(ServiceIPCSession* aSession,
                                      qint64 aDataLength,
                                      const QString& aRequestOp) :
@@ -56,9 +56,9 @@ ServiceIPCRequest::ServiceIPCRequest(ServiceIPCSession* aSession,
 }
 
 /*!
- Copy Constructor
- @param aRequest request to be copied
- */
+    Copy Constructor.
+    \param aRequest Request to be copied.
+*/
 ServiceIPCRequest::ServiceIPCRequest(ServiceIPCRequest& aRequest)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::ServiceIPCRequest(2)");
@@ -84,8 +84,8 @@ ServiceIPCRequest::ServiceIPCRequest(ServiceIPCRequest& aRequest)
 }
 
 /*!
- Destructor
- */
+    Destructor.
+*/
 ServiceIPCRequest::~ServiceIPCRequest()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::~ServiceIPCRequest");
@@ -93,10 +93,10 @@ ServiceIPCRequest::~ServiceIPCRequest()
 }
 
 /*!
- Assignment operator
- @param aRequest request to be assigned
- @return ServiceIPCRequest assigned request
- */
+    Assignment operator.
+    \param aRequest Request to be assigned.
+    \return ServiceIPCRequest assigned request.
+*/
 ServiceIPCRequest& ServiceIPCRequest::operator=(ServiceIPCRequest& aRequest)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::operator=");
@@ -127,9 +127,9 @@ ServiceIPCRequest& ServiceIPCRequest::operator=(ServiceIPCRequest& aRequest)
 }
 
 /*!
- Get the requested operation
- @return QString operation ID
- */
+    Get the requested operation.
+    \return QString operation ID.
+*/
 const QString& ServiceIPCRequest::getOperation()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getOperation");
@@ -138,9 +138,9 @@ const QString& ServiceIPCRequest::getOperation()
 }
 
 /*!
- Get the requested data
- @return QByteArray data for this operation
- */
+    Get the requested data.
+    \return QByteArray data for this operation.
+*/
 const QByteArray& ServiceIPCRequest::getData()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getData");
@@ -149,9 +149,9 @@ const QByteArray& ServiceIPCRequest::getData()
 }
 
 /*!
- Write some data to the request
- @param aData data to write to the socket
- */
+    Write some data to the request.
+    \param aData Data to write to the socket.
+*/
 bool ServiceIPCRequest::write(const QByteArray& aData)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::write");
@@ -161,9 +161,9 @@ bool ServiceIPCRequest::write(const QByteArray& aData)
 }
 
 /*!
- Complete the request
- @return true if request completed successfully
- */
+    Complete the request.
+    \return true if request completed successfully.
+*/
 bool ServiceIPCRequest::completeRequest()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::completeRequest");
@@ -171,10 +171,10 @@ bool ServiceIPCRequest::completeRequest()
 }
 
 /*!
- Append more data when creating the request
- @arg aMoreData data to be appended to the request
- @return true if iDataLength now equals the full length
- */
+    Append more data when creating the request.
+    \param aMoreData Data to be appended to the request.
+    \return true if iDataLength now equals the full length.
+*/
 bool ServiceIPCRequest::addRequestdata(const QByteArray& aMoreData)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::addRequestdata");
@@ -184,9 +184,9 @@ bool ServiceIPCRequest::addRequestdata(const QByteArray& aMoreData)
 }
 
 /*!
- Sets the client info.  Onwership of the object is passed in.
- @arg aClientInfo Client information
- */
+    Sets the client info. Onwership of the object is passed in.
+    \param aClientInfo Client information.
+*/
 void ServiceIPCRequest::setClientInfo(ClientInfo *aClientInfo)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setClientInfo");
@@ -201,9 +201,9 @@ void ServiceIPCRequest::setClientInfo(ClientInfo *aClientInfo)
 }
 
 /*!
- Gets the client info.
- @return Client Information object.  NULL if none is available
- */
+    Gets the client info.
+    \return Client Information object, NULL if none is available.
+*/
 ClientInfo* ServiceIPCRequest::clientInfo()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::clientInfo");
@@ -211,9 +211,9 @@ ClientInfo* ServiceIPCRequest::clientInfo()
 }
 
 /*!
- Gets the session.
- @return ServiceIPCSession.  NULL if none is available
- */
+    Gets the session.
+    \return ServiceIPCSession, NULL if none is available.
+*/
 ServiceIPCSession* ServiceIPCRequest::getSession()
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getSession");
@@ -221,9 +221,9 @@ ServiceIPCSession* ServiceIPCRequest::getSession()
 }
 
 /*!
- Sets id of the request.
- @arg id Identifier of the request.
- */
+    Sets id of the request.
+    \param aId Identifier of the request.
+*/
 void ServiceIPCRequest::setId(int aId)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setId");
@@ -232,9 +232,9 @@ void ServiceIPCRequest::setId(int aId)
 }
 
 /*!
- Returns id of the request.
- @return Id of the request.
- */
+    Returns id of the request.
+    \return Id of the request.
+*/
 int ServiceIPCRequest::id() const
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::id");
@@ -243,9 +243,9 @@ int ServiceIPCRequest::id() const
 }
 
 /*!
- Sets asynchcronous flag to true or false.
- @arg A value of the async flag.
- */
+    Sets asynchcronous flag to true or false.
+    \param aAsync Value of the async flag.
+*/
 void ServiceIPCRequest::setAsync(bool aAsync)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setAsync");
@@ -254,9 +254,9 @@ void ServiceIPCRequest::setAsync(bool aAsync)
 }
 
 /*!
- Returns asynch flag.
- @return True if the request is asynchronous. False, if synchronous
- */
+    Returns async flag.
+    \return True if the request is asynchronous. False, if synchronous.
+*/
 bool ServiceIPCRequest::isAsync() const
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::getAsync");
@@ -264,8 +264,10 @@ bool ServiceIPCRequest::isAsync() const
     return iAsync;
 }
 
-
-// Set request info passed alomg with the request
+/*!
+    Set request info passed along with the request.
+    \param info Info to be passed with the request.
+*/
 void ServiceIPCRequest::setRequestInfo(XQRequestInfo *info)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setRequestInfo");
@@ -285,12 +287,21 @@ void ServiceIPCRequest::setRequestInfo(XQRequestInfo *info)
     }
 }
 
+/*!
+    Get info added to the request.
+    \return Info to be passed with the request.
+*/
 XQRequestInfo ServiceIPCRequest::requestInfo() const
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::requestInfo");
     return iRequestInfo;
 }
 
+/*!
+    Add sharable file to be passed with the request.
+    \param file Sharable file to be added to the request.
+    \param index Currently not used.
+*/
 void ServiceIPCRequest::addSharableFile(XQSharableFile *file, int index)
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSharableFile");
@@ -298,6 +309,10 @@ void ServiceIPCRequest::addSharableFile(XQSharableFile *file, int index)
         iSharableFiles.append(*file);
 }
 
+/*!
+    Get sharable file from request.
+    \param index Index of the sharable file to get.
+*/
 XQSharableFile ServiceIPCRequest::sharableFile(int index) const
 {
     XQSERVICE_DEBUG_PRINT("ServiceIPCRequest::setSharableFile");

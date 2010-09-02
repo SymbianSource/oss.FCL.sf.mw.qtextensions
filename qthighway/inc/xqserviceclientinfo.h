@@ -28,50 +28,61 @@
 
 namespace QtService {
 
+/*!
+    \class ClientInfo
+    \brief Container class for client information in ipc requests.
+*/
     // FORWARD DECLARATIONS
     class ClientInfo: public QObject
     {
 
     public:    
         /*!
-         * Sets the client's name
-         * @param aName - Client's name
-         */
+            Sets the client's name.
+            \param aName Client's name.
+        */
         inline void setName(const QString &aName) { iName = aName; }
 
         /*!
-         * Gets the client's name
-         */
+            Gets the client's name.
+            \return Client's name as QString.
+        */
         inline QString name() { return iName; }
 
         /*!
-         * Sets the client's process Id
-         */
+            Sets the client's process ID.
+            \param aProcessId Id of the process.
+        */
         inline void setProcessId(const qint64 aProcessId) { iProcessId = aProcessId; }
 
         /*!
-         * Gets the client's process ID
-         */
+            Gets the client's process ID.
+            \return Process ID.
+        */
         inline qint64 processId() { return iProcessId; }
 
         /*!
-         * Sets the client's vendor ID 
-         */
+            Sets the client's vendor ID.
+            \param aVendorId Vendor ID.
+        */
         inline void setVendorId(const qint64 aVendorId) { iVendorId = aVendorId; }
 
         /*!
-         * Get's the client's vendor ID
-         */
+            Gets the client's vendor ID.
+            \return Vendor ID.
+        */
         inline const qint64 vendorId() { return iVendorId; }
 
         /*!
-         * Sets the client's capabilities
-         */
+            Sets the client's capabilities.
+            \param capabilities Capabilities to be set.
+        */
         inline void setCapabilities(const quint32 capabilities) { iCapabilities = capabilities; }
 
         /*!
-         * Get's the client's capabilities
-         */
+            Gets the client's capabilities.
+            \return Client capabilities.
+        */
         inline const quint32 capabilities() { return iCapabilities; }
 
         

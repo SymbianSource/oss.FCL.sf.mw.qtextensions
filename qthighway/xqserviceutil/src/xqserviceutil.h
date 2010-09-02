@@ -24,7 +24,9 @@
 
 #include <xqserviceglobal.h>
 
-
+/*!
+    \brief Provides static utility functions for service provider (used also by QtHighway impl.)
+*/
 namespace XQServiceUtil
 {
     // Utility to set started application to background

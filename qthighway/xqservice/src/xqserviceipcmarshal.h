@@ -30,11 +30,18 @@
 #include <qatomic.h>
 #include <quuid.h>
 
+/// @cond
+/*!
+    Excluded from documentation.
+*/
+
 template <typename T>
 struct QMetaTypeRegister
 {
     static int registerType() { return 1; }
 };
+
+/// @endcond
 
 #ifdef Q_CC_GNU
 # define _QATOMIC_ONCE() do {} while(0)

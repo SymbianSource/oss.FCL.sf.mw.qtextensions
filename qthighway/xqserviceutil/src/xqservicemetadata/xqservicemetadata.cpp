@@ -59,8 +59,10 @@ QDataStream &operator>>(QDataStream &in, ServiceMetaDataResults &r)
 }
 #endif
 
-/*
+/*!
     \class ServiceMetaData
+    \brief Utility class offering support for parsing metadata
+           service xml registry files.
 
     Utility class (used by service database) that offers support for 
     parsing metadata service xml registry file during service registration. \n
@@ -71,11 +73,10 @@ QDataStream &operator>>(QDataStream &in, ServiceMetaDataResults &r)
         - each interface can be retrieved
 */
 
-/*
- *  Class constructor
- *
- * @param aXmlFilePath path to the xml file that describes the service. 
- */
+/*!
+    Constructor
+    \param aXmlFilePath Path to the xml file that describes the service. 
+*/
 ServiceMetaData::ServiceMetaData(const QString &aXmlFilePath)
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::ServiceMetaData(1)");
@@ -85,11 +86,10 @@ ServiceMetaData::ServiceMetaData(const QString &aXmlFilePath)
     latestError = 0;
 }
 
-/*
- *  Class constructor
- *
- * @param device QIODevice that contains the XML data that describes the service.
- */
+/*!
+    Constructor
+    \param device QIODevice that contains the XML data that describes the service.
+*/
 ServiceMetaData::ServiceMetaData(QIODevice *device)
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::ServiceMetaData(2)");
@@ -98,10 +98,9 @@ ServiceMetaData::ServiceMetaData(QIODevice *device)
     latestError = 0;
 }
 
-/*
- *  Class destructor
- * 
- */
+/*!
+    Destructor
+*/
 ServiceMetaData::~ServiceMetaData()
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::~ServiceMetaData");
@@ -109,9 +108,10 @@ ServiceMetaData::~ServiceMetaData()
         delete xmlDevice;
 }
 
-/*
+/*!
     Sets the device containing the XML data that describes the service to \a device.
- */
+    \param device Device containing XML data.
+*/
 void ServiceMetaData::setDevice(QIODevice *device)
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::setDevice");
@@ -120,8 +120,9 @@ void ServiceMetaData::setDevice(QIODevice *device)
     ownsXmlDevice = false;
 }
 
-/*
-    Returns the device containing the XML data that describes the service.
+/*!
+    Gets the device containing the XML data that describes the service.
+    \return Device containing the XML data.
 */
 QIODevice *ServiceMetaData::device() const
 {
@@ -129,40 +130,38 @@ QIODevice *ServiceMetaData::device() const
     return xmlDevice;
 }
 
-/*
- *  Gets the service name
- *
- * @return service name or default value (empty string) if it is not available
- */
+/*!
+    Gets the service name.
+    \return Service name or default value (empty string) if it is not available.
+*/
+ 
 /*QString ServiceMetaData::name() const
 {
     return serviceName;
 }*/
  
-/*
- *  Gets the path of the service implementation file
- *
- * @return service implementation filepath
- */
+/*!
+    Gets the path of the service implementation file.
+    \return Service implementation filepath.
+*/
 /*QString ServiceMetaData::location() const
 {
     return serviceLocation;
 }*/
  
-/*
- *  Gets the service description
- *
- * @return service description or default value (empty string) if it is not available
- */
+/*!
+    Gets the service description.
+    \return Service description or default value (empty string) if it is not available.
+*/
 /*QString ServiceMetaData::description() const
 {
     return serviceDescription;
 }*/
  
-/*
-   Returns the metadata of the interace at \a index; otherwise
-   returns 0.
- */
+/*!
+    Gets the list of interfaces.
+    \return List interfaces.
+*/
 /*QList<XQServiceInterfaceDescriptor> ServiceMetaData::getInterfaces() const
 {
     return serviceInterfaces;
@@ -170,7 +169,6 @@ QIODevice *ServiceMetaData::device() const
 
 /*!
     \internal
-
     Returns a streamable object containing the results of the parsing.
 */
 ServiceMetaDataResults ServiceMetaData::parseResults() const
@@ -188,13 +186,13 @@ ServiceMetaDataResults ServiceMetaData::parseResults() const
     return results;
 }
 
-/*
+/*!
     Parses the file and extracts the service metadata \n
     Custom error codes: \n
     SFW_ERROR_UNABLE_TO_OPEN_FILE in case can not open the XML file \n
     SFW_ERROR_INVALID_XML_FILE in case service registry is not a valid XML file \n
     SFW_ERROR_NO_SERVICE in case XML file has no service tag\n
-    @return true if the metadata was read properly, false if there is an error
+    \return true if the metadata was read properly, false if there is an error.
  */
 bool ServiceMetaData::extractMetadata()
 {
@@ -256,10 +254,10 @@ bool ServiceMetaData::extractMetadata()
     return !parseError;
 }
  
-/*
-    Gets the latest parsing error \n
-    @return parsing error(negative value) or 0 in case there is none
- */
+/*!
+    Gets the latest parsing error.
+    \return Parsing error(negative value) or 0 in case there is none.
+*/
 int ServiceMetaData::getLatestError() const
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::getLatestError");
@@ -267,9 +265,9 @@ int ServiceMetaData::getLatestError() const
     return latestError;
 }
  
-/*
+/*!
     Parses and extracts the service from the current xml <service> node
-    using the new format (Version 2) \n
+    using the new format (Version 2).
     Schema:    
      <!ELEMENT service ( name, filepath, description?, interface+ ) >
         <!ELEMENT description ( #CDATA ) >
@@ -363,14 +361,14 @@ bool ServiceMetaData::processServiceElement(QXmlStreamReader &aXMLReader)
     Parses and extracts the service from the current xml <service> node
     using the new format (Version 1) \n
     
-<!ELEMENT service ( description?, interface+ ) >
-<!ATTLIST service name #CDATA  #REQUIRED >
-<!ATTLIST service filepath #CDATA  #REQUIRED >
-<!ELEMENT description ( #CDATA ) >
-<!ELEMENT interface ( description? ) >
-<!ATTLIST interface name #CDATA  #REQUIRED >
-<!ATTLIST interface version #CDATA  #REQUIRED >
-<!ATTLIST interface capabilities #CDATA  >
+    <!ELEMENT service ( description?, interface+ ) >
+    <!ATTLIST service name #CDATA  #REQUIRED >
+    <!ATTLIST service filepath #CDATA  #REQUIRED >
+    <!ELEMENT description ( #CDATA ) >
+    <!ELEMENT interface ( description? ) >
+    <!ATTLIST interface name #CDATA  #REQUIRED >
+    <!ATTLIST interface version #CDATA  #REQUIRED >
+    <!ATTLIST interface capabilities #CDATA  >
     
     Custom error codes: \n
     SFW_ERROR_NO_SERVICE_NAME in case no service name in XML file \n
@@ -378,9 +376,9 @@ bool ServiceMetaData::processServiceElement(QXmlStreamReader &aXMLReader)
     SFW_ERROR_PARSE_SERVICE in case can not parse service section in XML file \n
     SFW_ERROR_NO_SERVICE_FILEPATH in case no service file path in XML file \n
     SFW_ERROR_INVALID_XML_FILE in case XML file is not valid \n
-    SFW_ERROR_NO_SERVICE_INTERFACE in case no interface defined for service in XML file \n
-    @param aXMLReader xml stream reader 
-    @return true if the metadata was read properly, false if there is an error
+    SFW_ERROR_NO_SERVICE_INTERFACE in case no interface defined for service in XML file.
+    \param aXMLReader xml stream reader .
+    \return true if the metadata was read properly, false if there is an error.
 
     
  */
@@ -446,8 +444,10 @@ bool ServiceMetaData::processServiceElementPrevVersion(QXmlStreamReader &aXMLRea
 }
 
 
-/*
-    Parses and extracts the interface metadata from the current xml <interface> node \n
+/*!
+    Parses and extracts the interface metadata from the current xml <interface> node.
+    \param aXMLReader xml stream reader .
+    \return true if the metadata was read properly, false if there is an error.
 */
 bool ServiceMetaData::processInterfaceElement(QXmlStreamReader &aXMLReader)
 {
@@ -580,14 +580,14 @@ bool ServiceMetaData::processInterfaceElement(QXmlStreamReader &aXMLReader)
 }
 
 /*!
-    Parses and extracts the interface metadata from the current xml <interface> node \n
+    Parses and extracts the interface metadata from the current xml <interface> node. \n
     Custome error codes: \n
     SFW_ERROR_NO_INTERFACE_NAME in case no interface name in XML file \n
     SFW_ERROR_PARSE_INTERFACE in case error parsing interface section \n
     SFW_ERROR_INVALID_XML_FILE in case XML file is not valid \n
-    @param aXMLReader xml stream reader 
-    @return true if the metadata was read properly, false if there is an error
- */
+    \param aXMLReader xml stream reader. 
+    \return true if the metadata was read properly, false if there is an error.
+*/
 bool ServiceMetaData::processInterfaceElementPrevVersion(QXmlStreamReader &aXMLReader)
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::processInterfaceElementPrevVersion");
@@ -712,12 +712,12 @@ bool ServiceMetaData::processInterfaceElementPrevVersion(QXmlStreamReader &aXMLR
 
 
 /*!
-    Gets the value of the attribute from the XML node \n
-    @param aDomElement xml node
-    @param aAttributeName attribute name
-    @param aValue [out] attribute value
-    @return true if the value was read, false otherwise
- */
+    Gets the value of the attribute from the XML node.
+    \param aDomElement Xml node.
+    \param aAttributeName Attribute name.
+    \param aValue [out] attribute value.
+    \return true if the value was read, false otherwise.
+*/
 bool ServiceMetaData::getAttributeValue(const QXmlStreamReader &aXMLReader, const QString &aAttributeName, QString &aValue)
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::getAttributeValue");
@@ -812,10 +812,9 @@ void ServiceMetaData::transformVersion(const QString &version, int *major, int *
     }
 }
 
-/*
- *  Clears the service metadata
- *
- */
+/*!
+    Clears the service metadata.
+*/
 void ServiceMetaData::clearMetadata()
 {
     XQSERVICE_DEBUG_PRINT("ServiceMetaData::clearMetadata");
