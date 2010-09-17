@@ -100,6 +100,9 @@ protected:
     Qt::Key mapKey(TRemConCoreApiOperationId aOperationId);
 
 private:
+    void cleanup();
+    
+private:
     CRemConInterfaceSelector *selector;
     
     CRemConCoreApiTarget *target;
@@ -111,6 +114,10 @@ private:
     QFlags<XQKeyCapture::CapturingFlags> captureFlags;
     
     QMap<TRemConCoreApiOperationId, Qt::Key> keyMapping;
+    
+#ifdef _XQKEYCAPTURE_UNITTEST_ 
+    friend class TestXQKeyCapture;
+#endif // _XQKEYCAPTURE_UNITTEST_
 };
 
 #endif /* TARGETWRAPPER_H_ */

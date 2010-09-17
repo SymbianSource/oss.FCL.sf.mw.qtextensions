@@ -27,10 +27,13 @@
 #include <e32std.h>
 
 #include "xqservicelog.h"
+#include "xqserviceutil.h"
 #include "xqaiwutils.h"
 #include "xqaiwuridriver.h"
 #include "xqaiwdecl.h"
 #include "xqappmgr_p.h"
+
+#include <xqsettingsmanager.h>
 
 /*!
     \class XQApplicationManagerPrivate
@@ -38,8 +41,11 @@
 */
 
 XQApplicationManagerPrivate::XQApplicationManagerPrivate():
+   QObject(),
+   v_ptr(0),
    serviceMgr(0),
-   aiwUtilities(0)
+   aiwUtilities(0),
+   settingsManagerInstance(0)
    
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate");
@@ -51,6 +57,7 @@ XQApplicationManagerPrivate::~XQApplicationManagerPrivate()
     XQSERVICE_DEBUG_PRINT("~XQApplicationManagerPrivate");
     delete serviceMgr;
     delete aiwUtilities;
+    delete settingsManagerInstance;
 }
 
 XQAiwRequest* XQApplicationManagerPrivate::create( const QString &interface, const QString &operation, bool embedded)
@@ -358,12 +365,11 @@ int XQApplicationManagerPrivate::status(const XQAiwInterfaceDescriptor& implemen
         return XQApplicationManager::Unknown;
     }
     
-    XQSettingsManager settingsManager;
     int implId = implementation.property(XQAiwInterfaceDescriptor::ImplementationId).toInt();
     XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate %x,%x", keyId, implId);
     
     XQSettingsKey statusKey (XQSettingsKey::TargetCentralRepository, implId, keyId);
-    QVariant value = settingsManager.readItemValue(statusKey);
+    QVariant value = settingsManager()->readItemValue(statusKey);
     if (value.isNull())
     {
         XQSERVICE_DEBUG_PRINT("XQApplicationManagerPrivate Cenrep %x does not contain key %x",
@@ -533,10 +539,99 @@ QList<XQAiwInterfaceDescriptor> XQApplicationManagerPrivate::listFileHandlers(
         }
     }
 
-    if (result.isEmpty())
-    {
+    if (result.isEmpty()) {
         // No service support present, try using the MIME handlers via old way
         return mimeHandlers;
     }
     return result;
 }
+
+bool XQApplicationManagerPrivate::startNotifications(XQAiwInterfaceDescriptor& serviceImplDescriptor)
+{
+    QString crcName = QString("%1.%2").arg(serviceImplDescriptor.serviceName()).arg(serviceImplDescriptor.interfaceName()).toLower();
+    
+    quint32 crc = XQServiceUtil::serviceIdFromName(crcName.toLatin1().data());
+    descriptorsMap.insert(crc, serviceImplDescriptor);
+    XQSettingsManager *settings = settingsManager();
+
+    bool ok = false;
+    
+    XQSERVICE_CONNECT(settings, SIGNAL(valueChanged(XQSettingsKey,QVariant)), this, SLOT(valueChanged(XQSettingsKey,QVariant)));
+    XQSERVICE_CONNECT(settings, SIGNAL(itemDeleted(XQSettingsKey)), this, SLOT(itemDeleted(XQSettingsKey)));
+    
+    quint32 uid = serviceImplDescriptor.property(XQAiwInterfaceDescriptor::ImplementationId).toInt(&ok);
+    
+    if (ok) {
+        XQSettingsKey key(XQSettingsKey::TargetPublishAndSubscribe, uid, crc);
+        ok = settings->startMonitoring(key);
+		// key may be discarded now, as we got full information about recreating it while stopping notifications.
+    }   
+
+    return ok;
+}
+
+bool XQApplicationManagerPrivate::stopNotifications(XQAiwInterfaceDescriptor& serviceImplDescriptor)
+{
+    quint32 crc = XQServiceUtil::serviceIdFromName(serviceImplDescriptor.serviceName().toLatin1().data());
+    descriptorsMap.remove(crc);
+    XQSettingsManager *settings = settingsManager();
+
+	bool ok = false;
+    quint32 uid = serviceImplDescriptor.property(XQAiwInterfaceDescriptor::ImplementationId).toInt(&ok);
+    if (ok) {
+		XQSettingsKey key(XQSettingsKey::TargetPublishAndSubscribe, uid, crc);
+		ok = settings->stopMonitoring(key);
+	} 
+    return ok;
+}
+
+void XQApplicationManagerPrivate::valueChanged(const XQSettingsKey& key, const QVariant& value)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::valueChanged");
+    bool ok = false;
+    XQApplicationManager::ServiceState state = (XQApplicationManager::ServiceState)(value.toInt(&ok));
+    
+    if (ok) {
+    switch (state) {
+        case XQApplicationManager::ServiceStarted: 
+            {
+                XQSERVICE_DEBUG_PRINT("XQApplicationManager::valueChanged : service started");
+                XQAiwInterfaceDescriptor descriptor = descriptorsMap.value(key.key());
+                //TODO add dummy descriptor check (no entry in map)
+                emit v_ptr->serviceStarted(descriptor);
+            }
+            break;
+        case XQApplicationManager::ServiceStopped:
+            {
+                XQSERVICE_DEBUG_PRINT("XQApplicationManager::valueChanged : service stopped");
+                XQAiwInterfaceDescriptor descriptor = descriptorsMap.value(key.key());
+                //TODO add dummy descriptor check (no entry in map)
+                emit v_ptr->serviceStopped(descriptor);
+            }
+            break;
+        default:
+            ok = false;
+            break;
+        }
+    }
+    
+    if (!ok) {
+        //assertion
+        XQSERVICE_WARNING_PRINT("XQApplicationManager::valueChanged : Service status undecipherable. Potential bug, please report.");
+    }
+}
+    
+void XQApplicationManagerPrivate::itemDeleted(const XQSettingsKey& key)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::itemDeleted");
+    Q_UNUSED(key);
+}
+
+XQSettingsManager *XQApplicationManagerPrivate::settingsManager()
+{
+    if (settingsManagerInstance == 0) {
+        settingsManagerInstance = new XQSettingsManager();
+    }
+    return settingsManagerInstance;
+}
+

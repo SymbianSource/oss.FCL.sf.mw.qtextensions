@@ -38,7 +38,7 @@ symbian {
 }
 
 XQSERVICE_ROOT=..
-        
+
 include(src/api_headers.pri)
 include(../xqservicebase.pri)
 include(src/xqservice.pri)
@@ -48,6 +48,6 @@ LIBS+=-lcaf
 LIBS+=-lxqsettingsmanager
 
 libFiles.sources = xqservice.dll xqserviceutil.dll
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles
 

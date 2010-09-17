@@ -86,4 +86,5 @@ EXPORTS
 	?isEmbedded@XQServiceUtil@@YA_NHPAPAD@Z @ 85 NONAME ; bool XQServiceUtil::isEmbedded(int, char * *)
 	?isService@XQServiceUtil@@YA_NHPAPAD@Z @ 86 NONAME ; bool XQServiceUtil::isService(int, char * *)
 	?interfaceName@XQServiceUtil@@YA?AVQString@@HPAPAD@Z @ 87 NONAME ; class QString XQServiceUtil::interfaceName(int, char * *)
-
+	?serviceIdFromName@XQServiceUtil@@YAIPBD@Z @ 88 NONAME ; unsigned int XQServiceUtil::serviceIdFromName(char const *)
+	?closeWhenClientClosed@XQServiceUtils@@YAXXZ @ 89 NONAME ; void XQServiceUtils::closeWhenClientClosed(void)

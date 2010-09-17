@@ -24,6 +24,11 @@
 #include "xqserviceipcserver_apasymbianserver.h"
 #include "xqserviceipcserver_apasymbiansession.h"
 
+#include <xqserviceutil.h>
+#include <xqpublishandsubscribeutils.h>
+#include <xqsettingskey.h> 
+#include <xqapplicationmanager.h>
+
 namespace QtService
 {
 // Server Security Policy
@@ -60,8 +65,10 @@ enum
 /*!
     Constructor.
 */
-CApaSymbianServer::CApaSymbianServer() /*:
-CPolicyServer( EServerPriority,  KServerPolicy)*/                                                 
+CApaSymbianServer::CApaSymbianServer() :
+   settingsManager(),
+   stateNotifyKey(0)
+/*CPolicyServer( EServerPriority,  KServerPolicy)*/                                                 
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::CApaSymbianServer");
     SetPriority(EServerPriority);
@@ -93,6 +100,7 @@ CApaSymbianServer* CApaSymbianServer::NewL()
 CApaSymbianServer::~CApaSymbianServer()
 {
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::~CApaSymbianServer");
+    delete stateNotifyKey;
 }
 
 /*!
@@ -114,7 +122,24 @@ bool CApaSymbianServer::listen( const QString& aServerName )
     XQSERVICE_DEBUG_PRINT("listen status=%d", err);
     if (err != KErrNone) {
         listening = false;
-    }
+    } else {
+	    QString normalizedServerName = aServerName.toLower();
+	    quint32 id = XQServiceUtil::serviceIdFromName(normalizedServerName.toLatin1().data());
+	    
+	    delete stateNotifyKey;
+	    
+	    RProcess currentProcess;
+	    const TSecureId secureId = currentProcess.SecureId();
+	    
+	    stateNotifyKey = new XQPublishAndSubscribeSettingsKey(secureId.iId, id);
+
+	    XQPublishAndSubscribeUtils utils(settingsManager); 
+	    if (!utils.defineProperty(*stateNotifyKey, XQSettingsManager::TypeInt) && (settingsManager.error() != XQSettingsManager::AlreadyExistsError)) {
+				XQSERVICE_WARNING_PRINT("CApaSymbianServer::listen: property for service UID:%s could not be created. Notifications may not work.", stateNotifyKey->uid());
+	    } else {
+			settingsManager.writeItemValue(*stateNotifyKey, static_cast<int>(XQApplicationManager::ServiceStarted));
+		}
+	}
     // Complete the server rendezvous that th client started
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::Rendezvouz");
     RProcess::Rendezvous(KErrNone);
@@ -131,6 +156,13 @@ void CApaSymbianServer::disconnect()
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::disconnect");
     // Symbian Servers do not have disconnect, 
     // the process has to exit
+    
+    if (stateNotifyKey != 0) {
+        settingsManager.writeItemValue(*stateNotifyKey, QVariant(XQApplicationManager::ServiceStopped));
+    }
+    
+    delete stateNotifyKey;
+    stateNotifyKey = 0;
 }
 
 /*!

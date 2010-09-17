@@ -40,6 +40,7 @@ QMAKE_RPATHDIR = $$DESTDIR $$QMAKE_RPATHDIR
 QMAKE_LIBDIR = $$DESTDIR $$QMAKE_LIBDIR
 
 symbian {
+
 defFilePath=..
 deploy.path = /
 # This is for new exporting system coming in garden

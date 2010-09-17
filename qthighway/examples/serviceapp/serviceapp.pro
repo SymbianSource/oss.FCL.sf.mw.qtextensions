@@ -38,7 +38,7 @@ SERVICE.OPTIONS = embeddable
 SERVICE.OPTIONS += hidden
 
 libFiles.sources = serviceapp.exe 
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles
 
 RSS_RULES += \

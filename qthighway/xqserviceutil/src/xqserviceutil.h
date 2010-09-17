@@ -31,7 +31,7 @@ namespace XQServiceUtil
 {
     // Utility to set started application to background
     XQSERVICEUTIL_EXPORT void toBackground(bool value);
-
+    
     // Utilities to extract startup command line arguments
     XQSERVICEUTIL_EXPORT bool isEmbedded();  // 
     XQSERVICEUTIL_EXPORT bool isService();
@@ -43,6 +43,7 @@ namespace XQServiceUtil
     XQSERVICEUTIL_EXPORT QString operationName(int argc, char **argv);
     XQSERVICEUTIL_EXPORT QString serviceName();
     XQSERVICEUTIL_EXPORT QString serviceName(int argc, char **argv);
+    XQSERVICEUTIL_EXPORT quint32 serviceIdFromName(const char *serviceName);
 }
 
 #endif

@@ -22,7 +22,7 @@
       	<unit name="qtmobileextensionsexamples" unitID="qtextensions.qtmobileextensionsexamples.qtecompluginsexamples" bldFile="&layer_real_source_path;/qtmobileextensions/examples" mrp="" proFile="examples.pro" qmakeArgs="-r" filter="qtextensionsexamples"/>
       </module>
       <module name="qtextensionstests">
-      	<unit name="qthighwaytests" unitID="qtextensions.qtextensionstests.qthighwaytests" bldFile="&layer_real_source_path;/qthighway/tests" mrp="" proFile="tests.pro" qmakeArgs="-r" filter="qtextensionstests"/>
+      	<unit name="qthighwaytests" unitID="qtextensions.qtextensionstests.qthighwaytests" bldFile="&layer_real_source_path;/qthighway/tsrc" mrp="" proFile="tests.pro" qmakeArgs="-r" filter="qtextensionstests"/>
       </module>
     </layer>
   </systemModel>

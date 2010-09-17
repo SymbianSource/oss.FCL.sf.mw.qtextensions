@@ -26,7 +26,7 @@ XQSERVICE_ROOT=../..
 include(api_headers.pri)
 include($$XQSERVICE_ROOT/xqservicebase.pri)
 
-QT -=gui
+QT +=gui
 QT +=network
 
 #Sources
@@ -67,5 +67,5 @@ symbian {
 #        "xqserviceipcserversession.h  ..\..\inc\xqserviceipcserversession.h" \
 #        "xqserviceipcrequest.h        ..\..\inc\xqserviceipcrequest.h" 
     
-    LIBS += -lapgrfx -lws32 -lapparc -lxqserviceutil -lefsrv
+    LIBS += -lapgrfx -lws32 -lapparc -lxqserviceutil -lefsrv -lxqsettingsmanager
 }

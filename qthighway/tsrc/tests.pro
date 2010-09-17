@@ -22,6 +22,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     at_xqapplicationmanager \
+    at_servicesregression \
     test_services
     
 symbian:BLD_INF_RULES.prj_exports += "./rom/tsrc.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(tsrc.iby)"

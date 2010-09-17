@@ -33,6 +33,7 @@ HEADERS += \
     src/xqaiwfiledriver.h \
     src/xqaiwuridriver.h \
     src/xqappmgr.h \
+    src/xqappmgr_p.h \
     src/xqaiwutils.h
 
 SOURCES += \

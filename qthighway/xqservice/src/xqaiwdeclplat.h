@@ -67,7 +67,7 @@
 #define XQOP_EMAIL_INBOX_VIEW  QLatin1String("displayInboxByMailboxId(QVariant)")
 
 #define XQI_EMAIL_MESSAGE_VIEW   QLatin1String("com.nokia.symbian.IEmailMessageView")
-#define XQOP_EMAIL_MESSAGE_VIEW   QLatin1String("viewMessage(QVariant,QVariant,QVariant)")
+#define XQOP_EMAIL_MESSAGE_VIEW   QLatin1String("viewMessage(QVariant,QVariant)")
 
 #define XQI_EMAIL_MESSAGE_SEND   QLatin1String("com.nokia.symbian.IEmailMessageSend")
 #define XQOP_EMAIL_MESSAGE_SEND   QLatin1String("send(QVariant)")

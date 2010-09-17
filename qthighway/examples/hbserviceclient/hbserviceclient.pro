@@ -31,5 +31,5 @@ include(src/hbserviceclient.pri)
 LIBS+=-lxqservice -lflogger -lxqserviceutil.dll
 
 libFiles.sources = hbserviceclient xqservice.dll 
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles

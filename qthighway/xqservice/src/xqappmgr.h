@@ -62,9 +62,15 @@ public:
     */
     enum ServiceStatus
     {
-        Unknown=0,  /*!< Not known */
-        Enabled,    /*!< Service enabled */
-        Disabled    /*!< Service disabled, e.g. required config not OK */
+        Unknown=0,  // Not known
+        Enabled,    // Service enabled
+        Disabled    // Service disabled, e.g. required config not OK,
+    };
+    
+    enum ServiceState 
+    {
+        ServiceStarted=0,
+        ServiceStopped
     };
     
     XQApplicationManager();
@@ -100,13 +106,20 @@ public:
     bool getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
     
     ServiceStatus status(const XQAiwInterfaceDescriptor& implementation);
-
-signals:
     
+    bool notifyRunning(XQAiwInterfaceDescriptor& serviceImplDescriptor);
+    bool cancelNotifyRunning(XQAiwInterfaceDescriptor& serviceImplDescriptor);
+    
+signals:
+    void serviceStarted(XQAiwInterfaceDescriptor serviceImplDescriptor);
+    void serviceStopped(XQAiwInterfaceDescriptor serviceImplDescriptor);
+
 private:
     // Disable copy contructor
     Q_DISABLE_COPY(XQApplicationManager)
     XQApplicationManagerPrivate *d;
+    
+    friend class XQApplicationManagerPrivate;
 };
 
 #endif

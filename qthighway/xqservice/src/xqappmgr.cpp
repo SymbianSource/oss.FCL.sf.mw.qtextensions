@@ -26,17 +26,157 @@
 #include <QList>
 #include "xqappmgr_p.h"
 
+/*! \page page1 Terminology
+    
+    \anchor terminology
+    <table border="2">
+        <tr>
+            <td><b>Term</b></td>
+            <td><b>Definition</b></td>
+            <td><b>Notes</b></td>
+        </tr>
+        <tr>
+            <td><i>activity</i></td>
+            <td>
+                UXD defined term: \n
+                "Activity always refers to the users point of view. An activity is something
+                a user engages in for a purpose. An example of an activity would be: entering
+                an email, listening to music, browsing a web page, etc. Activities are
+                synonymous with experiences, and can be continuous or discontinuous". 
+            </td>
+            <td>
+                See more from http://s60wiki.nokia.com/S60Wiki/QtFw_for_S60_coding_conventions/Service_name_registry#Activity.
+            </td>
+        </tr>
+        <tr>
+            <td><i>client, client application</i></td>
+            <td>
+                Application that use the a service application via the QtHighway.
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>embedded</i></td>
+            <td>
+                When a service application is launched as embedded, window groups of client
+                and service application are chained. The service application need to be
+                exited to return UI control back to client application. 
+            </td>
+            <td>
+                The embedded launch is considered as private connection between client and
+                service application. 
+            </td>
+        </tr>
+        <tr>
+            <td><i>full service name</i></td>
+            <td>
+                Combined service and interface (+ optional embedding part) name as follows. \n
+                1. Service name \n
+                2. Character *.* (dot) \n
+                3. Interface name \n
+                4. Character *.* (dot) (if embedded launch) \n
+                5. Service application process name ((if embedded launch))
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>interface descriptor</i></td>
+            <td>
+                Utility class to hold meta-data information constructed from the service configuration file. 
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>interface name</i></td>
+            <td>
+                The name of interface as defined in the service configuration file.
+            </td>
+            <td>
+                See http://s60wiki.nokia.com/S60Wiki/QtFw_for_S60_coding_conventions/Service_name_registry#Service_naming_guidelines.
+            </td>
+        </tr>
+        <tr>
+            <td><i>MIME registry</i></td>
+            <td>
+                The database containing published MIME datatypes applications can view.
+            </td>
+            <td>
+                Symbian OS Application Architecture implements the database.
+            </td>
+        </tr>
+        <tr>
+            <td><i>service application, service provider application</i></td>
+            <td>
+                Qt/Orbit based based executable (.exe) that implements and hosts a service provider.
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>operation, message</i></td>
+            <td>
+                Utility's function to be called. Technically Qt slot signature without extra spaces and reference (&).
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>service</i></td>
+            <td>
+                Simple utilities offered via interface from an application to another other.
+                The service identified by the full service name. 
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>service configuration file</i></td>
+            <td>
+                XML formatted file that describes the meta data of the service, e.g. service name,
+                interface name, custom properties, using the agreed XML schema.
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><i>service name</i></td>
+            <td>
+                The name of service as defined in the service configuration file.
+            </td>
+            <td>
+                See http://s60wiki.nokia.com/S60Wiki/QtFw_for_S60_coding_conventions/Service_name_registry#Service_naming_guidelines.
+            </td>
+        </tr>
+        <tr>
+            <td><i>service provider</i></td>
+            <td>
+                Instance of XQServiceProvider that is included into a service application 
+            </td>
+            <td>
+                In-process (.dll) providers not supported yet.
+            </td>
+        </tr>
+        <tr>
+            <td><i>service registry</i></td>
+            <td>
+                The database containing published service configuration files.
+            </td>
+            <td>
+                Symbian OS Application Architecture implements the database.
+            </td>
+        </tr>
+    </table>
+*/
+
 /*!
     \class XQApplicationManager
     \inpublicgroup QtBaseModule
 
     \ingroup ipc
-    \brief Factory class to list interface descriptors and create interworking objects (XQAiwRequest)
+    \brief The factory class of the Qt Extension's service framework to support out-of-process application interworking use cases
+    
+    See \ref terminology for terms used in this documentation.
     
     XQApplicationManager lists interface descriptors by interface and /or service name. It is also used to
     create interworking objects (XQAiwRequest).
     
-    This class is a part of API to be used by the applications instead of using XQServiceRequest directly.
+    This class is a part of Application Manager API  to be used by the applications instead of using XQServiceRequest directly.
     
     The Application Manager API offers centric place for applications UIs to handle application to application interworking use cases, like:
     - Synchronous out-of-process service call from client to service provider, where service provider needs to complete the request before
@@ -45,10 +185,10 @@
       The control returns back requesting as soon the service provider has received the asynchronous call (can be applied to notifications as well).
     - Embedded out-of-process service call. In this case window groups are chained and "Back" returns to client window.
     - Any named Qt type in the Qt meta-object system can be used as a service call parameter or return value. Also own, custom meta-types are supported.
-    - Launched service provider application (.exe) if not already running when client makes service call to it.
+    - Launch service provider application (.exe) if not already running when client makes service call to it.
     - List and discover services dynamically.
     - Apply UI related options upon service launch, like "launch as embedded", "launch to foreground" and "launch to backround".
-    - Opening files to be viewed by a file viewing interface.
+    - Open files to be viewed by a file viewing interface. Both normal and sharable (data-caged) files are supported.
     - Opening URI to be viewed by a URI viewing interface. Includes also launching activity URIs (appto) as fire-and-forget manner.
     - Miscellanous AIW support, like get service stasus or get DRM attributes.
     
@@ -58,7 +198,6 @@
     and non-embedded usage:
     \code
         // Recommended way is to add XQApplicationManager as member variable to class
-        // Later on when caching of services
         // You can use the class also as local variable.
         class Client
         {
@@ -86,11 +225,11 @@
             XQAiwRequest *request;
             // Create request by interface name, the very first service implementation
             // applied.
-            request = mAiwMgr.create("Interface", "functionName2(QString, int)", embedded);
+            request = mAiwMgr.create("Interface", "functionName2(QString,int)", embedded);
 
             // If dedicated service is wanted, apply this 
             // request = mAiwMgr.create("Service", "Interface", 
-            //                          "functionName2(QString, int)", embedded);
+            //                          "functionName2(QString,int)", embedded);
 
             if (request == NULL)
             {
@@ -125,7 +264,7 @@
         // ....See previous example
     \endcode
     
-    The XQApplicationManager supports opening activity (see Terminology) URIs (appto scheme) as fire-and-forget mannner:
+    The XQApplicationManager supports opening activity URIs (appto scheme) as fire-and-forget mannner:
     \code
         QUrl url("appto://10207C62?activityname=MusicMainView"); 
 
@@ -140,11 +279,11 @@
 
         // Set function parameters
         QList<QVariant> args;
-        args << uri.toSring();
+        args << uri.toString();
         request->setArguments(args);
 
         // Send the request
-        bool res = request.send();
+        bool res = request->send();
         if  (!res) 
         {
             // Request failed. 
@@ -163,7 +302,7 @@ XQApplicationManager::XQApplicationManager()
 {
     XQSERVICE_DEBUG_PRINT("XQApplicationManager::XQApplicationManager");
     d = new XQApplicationManagerPrivate();
-    
+    d->v_ptr = this;
 }
 XQApplicationManager::~XQApplicationManager()
 {
@@ -401,7 +540,7 @@ XQAiwRequest* XQApplicationManager::create(
 /*!
     Create AIW requests to view the given file and having the MIME type attached.
     The interface name applied implicitly is declared by the constant XQI_FILE_VIEW
-    The first found service implementation is applied.
+    The default service implementation  configured for the MIME type is returned.
     \param file The file to be viewed
     \param embedded True if embedded (window groups chained) call, false otherwise
     \return The application interworking request instance, or NULL if no viewer found.
@@ -522,7 +661,8 @@ bool XQApplicationManager::isRunning(const XQAiwInterfaceDescriptor& implementat
 
 /*!
     Gets the values of the DRM related \a attributeNames, like "IsProtected",
-    "IsForwardable", "MimeType" for a given \a file.
+    "IsForwardable", "MimeType" for a given \a file. The set of supported attributes is same
+    as in Symbian OS CAF (though not all declared by the API).
     \param file File for which DRM attributes are retrieved
     \param attributeNames List of attributes that should be retrieved (check #DrmAttribute)
     \param attributeValues On success fills this list whith values, where each value is QVariant of the integer or string type.
@@ -554,7 +694,7 @@ bool XQApplicationManager::getDrmAttributes(const XQSharableFile &file, const QL
 
 /*!
     Checks the status of the given service interface.
-    \param implementation Interface which status is being checked.
+    \param implementation Valid interface descriptor obtained by the list() call.
     \return Status of the service.
 */
 XQApplicationManager::ServiceStatus XQApplicationManager::status(const XQAiwInterfaceDescriptor& implementation)
@@ -563,4 +703,25 @@ XQApplicationManager::ServiceStatus XQApplicationManager::status(const XQAiwInte
     return (ServiceStatus)d->status(implementation);
 }
 
+/*!
+    Start monitoring for given service.
+    \param implementation Valid interface descriptor obtained by the list() call.
+    \return True if operation succesful, false otherwise.
+*/
+bool XQApplicationManager::notifyRunning(XQAiwInterfaceDescriptor& serviceImplDescriptor)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::notifyRunning");
+    return d->startNotifications(serviceImplDescriptor);
+}
+
+/*!
+    Stop monitoring for given service.
+    \param implementation Valid interface descriptor obtained by the list() call.
+    \return True if operation succesful, false otherwise.
+*/
+bool XQApplicationManager::cancelNotifyRunning(XQAiwInterfaceDescriptor& serviceImplDescriptor)
+{
+    XQSERVICE_DEBUG_PRINT("XQApplicationManager::cancelNotifyRunning");
+    return d->stopNotifications(serviceImplDescriptor);
+}
 

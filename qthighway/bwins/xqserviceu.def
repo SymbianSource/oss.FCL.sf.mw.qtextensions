@@ -192,4 +192,8 @@ EXPORTS
 	?getDrmAttributes@XQApplicationManager@@QAE_NABVXQSharableFile@@ABV?$QList@H@@AAV?$QList@VQVariant@@@@@Z @ 191 NONAME ; bool XQApplicationManager::getDrmAttributes(class XQSharableFile const &, class QList<int> const &, class QList<class QVariant> &)
 	?getDrmAttributes@XQApplicationManager@@QAE_NABVQFile@@ABV?$QList@H@@AAV?$QList@VQVariant@@@@@Z @ 192 NONAME ; bool XQApplicationManager::getDrmAttributes(class QFile const &, class QList<int> const &, class QList<class QVariant> &)
 	?status@XQApplicationManager@@QAE?AW4ServiceStatus@1@ABVXQAiwInterfaceDescriptor@@@Z @ 193 NONAME ; enum XQApplicationManager::ServiceStatus XQApplicationManager::status(class XQAiwInterfaceDescriptor const &)
+	?serviceStarted@XQApplicationManager@@IAEXVXQAiwInterfaceDescriptor@@@Z @ 194 NONAME ; void XQApplicationManager::serviceStarted(class XQAiwInterfaceDescriptor)
+	?notifyRunning@XQApplicationManager@@QAE_NAAVXQAiwInterfaceDescriptor@@@Z @ 195 NONAME ; bool XQApplicationManager::notifyRunning(class XQAiwInterfaceDescriptor &)
+	?cancelNotifyRunning@XQApplicationManager@@QAE_NAAVXQAiwInterfaceDescriptor@@@Z @ 196 NONAME ; bool XQApplicationManager::cancelNotifyRunning(class XQAiwInterfaceDescriptor &)
+	?serviceStopped@XQApplicationManager@@IAEXVXQAiwInterfaceDescriptor@@@Z @ 197 NONAME ; void XQApplicationManager::serviceStopped(class XQAiwInterfaceDescriptor)
 

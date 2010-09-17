@@ -27,6 +27,8 @@
 #include<QUrl>
 #include<QUrl>
 #include<QFile>
+#include<QMap>
+
 #include <xqaiwrequest.h>
 #include <xqaiwinterfacedescriptor.h>
 #include <xqsharablefile.h>
@@ -34,9 +36,13 @@
 
 class XQServiceManager;
 class XQAiwUtils;
+class XQSettingsManager;
+class XQSettingsKey;
 
-class XQApplicationManagerPrivate 
+class XQApplicationManagerPrivate : public QObject
 {
+    Q_OBJECT
+    
 public:
     XQApplicationManagerPrivate();
     virtual ~XQApplicationManagerPrivate();
@@ -62,6 +68,13 @@ public:
     bool getDrmAttributes(const XQSharableFile &file, const QList<int> &attributeNames, QVariantList &attributeValues);
     int status(const XQAiwInterfaceDescriptor& implementation);
     
+    bool startNotifications(XQAiwInterfaceDescriptor& serviceImplDescriptor);
+    bool stopNotifications(XQAiwInterfaceDescriptor& serviceImplDescriptor);
+
+public slots:
+    void valueChanged(const XQSettingsKey& key, const QVariant& value);
+    void itemDeleted(const XQSettingsKey& key);
+
 private:
     
     QList<XQAiwInterfaceDescriptor> listMimeHandlers(const QFile &file);
@@ -69,10 +82,19 @@ private:
     bool getAppDescriptor(const QUrl &uri, XQAiwInterfaceDescriptor *descriptor);
     QList<XQAiwInterfaceDescriptor> listFileHandlers(const QList<XQAiwInterfaceDescriptor> &mimeHandlers);
     
+    XQSettingsManager *settingsManager();
+    
 private:
+    XQApplicationManager *v_ptr;
+    
     XQServiceManager * serviceMgr;
     XQAiwUtils * aiwUtilities;
     
+    XQSettingsManager *settingsManagerInstance;
+    
+    QMap<quint32, XQAiwInterfaceDescriptor> descriptorsMap;
+    
+    friend class XQApplicationManager;
 };
 
 #endif

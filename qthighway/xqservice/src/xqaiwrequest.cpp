@@ -33,12 +33,14 @@
     \inpublicgroup QtBaseModule
 
     \ingroup ipc
-    \brief Encapsulates the core functionality of the interworking requests
+    \brief Encapsulates the core functionality of the application interworking requests for service clients
+    
+    See \ref terminology for terms used in this documentation.
     
     The XQAiwRequest class encapsulates the core functionality of the interworking requests and hides the implementation details. 
     This object is created by the XQApplicationManager::create factory method.
     
-    This class is a part of API to be used by the applications instead of using XQServiceRequest directly.
+    This class is a part of Application Manager API  to be used by the applications instead of using XQServiceRequest directly.
     
     The Application Manager API offers centric place for applications UIs to handle application to application interworking use cases, like:
     - Synchronous out-of-process service call from client to service provider, where service provider needs to complete the request before
@@ -47,11 +49,11 @@
       The control returns back requesting as soon the service provider has received the asynchronous call (can be applied to notifications as well).
     - Embedded out-of-process service call. In this case window groups are chained and "Back" returns to client window.
     - Any named Qt type in the Qt meta-object system can be used as a service call parameter or return value. Also own, custom meta-types are supported.
-    - Launched service provider application (.exe) if not already running when client makes service call to it.
-    - List and discover services dynamically.
+    - Launch service provider application (.exe) if not already running when client makes service call to it.
+    - List and discover services dynamically. Both normal and sharable (data-caged) files are supported.
     - Apply UI related options upon service launch, like "launch as embedded", "launch to foreground" and "launch to backround".
     - Opening files to be viewed by a file viewing interface.
-    - Opening URI to be viewed by a URI viewing interface. Includes also launching activity URIs (appto) as fire-and-forget manner.
+    - Open URI to be viewed by a URI viewing interface. Includes also launching activity URIs (appto) as fire-and-forget manner.
     - Miscellanous AIW support, like get service stasus or get DRM attributes.
     
     See the "examples/appmgrclient" included in the QtHighway release for usage examples.
@@ -61,7 +63,6 @@
     and non-embedded usage.
     \code
         // Recommended way is to add XQApplicationManager as member variable to class
-        // Later on when caching of services
         // You can use the class also as local variable.
         class Client
         {
@@ -89,11 +90,11 @@
             XQAiwRequest *request;
             // Create request by interface name, the very first service implementation
             // applied.
-            request = mAiwMgr.create("Interface", "functionName2(QString, int)", embedded);
+            request = mAiwMgr.create("Interface", "functionName2(QString,int)", embedded);
 
             // If dedicated service is wanted, apply this 
             // request = mAiwMgr.create("Service", "Interface", 
-            //                          "functionName2(QString, int)", embedded);
+            //                          "functionName2(QString,int)", embedded);
 
             if (request == NULL)
             {
@@ -116,7 +117,7 @@
            request->setEmbedded(true);
 
            // Send the request
-           bool res = request.send();
+           bool res = request->send();
            if  (!res) 
            {
                // Request failed. 
@@ -141,6 +142,110 @@
            // Handle error
         }
     \endcode
+    
+    <b>Problem solutions</b> \n
+    Making QtHighway to produce traces helps sorting out the typical problems detected so far:
+    
+    <b><i> You get lines like *PlatSec* ERROR - Capability check failed - A Message (function number=0x00000200)
+    from Thread ... line upon otherwise successful request. </i></b>
+    - This is not an error. QTHighway collects available client capabilities into QSet and tests
+      for each capability using the RMessage2::HasCapability() function. The trace line is output
+      by that function.
+    
+    <b><i>Null XQAiwReuest is returned meaning a service not found form Apparch service registry.
+    The trace has line "Discover error -1" or indications of XML parsing errors. </i></b>
+    Check the following just in case:
+    - The XML file syntax is OK ( from trace you should see XML parsing error).
+    - After changing the XML you have run the qmake again. Otherwise changes in XML do not get visible.
+    - The generated application registration (*_reg.rss) contains the data as mentioned in the registration XML file.
+    - The compiled application registration file (*_reg.rsc) exists in "\epoc32\data\z\private\10003a3f\import\Apps"
+      and contains the same XML dat.
+    - In .iby file, the compiled application registration file (*_reg.rsc) has been copied to "\private\10003a3f\import\Apps".
+    - In .iby file, the standard application resource file referred from the *_reg.rss has been copied
+      to directory pointed using the macro S60_APP_RESOURCE or to directory referred by the macro
+      APP_RESOURCE_DIR (the macro from epoc32\include\data_caging_paths_for_iby.hrh).
+    - wk18 MCL specific: Looks like you need to get directories "\epoc32\winscw\c\sys\install" deleted (in emulator)
+      to get any changes noticed by apparch. This looks like Apparch problem.
+
+    <b><i> Service is found, but request returns an error "EMessageNotFound". </i></b>
+    Check the following:
+    - Check that slot signatures match in calling side and in service side and they follow Qt slot naming.
+    - The slot signature does not contain extra spaces and does not contain reference (&) symbol.  
+    
+    <b><i> Services get unexpected disconnet "CApaServerSymbianSession::Disconnect". </i></b>
+    - This is a symptom that client request object has been deleted by code or by the GOOM FW.
+    
+    <b><i>  Async response does not go back to client. </i></b>
+    Check the following:
+    - You are using the request id returned by the setCurrentRequestAsync().
+    - There are no "CApaServerSymbianSession::Disconnect" lines before calling the "complereRequest(asyncRequestIndex)".
+    - The traces does not tell any "NOT FOUND" message for request (client has not beed disconnected).
+    
+    <b><i> Control Panel View cannot be launched using the QtHighway Service from an Indicator Plugin. </i></b>
+    - See one solution from the RC case 424825. 
+    
+    <b> How to enable log traces? </b> \n
+    - You can find xqservicelog.h from the top level inc-directory of the QtHighway. There are
+      two flags controlling QtHighway logging facilities. Both are disabled by default.
+      To enable logging, see the file /sf/qtextensions/qthighway//inc/xqservicelog.h. \n\n
+      <table border="2">
+          <tr>
+              <td><b>Flag in the xqservicelogs.h</b></td>
+              <td><b>Description</b></td>
+          </tr>
+          <tr>
+              <td><i>XQSERVICE_DEBUG</i></td>
+              <td>
+                  Main flag that enables logging using default Qt logging facilities. This turn on qDebug()
+                  traces from the QtHighway which are pretty handy to check. After defining the flag, rebuild
+                  the qthigway folder only (no need to rebuild whole qtextensions package!).
+              </td>
+          </tr>
+          <tr>
+              <td><i>XQSERVICE_DEBUG_FILE</i></td>
+              <td>
+                  <b>This has not been used nor tested!</b> \n
+                  Flag that enables file logging mode to XqServiceMessageHandler. This flag is dependent
+                  on <i>XQSERVICE_DEBUG</i> flag and can't be enabled without it been enabled.
+              </td>
+          </tr>
+      </table>
+      
+    - Logging is done by using four macros \a XQSERVICE_DEBUG_PRINT, \a XQSERVICE_WARNING_PRINT, \a XQSERVICE_CRITICAL_PRINT,
+      \a XQSERVICE_FATAL_PRINT corresponding to qDebug, qWarning, qCritical and qFatal functionality.
+      
+    - XqServiceMessageHandler-class provides QtMessageHandler-function that can be used in applications to override
+      Qt default message handling functionality. To take it into use in application, install it by calling
+      \code
+      qInstallMsgHandler(XQSERVICEMESSAGEHANDLER);
+      \endcode
+      in the beginning of the applications main-function. The flags control XqServiceMessageHandler in the following way: \n\n
+      <table border="2">
+          <tr>
+              <td><b>Flags defined</b></td>
+              <td><b>Functionality</b></td>
+          </tr>
+          <tr>
+              <td><i>None</i></td>
+              <td>
+                  XqServiceMessageHandler-class doesn't exist. 
+              </td>
+          </tr>
+          <tr>
+              <td><i>XQSERVICE_DEBUG</i></td>
+              <td>
+                  XqServiceMessageHandler-class exists and uses RDebug to print all Qt messages.
+              </td>
+          </tr>
+          <tr>
+              <td><i>XQSERVICE_DEBUG</i> and <i>XQSERVICE_DEBUG_FILE</i></td>
+              <td>
+                  XqServiceMessageHandler-class exists and uses RFileLogger to write all Qt messages to a file.
+                  To enable file logging, c:\logs\qt directory must exist. Log file is xqservice.log. Please
+                  notice that RFileLogger depends on flogger.lib. 
+              </td>
+          </tr>
+      </table>
     
     \sa XQApplicationManager
 */
@@ -322,6 +427,17 @@ XQAiwRequest::~XQAiwRequest()
     add the action to wanted UI widget. When the action  is triggered the XQAiwRequest
     emits triggered() signal for caller.
     The XQAiwRequest owns the action (caller shall not delete the action object).
+    The localized QAction text is constructed from the the following custom properties
+    in the registration XML file:
+    - \b aiw_action_text_file which tell the .qm file which contains the text ID identified
+         by the "aiw_action_text". If no paths present in the the file name, default path
+         is constructed as follows
+         \code
+            qApp->applicationFilePath().left(2) + "/resource/qt/translations/" + textFile;
+         \endcode
+    - \b aiw_action_text contains the text ID which contains the translated text present in the .qm file identified by the aiw_action_text_file
+    - \b aiw_action_icon contain the name of QIcon resource created by the QIcon::addFile function. <b> NOTE ! *This is experimental property* ! </b>
+    
     \return QAction object, if there was action attached to request. Otherwise 0.
 */
 QAction *XQAiwRequest::createAction()

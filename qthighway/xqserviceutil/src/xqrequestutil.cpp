@@ -22,8 +22,227 @@
 #include "xqservicelog.h"
 #include "xqserviceerrdefs.h"
 
+#include <w32std.h> // RWsSession
+#include <coemain.h>
+#include <QCoreApplication>
+
 #include "xqrequestutil.h"
    
+// ======== LOCAL CLASSES ========
+
+class CParentObserver: public CActive
+{
+public:
+
+    /**
+     * Starts to observe if parent is still running and close embedded view when parent closed
+     */
+    static void closeWhenParentClosedL();
+
+    /**
+     * C++ destructor.
+     */
+    virtual ~CParentObserver();
+        
+protected:
+    
+    // @see CActive
+    virtual void RunL();
+    
+    // @see CActive
+    virtual void DoCancel(); 
+    
+    // @see CActive
+    virtual TInt RunError( TInt aError ); 
+    
+private:
+
+    CParentObserver();
+    void ConstructL();
+    void IssueRequest();
+    void HandleWsEventL(const TWsEvent &aEvent);
+
+private: // Data
+
+    class ParentObserverDestructor
+    {
+    public:
+        ParentObserverDestructor():iObserver(NULL){}
+        
+        ~ParentObserverDestructor()
+        {
+            delete iObserver;
+        }
+        
+        CParentObserver* iObserver;
+    };
+    
+    static ParentObserverDestructor iInstance;
+    
+    /** Window server session */
+    RWsSession iWsSession;
+    
+    /** Window group for receiving window server events */
+    RWindowGroup* iWindowGroup;
+};
+
+CParentObserver::ParentObserverDestructor CParentObserver::iInstance;
+
+// ---------------------------------------------------------------------------
+// C++ constructor.
+// ---------------------------------------------------------------------------
+//
+CParentObserver::CParentObserver():
+    CActive(CActive::EPriorityStandard)
+{
+    CActiveScheduler::Add(this);
+}
+
+// ---------------------------------------------------------------------------
+// Symbian 2nd phase constructor.
+// ---------------------------------------------------------------------------
+//
+void CParentObserver::ConstructL()
+{
+    // Connect to window server server
+    User::LeaveIfError(iWsSession.Connect());
+    
+    // Construct window group
+    iWindowGroup = new(ELeave) RWindowGroup(iWsSession);
+    User::LeaveIfError( iWindowGroup->Construct((TUint32)this, EFalse));
+    User::LeaveIfError(iWindowGroup->EnableGroupChangeEvents());
+}
+
+// ---------------------------------------------------------------------------
+// Starts to observe if parent is still running and close embedded view when parent closed
+// ---------------------------------------------------------------------------
+//
+void CParentObserver::closeWhenParentClosedL()
+{
+    if (!iInstance.iObserver) {
+        iInstance.iObserver = new (ELeave) CParentObserver();
+        iInstance.iObserver->ConstructL();
+    }
+    
+    iInstance.iObserver->IssueRequest();
+}
+
+// ---------------------------------------------------------------------------
+// C++ destructor.
+// ---------------------------------------------------------------------------
+//
+CParentObserver::~CParentObserver()
+{
+    Cancel();
+    
+    // Cleanup window group
+    if(iWindowGroup) {
+        iWindowGroup->DisableGroupChangeEvents();
+        iWindowGroup->Close();
+        delete iWindowGroup;
+    }
+    
+    // Cleanup window server session
+    iWsSession.Close();
+}
+
+//------------------------------------------------------------------------------
+// CParentObserver::IssueRequest
+//------------------------------------------------------------------------------
+//
+void CParentObserver::IssueRequest()
+{
+    if(!IsActive()) {
+        // Request events from window server
+        iWsSession.EventReady(&iStatus);
+        SetActive();
+    }
+}
+
+//------------------------------------------------------------------------------
+// CParentObserver::HandleWsEventL
+//------------------------------------------------------------------------------
+//
+void CParentObserver::HandleWsEventL(const TWsEvent &aEvent)
+{
+    if (aEvent.Type() == EEventWindowGroupsChanged) {
+        RWindowGroup rootWG = CCoeEnv::Static()->RootWin();
+        int rootWGId = rootWG.Identifier();
+        
+        RArray<RWsSession::TWindowGroupChainInfo> list;
+        CleanupClosePushL(list);
+        iWsSession.WindowGroupList(&list);
+        
+        for(int idx = 0; idx < list.Count(); idx++)
+        {
+            RWsSession::TWindowGroupChainInfo info = list[idx];
+            if (info.iId == rootWGId && info.iParentId <= 0) {
+               qApp->quit();
+               break;
+            }
+        }
+        CleanupStack::PopAndDestroy(); // list
+    }
+}
+
+//------------------------------------------------------------------------------
+// CParentObserver::RunL
+//------------------------------------------------------------------------------
+//
+void CParentObserver::RunL()
+{
+    TInt err = iStatus.Int();
+    if(err == KErrNone) {
+        // No errors occured, fetch event
+        TWsEvent wsEvent;
+        iWsSession.GetEvent(wsEvent);
+        
+        // Continue listening
+        IssueRequest();
+        
+        // Forward event to observer
+        HandleWsEventL(wsEvent);
+    }
+    else {
+        // Continue listening
+        IssueRequest();
+    }    
+}
+
+//------------------------------------------------------------------------------
+// CParentObserver::DoCancel
+//------------------------------------------------------------------------------
+//
+void CParentObserver::DoCancel()
+{
+    // Cancel event ready from window server
+    iWsSession.EventReadyCancel();
+}
+
+//------------------------------------------------------------------------------
+// CParentObserver::RunError
+//------------------------------------------------------------------------------
+//
+TInt CParentObserver::RunError(TInt /*aError*/)
+{
+    // Issue a new request
+    IssueRequest();
+    
+    return KErrNone;
+}
+
+/*!
+    Observes if client is still running and close embedded view when client closed
+*/
+void XQServiceUtils::closeWhenClientClosed()
+{
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::closeEVWhenClientClosed");
+    
+    TRAPD(err, CParentObserver::closeWhenParentClosedL());
+    
+    XQSERVICE_DEBUG_PRINT("XQServiceUtil::closeEVWhenClientClosed return value: ", err);
+}
+
 XQRequestUtil::XQRequestUtil()
 {
     XQSERVICE_DEBUG_PRINT("XQRequestUtil::XQRequestUtil");

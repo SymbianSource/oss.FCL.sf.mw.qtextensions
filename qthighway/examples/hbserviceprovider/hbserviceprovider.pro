@@ -35,7 +35,7 @@ SERVICE.OPTIONS = embeddable
 # SERVICE.OPTIONS += hidden
 
 libFiles.sources = xqservice.dll
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles
 
 # TRANSLATIONS=hbserviceprovider.ts

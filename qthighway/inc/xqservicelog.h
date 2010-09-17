@@ -42,11 +42,13 @@
 #define XQSERVICE_CRITICAL_PRINT(args...) qCritical(args);
 #define XQSERVICE_FATAL_PRINT(args...) qFatal(args);
 #define XQSERVICEMESSAGEHANDLER XqServiceMessageHandler::xqServiceMessageHandler
+#define XQSERVICE_CONNECT(a, b, c, d) if (!QObject::connect((a), (b), (c), (d))) {qCritical("%s: connection failed", __PRETTY_FUNCTION__);}else{qDebug("%s: connection OK", __PRETTY_FUNCTION__);}
 #else //XQSERVICE_DEBUG not defined
 #define XQSERVICE_DEBUG_PRINT(args...)
 #define XQSERVICE_WARNING_PRINT(args...)
 #define XQSERVICE_CRITICAL_PRINT(args...)
 #define XQSERVICE_FATAL_PRINT(args...)
+#define XQSERVICE_CONNECT(a, b, c, d) QObject::connect((a), (b), (c), (d));
 #define XQSERVICEMESSAGEHANDLER 0
 #endif //XQSERVICE_DEBUG
 

@@ -44,5 +44,5 @@ include(src/xqservicemetadata/xqservicemetadata.pri)
 LIBS+=-lapparc -lapgrfx -lws32 -lcone -lbafl -leikcore -lefsrv -lxqutils
 
 libFiles.sources = xqserviceutil.dll
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles

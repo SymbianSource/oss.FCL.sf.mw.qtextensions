@@ -30,5 +30,5 @@ include(src/serviceclient.pri)
 LIBS+=-lxqservice -lflogger
 
 libFiles.sources = xqservice.dll
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles

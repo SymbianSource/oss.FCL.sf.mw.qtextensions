@@ -28,6 +28,7 @@
 #include <xqserviceadaptor.h>
 //#include <xqserviceservice.h>
 #include <xqserviceutil.h>
+#include "xqrequestutil.h"
 
 /*!
     \class ServiceAdaptorProxy
@@ -106,9 +107,11 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
     \class XQServiceProvider
     \inpublicgroup QtBaseModule
 
-    \brief The XQServiceProvider class provides an interface to messages on a XQService service
-    which simplifies remote slot invocations
+    \brief Base class of the Qt Extension's service framework for implementing out-of-process service providers.
+           It supports implementing out-of-process slots that can be invoked from remote service clients
 
+    See \ref terminology for terms used in this documentation.
+    
     Service messages consist of a service name, a message name, and a list of parameter values.
     Qt extension dispatches service messages to the applications associated with the service
     name, on the application's \c{QPE/Application/appname} channel, where
@@ -118,8 +121,8 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
     Service provider need to register it's service into the system before they can be used by
     the service client. Registration is done by creating a XML formatted service configuration
     file and defining the service in the provider's .pro-file. QMake will notice service provider
-    from the .pro-file, with help of the service.prf file, and generate a make file that uses
-    a helper application xqsreg.exe. The helper application sqsreg.exe will generate an application
+    from the .pro-file, with help of the service.prf file, and generate necessary resources for
+    the Symbian application registry. The helper application sqsreg.exe will generate an application
     registration resource file ( _reg.rss) from the configuration-file and provider's definitions
     that include the needed declarations for the services provided.
     
@@ -173,19 +176,6 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
         <ATTLIST customproperty key NMTOKEN #REQUIRED >
     \endcode
     
-    Also the old format described below is supported, With old format you can not have custom properties, which
-    for example are used for AIW purposes.
-    \code
-        <ELEMENT service ( description?, interface+ ) >
-        <ATTLIST service name #CDATA  #REQUIRED >
-        <ATTLIST service filepath #CDATA  #REQUIRED >
-        <ELEMENT description ( #CDATA ) >
-        <ELEMENT interface ( description? ) >
-        <ATTLIST interface '''name''' #CDATA  #REQUIRED >
-        <ATTLIST interface version #CDATA  #REQUIRED >
-        <ATTLIST interface capabilities #CDATA  #REQUIRED >
-    \endcode
-    
     <b>Changing service or interface names</b> \n
     Before you think about changing the name of the already released and used service implementation, read this
     http://s60wiki.nokia.com/S60Wiki/QtFw_for_S60_coding_conventions/Service_name_registry#About_changing_service_or_interface_names
@@ -196,14 +186,8 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
     <b>Service Registration tools</b> \n
     The needed utility files for service registration:
     - xqsreg.exe should be in \epoc32\tools or some other directory that can be found from the path
-    - service.prf should be in \epoc32\tools\qt\mkspecs\features\symbian directory.
     
     If necessary you can copy those files to target directories from qthighway/bin.
-    
-    Sources for the xqsreg.exe can be found from the qthighway\xqsreg and it is also possible to compile it.
-        - cd \qthighway\xqsreg
-        - qmake -platform win32-mwc
-        - make
     
     Usage: \n
     How to create a simple synchronously working service provider?
@@ -433,11 +417,11 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
 
         // Set function parameters
         QList<QVariant> args;
-        args << uri.toSring();
+        args << uri.toString();
         request->setArguments(args);
 
         // Send the request
-        bool res = request.send();
+        bool res = request->send();
         if  (!res) 
         {
             // Request failed. 
@@ -530,7 +514,7 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
         request->setArguments(args);
 
         // Send the request
-        bool res = request.send();
+        bool res = request->send();
         if  (!res) 
         {
            // Request failed. 
@@ -576,7 +560,7 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
         req->setArguments(args);
 
         // Send the request
-        bool res = request.send();
+        bool res = request->send();
         if  (!res) 
         {
             // Request failed. 
@@ -639,16 +623,16 @@ XQServiceProvider_Private::~XQServiceProvider_Private()
 /*!
     \fn void XQServiceProvider::returnValueDelivered()
     
-    This signal is emitted when asynchronous request has been completed and its
-    return value has been delivered to the service client.
+    This signal is emitted when request has been completed and its return value has been
+    delivered to the service client. Synchronous request get completed upon returning
+    from slot call, asynchronous gets completed when completeRequest is called.
 */
 
 /*!
     \fn void XQServiceProvider::clientDisconnected()
     
-    This signal is emitted if client accessing a service application terminates.
-    The counterpart in client side (when service application terminates) is
-    the error XQService::EConnectionClosed.
+    This signal is emitted if there is on-going request and client destroys
+    the XQAiwRequest for some reason, e.g when exiting the client process.
 */
 
 /*!
@@ -700,6 +684,9 @@ void XQServiceProvider::publishAll()
     else {
         m_data->m_adaptor->publishAll(m_data->plugin, 0, XQServiceAdaptor::Slots);
     } 
+	
+	if (XQServiceUtil::isEmbedded())
+	    XQServiceUtils::closeWhenClientClosed();
 }
 
 /*!
@@ -711,7 +698,11 @@ void XQServiceProvider::publishAll()
           comes in, it will have different index and you will potentially override the index of
           the first request. You should ensure the completeRequest() gets the correct index e.g.
           by attaching the index as user data to data object maintain a map of indexes based on
-          some key.
+          some key. \n
+          <b> This should be used for a request set asynchronous by client only.  This has no
+          impact to the client side behaviour. For the synchronous request client side "send"
+          will wait for the completion. For the asyncronous request the client side gets
+          signalled when  the completion happens. </b>
 */
 int XQServiceProvider::setCurrentRequestAsync()
 {

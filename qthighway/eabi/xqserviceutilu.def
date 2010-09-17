@@ -101,4 +101,5 @@ EXPORTS
 	_ZN13XQServiceUtil13interfaceNameEiPPc @ 100 NONAME
 	_ZN13XQServiceUtil13operationNameEiPPc @ 101 NONAME
 	_ZN13XQServiceUtil9isServiceEiPPc @ 102 NONAME
-
+	_ZN13XQServiceUtil17serviceIdFromNameEPKc @ 103 NONAME
+	_ZN14XQServiceUtils21closeWhenClientClosedEv @ 104 NONAME

@@ -54,6 +54,9 @@ namespace XQServiceUtils
     static const char * StartupArgInterfaceName = "intf=";
     static const char * StartupArgOperationName = "oper=";
     static const char * StartupArgServiceName = "xqsn=";
+    
+    // Observes if client is still running and close embedded view when client closed
+    XQSERVICEUTIL_EXPORT void closeWhenClientClosed();
 }
 
 

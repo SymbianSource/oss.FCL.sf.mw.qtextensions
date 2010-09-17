@@ -30,7 +30,7 @@ include(src/mimetestapp.pri)
 LIBS+=-lxqservice -lxqserviceutil
 
 libFiles.sources = xqservice.dll
-libFiles.path = "!:\sys\bin"
+libFiles.path = "!:/sys/bin"
 DEPLOYMENT += libFiles
 
 RSS_RULES += \

@@ -44,6 +44,8 @@ CPublishAndSubscribeHandler::CPublishAndSubscribeHandler(TUid aUid)
 
 CPublishAndSubscribeHandler::~CPublishAndSubscribeHandler()
 {
+    foreach (CPubSubMonitor* monitor, m_monitors)
+        delete monitor;
 }
 
 void CPublishAndSubscribeHandler::setObserver(MSettingsHandlerObserver* observer)

@@ -31,7 +31,8 @@ SUBDIRS= \
 #include($$[QMAKE_MKSPECS]/features/hb.prf) {
 #SUBDIRS += \
 #         hbserviceprovider \
-#         hbserviceclient
+#         hbserviceclient \
+#         notifications 
 #}
 
 symbian:BLD_INF_RULES.prj_exports += "./rom/xqserviceexamples.iby $$CUSTOMER_VARIANT_APP_LAYER_IBY_EXPORT_PATH(xqserviceexamples.iby)"

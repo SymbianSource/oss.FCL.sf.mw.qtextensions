@@ -23,21 +23,13 @@
 
 #include "mytestwindowgroup.h"
 
-//MyTestWindowGroup* MyTestWindowGroup::instance = 0;
-
-
 MyTestWindowGroup* MyTestWindowGroup::Instance(){
-    //if(instance == NULL)
-    //    instance = new MyTestWindowGroup();
     static MyTestWindowGroup singleton;
     return &singleton;
-
-    //return instance;
     }
 
     MyTestWindowGroup::~MyTestWindowGroup() { 
-        //if(instance) 
-        //    delete instance;
+
     }
 
 

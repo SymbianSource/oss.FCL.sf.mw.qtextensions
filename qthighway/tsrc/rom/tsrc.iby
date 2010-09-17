@@ -45,5 +45,11 @@ data=\epoc32\data\z\data\Others\SD_Celebration_SP.dcf data\Others\SD_Celebration
 data=\epoc32\data\z\data\Others\SD_jpg_sun.dcf data\Others\SD_jpg_sun.dcf
 data=\epoc32\data\z\data\Others\STC1_128_44_16_2_CBR.wma data\Others\STC1_128_44_16_2_CBR.wma
 
+S60_APP_EXE(at_servicesregression)
+S60_APP_RESOURCE(at_servicesregression)
+UPGRADABLE_APP_REG_RSC(at_servicesregression)
+data=\epoc32\data\z\data\Others\one_v2.jpg data\Others\one_v2.jpg
+data=\epoc32\data\z\data\Others\324kbps_MPEG4_352x288_AAC_15fps.3gp data\Others\324kbps_MPEG4_352x288_AAC_15fps.3gp
+data=\epoc32\data\z\data\Others\111-test1_v2.odf data\Others\111-test1_v2.odf
 
 #endif

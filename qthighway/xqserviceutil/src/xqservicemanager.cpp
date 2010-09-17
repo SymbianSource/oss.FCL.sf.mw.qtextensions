@@ -46,13 +46,13 @@
 #include "xqconversions.h"
 
 
-#define TIMER_DELAY 3000
+#define TIMER_DELAY 3000000 // 3000000 microseconds == 3s
 
 class CProcessInfo : public CActive
     {
     public:
         static void AddProcessL(const TUid& appUid, RProcess& appProcess);
-        static void EnsureProcessCanStartL(const TUid& appUid);
+        static bool EnsureProcessCanStartL(const TUid& appUid);
         
     protected:
         CProcessInfo(const TUid& appUid);
@@ -111,14 +111,14 @@ void CProcessInfo::AddProcessL(const TUid& appUid, RProcess& appProcess)
     CleanupStack::Pop(self);
 }
 
-void CProcessInfo::EnsureProcessCanStartL(const TUid& appUid)
+bool CProcessInfo::EnsureProcessCanStartL(const TUid& appUid)
 {
     XQSERVICE_DEBUG_PRINT("CProcessInfo::EnsureProcessCanStartL");
+  
+    bool ret = true;
     
     CProcessInfo* previousProcess = iProcessInfoMap.map[appUid.iUid];
     if (previousProcess) {
-        previousProcess->Cancel();
-        
         // Timer is for ensure that wait will end. 
         // Maybe there is possibility that destroing process notification could be lost.
         RTimer securityTimer;
@@ -129,10 +129,14 @@ void CProcessInfo::EnsureProcessCanStartL(const TUid& appUid)
         securityTimer.After(timerStatus, TIMER_DELAY);
         User::WaitForRequest(previousProcess->iStatus, timerStatus);
         
+        if (previousProcess->iStatus == KRequestPending)
+            ret = false;
+        
         CleanupStack::PopAndDestroy();
         delete previousProcess;
         iProcessInfoMap.map.remove(appUid.iUid);
     }
+    return ret;
 }
 
 void CProcessInfo::RunL()
@@ -493,7 +497,8 @@ void XQServiceManagerPrivate::StartServerL(const TUid& uid, bool embedded, TUint
             }
         }
         else {
-            CProcessInfo::EnsureProcessCanStartL(uid);
+            if(!CProcessInfo::EnsureProcessCanStartL(uid))
+                User::Leave(KErrAlreadyExists);
         }
         TRequestStatus requestStatusForRendezvous;
         

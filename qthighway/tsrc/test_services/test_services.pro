@@ -18,7 +18,6 @@
 # Description:
 #
 
-
 TEMPLATE = subdirs
 
 CONFIG += ordered

@@ -30,7 +30,10 @@
 
 #include <apaserverapp.h>
 
+#include <XQSettingsManager>
+
 class CApaServerSymbianSession;
+class XQPublishAndSubscribeKey;
 
 namespace QtService {
     class MServiceIPCObserver;
@@ -72,6 +75,10 @@ namespace QtService {
     private:
         // data
         MServiceIPCObserver* iObserver;
+        
+        XQSettingsManager settingsManager;
+        XQPublishAndSubscribeSettingsKey *stateNotifyKey;
+        
     };
 }
 #endif // C_XQSERVICEIPCSERVER_APA_SYMBIAN_SERVER_H

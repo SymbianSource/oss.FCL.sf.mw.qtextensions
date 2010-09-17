@@ -18,58 +18,58 @@
 TEMPLATE = app
 TARGET = test_xqkeycapture
 
-
-INCLUDEPATH += . 
-INCLUDEPATH += $$MW_LAYER_SYSTEMINCLUDE \
+INCLUDEPATH += . \
+               stub \ 
+               $$MW_LAYER_SYSTEMINCLUDE \
                /epoc32/include/mw/qt \
                /epoc32/include/mw/qttest
 
 TARGET.CAPABILITY = ALL -TCB
 
-# Input
-# LIBS += 
-
 DEFINES += _XQKEYCAPTURE_UNITTEST_
 
 SOURCES += test_xqkeycapture.cpp \
-            mytestwindowgroup.cpp
-
-HEADERS += mytestwindowgroup.h
-
-HEADERS += \
-  ../xqkeycapture.h \
-  ../keycapture_p.h \
-  ../txlogger.h
-
-SOURCES += \
-  ../xqkeycapture.cpp
+           mytestwindowgroup.cpp \
+           ../xqkeycapture.cpp \
+           stub/remconcoreapitarget.cpp \
+           stub/remconinterfaceselector.cpp \
+           stub/remconcallhandlingtarget.cpp \
+           stub/remconinterfacebase.cpp
+           
+HEADERS += mytestwindowgroup.h \
+           ../xqkeycapture.h \
+           ../keycapture_p.h \
+           ../txlogger.h \
+           stub/remconcoreapitarget.h \
+           stub/remconinterfaceselector.h \
+           stub/remconcallhandlingtarget.h \
+           stub/remconinterfacebase.h
   
-symbian { 
-
-    LIBS += -lremconinterfacebase -lremconcoreapi -lremconextensionapi
-	
+symbian {
+    LIBS += -lremconcoreapi
+        
     HEADERS += ../keycapture_s60_p.h \
-            ../capturerequest_s60.h \
-			../keymapper.h \
-			../targetwrapper.h \
-			../responsehandler.h \
-			../responsehandlerex.h
-			
+               ../capturerequest_s60.h \
+               ../keymapper.h \                 
+               ../responsehandler.h \
+               ../responsehandlerex.h \
+               ../targetwrapper.h
+                        
     SOURCES +=../keycapture_s60_p.cpp \
-            ../capturerequest_s60.cpp \
-			../keymapper.cpp \
-			../targetwrapper.cpp \
-			../responsehandler.cpp \
-			../responsehandlerex.cpp
-	
-	sourcefiles.sources += /sf/mw/qt/src/gui/kernel/qkeymapper_s60.cpp
-	sourcefiles.sources += ../keymapper.cpp
+              ../capturerequest_s60.cpp \
+              ../keymapper.cpp \                        
+              ../responsehandler.cpp \
+              ../responsehandlerex.cpp \
+              ../targetwrapper.cpp
+                
+        sourcefiles.sources += /sf/mw/qt/src/gui/kernel/qkeymapper_s60.cpp
+        sourcefiles.sources += ../keymapper.cpp
 
-	sourcefiles.path = /
+        sourcefiles.path = /
     DEPLOYMENT += sourcefiles
 } else { 
     HEADERS += ../keycapture_stub_p.h
-    SOURCES += ./keycapture_stub_p.cpp
+    SOURCES += ../keycapture_stub_p.cpp
 }
 
 CONFIG += qtestlib console

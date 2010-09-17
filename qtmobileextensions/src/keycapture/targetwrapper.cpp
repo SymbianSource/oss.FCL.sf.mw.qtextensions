@@ -48,7 +48,7 @@ handlerEx(0)
 
 TargetWrapper::~TargetWrapper()
 {
-    delete selector;
+    cleanup();
 }
 
 void TargetWrapper::close(XQKeyCapture::CapturingFlags flags)
@@ -66,7 +66,7 @@ void TargetWrapper::init(XQKeyCapture::CapturingFlags flags)
 void TargetWrapper::reset()
 {
     try {
-        delete selector;
+        cleanup();
     
         QT_TRAP_THROWING(selector = CRemConInterfaceSelector::NewL());
         
@@ -87,7 +87,9 @@ void TargetWrapper::reset()
         selector = 0;
         target = 0;
         targetEx = 0;
+        delete handler;
         handler = 0;
+        delete handlerEx;
         handlerEx = 0;
         qDebug() << "TargetWrapper::init - exception: " << e.what();
         throw;
@@ -106,50 +108,94 @@ Qt::Key TargetWrapper::mapKey(TRemConCoreApiOperationId aOperationId)
     
 }
 
+/*
+ * Function for cleaning up selector and handlers, targets are handled via selector
+ */
+void TargetWrapper::cleanup()
+{
+    delete handler;
+    handler = 0;
+    delete handlerEx;
+    handlerEx = 0;
+    delete selector;
+    selector = 0;
+}
+
 void TargetWrapper::MrccatoCommand(TRemConCoreApiOperationId aOperationId, TRemConCoreApiButtonAction aButtonAct)
 {
-    Qt::Key key = mapKey(aOperationId); 
-
-    switch (aButtonAct) {
-        case ERemConCoreApiButtonPress:
-            TX_LOG_ARGS("ERemConCoreApiButtonPress");
-            sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
-            break;
-        case ERemConCoreApiButtonRelease:
-            TX_LOG_ARGS("ERemConCoreApiButtonRelease");
-            sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
-            break;
-        case ERemConCoreApiButtonClick:
-            TX_LOG_ARGS("ERemConCoreApiButtonClick");
-            sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
-            sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
-            break;
-        default:
-            return;
+    if (target) {
+        Qt::Key key = mapKey(aOperationId); 
+        switch (aButtonAct) {
+            case ERemConCoreApiButtonPress:
+                TX_LOG_ARGS("ERemConCoreApiButtonPress");
+                sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
+                break;
+            case ERemConCoreApiButtonRelease:
+                TX_LOG_ARGS("ERemConCoreApiButtonRelease");
+                sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
+                break;
+            case ERemConCoreApiButtonClick:
+                TX_LOG_ARGS("ERemConCoreApiButtonClick");
+                sendKey(QEvent::KeyPress, key, Qt::NoModifier, aOperationId);
+                sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
+                break;
+            default:
+                return;
+        }
+    } else {
+        qWarning() << "target in MrccatoCommand was not initialized";
     }
-
-    handler->CompleteAnyKey(aOperationId);
+    
+    if (handler) {
+        handler->CompleteAnyKey(aOperationId);
+    } else {
+        qWarning() << "handler in MrccatoCommand was not initialized";
+    }
 }
 
 void TargetWrapper::AnswerCall()
 {
-    sendKey(QEvent::KeyPress, Qt::Key_Call, Qt::NoModifier);
-    sendKey(QEvent::KeyRelease, Qt::Key_Call, Qt::NoModifier);
-    handlerEx->CompleteAnyKey(0);
+    if (targetEx) {
+        sendKey(QEvent::KeyPress, Qt::Key_Call, Qt::NoModifier);
+        sendKey(QEvent::KeyRelease, Qt::Key_Call, Qt::NoModifier);
+    } else {
+        qWarning() << "targetEx in AnswerCall was not initialized";
+    }
+    if (handlerEx) { 
+        handlerEx->CompleteAnyKey(0);
+    } else {
+        qWarning() << "handlerEx in AnswerCall was not initialized";
+    }
 }
 
 void TargetWrapper::EndCall()
 {
-    sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);
-    sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier);
-    handlerEx->CompleteAnyKey(0);
+    if (targetEx) {
+        sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);
+        sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier);
+    } else {
+        qWarning() << "targetEx in EndCall was not initialized";
+    }
+    if (handlerEx) {
+        handlerEx->CompleteAnyKey(0);
+    } else {
+        qWarning() << "handlerEx in EndCall was not initialized";
+    }
 }
 
 void TargetWrapper::AnswerEndCall()
 {
-    sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);  //TODO: Qt::Key_ToggleCallHangup
-    sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier); 
-    handlerEx->CompleteAnyKey(0);
+    if (targetEx) {
+        sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);  //TODO: Qt::Key_ToggleCallHangup
+        sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier); 
+    } else {
+        qWarning() << "targetEx in AnswerEndCall was not initialized";
+    }    
+    if (handlerEx) {
+        handlerEx->CompleteAnyKey(0);
+    } else {
+        qWarning() << "handlerEx in AnswerEndCall was not initialized";
+    }
 }
 
 void TargetWrapper::VoiceDial( const TBool aActivate )
@@ -201,7 +247,6 @@ void TargetWrapper::sendKey(QEvent::Type eventType, Qt::Key key, Qt::KeyboardMod
         
         if (event){
             QApplication::sendEvent(widget, event);
-            qDebug("sending key event!");
             delete event;
         }
     }
@@ -211,11 +256,9 @@ QWidget *TargetWrapper::getTargetWidget()
 {
     QWidget *widget;
     widget = QWidget::keyboardGrabber();
-    
     if (!widget) {
         widget = QApplication::focusWidget();
     }
-    
     if (!widget) {
         if (QApplication::activePopupWidget()) {
             widget = QApplication::activePopupWidget()->focusWidget();
@@ -224,7 +267,6 @@ QWidget *TargetWrapper::getTargetWidget()
             }
         }
     }
-
     return widget;
 }
 
