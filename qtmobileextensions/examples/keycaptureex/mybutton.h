@@ -28,25 +28,30 @@
 #include <QKeyEvent>
 #include <QMap>
 
-class MyKeyButton : public QPushButton 
+class MyButton : public QPushButton 
 {
     Q_OBJECT
     
 public:
-    MyKeyButton(QPlainTextEdit *logger, QWidget *parent = 0)
-    :
-    QPushButton(QString("dummy"), parent)
+    
+    MyButton(QPlainTextEdit *logger, QWidget *parent = 0) : QPushButton(QString("focus here"), parent)
     {
         justLogger = logger;
         keyLabels.insert(Qt::Key_VolumeUp, "Volume Up");        
-        keyLabels.insert(Qt::Key_VolumeDown, "Volume Down");        
+        keyLabels.insert(Qt::Key_VolumeDown, "Volume Down");
+        keyLabels.insert(Qt::Key_Hangup, "Hangup");        
+        keyLabels.insert(Qt::Key_Play, "Play");        
+        keyLabels.insert(Qt::Key_MediaNext, "Media Next");        
+        keyLabels.insert(Qt::Key_MediaPrevious, "Media Previous");        
+        keyLabels.insert(Qt::Key_Forward, "Forward");        
+        keyLabels.insert(Qt::Key_Back, "Back");        
     }
     
-    ~MyKeyButton() 
+    ~MyButton() 
     {
     }
     
-    bool event(QEvent *event)
+    /*bool event(QEvent *event)
     {
         if (justLogger) {
             if (event->type() != QEvent::KeyPress) {
@@ -61,6 +66,27 @@ public:
             }
         }
         return QPushButton::event(event);
+    }*/
+    
+    void keyPressEvent(QKeyEvent *e)
+    {
+        QString keyName = mapNaturalName(static_cast<Qt::Key>(e->key()));
+        addTextLine(QString("P> %1").arg(keyName));
+    }
+    
+    void keyReleaseEvent(QKeyEvent *e)
+    {
+        QString keyName = mapNaturalName(static_cast<Qt::Key>(e->key()));
+        addTextLine(QString("R> %1").arg(keyName));
+    }
+    
+    void addTextLine(QString aText)
+    {
+        if ( !aText.endsWith("\n"))
+            aText = aText + "\n";
+        QString msg = justLogger->toPlainText();
+        msg = aText + msg;
+        justLogger->setPlainText(msg);
     }
     
 private:

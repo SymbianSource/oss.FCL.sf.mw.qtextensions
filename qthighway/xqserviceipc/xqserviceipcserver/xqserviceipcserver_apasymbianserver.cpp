@@ -129,6 +129,7 @@ bool CApaSymbianServer::listen( const QString& aServerName )
 	    delete stateNotifyKey;
 	    
 	    RProcess currentProcess;
+	    CleanupClosePushL(currentProcess);
 	    const TSecureId secureId = currentProcess.SecureId();
 	    
 	    stateNotifyKey = new XQPublishAndSubscribeSettingsKey(secureId.iId, id);
@@ -139,6 +140,7 @@ bool CApaSymbianServer::listen( const QString& aServerName )
 	    } else {
 			settingsManager.writeItemValue(*stateNotifyKey, static_cast<int>(XQApplicationManager::ServiceStarted));
 		}
+	    CleanupStack::PopAndDestroy(&currentProcess);
 	}
     // Complete the server rendezvous that th client started
     XQSERVICE_DEBUG_PRINT("CApaSymbianServer::Rendezvouz");

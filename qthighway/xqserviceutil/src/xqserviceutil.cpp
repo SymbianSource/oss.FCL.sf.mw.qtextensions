@@ -32,6 +32,11 @@
 #include <apacmdln.h>
 #include <eikenv.h>
 
+namespace
+{
+    const TInt KWinPosForeground = 0;
+    const TInt KWinPosBackground = -1;
+}
 
 // ======== LOCAL FUNCTIONS ========
 static bool isKeySet(const QString &key)
@@ -115,24 +120,10 @@ void XQServiceUtil::toBackground( bool value )
 {
     XQSERVICE_DEBUG_PRINT("XQServiceUtil::toBackground");
     XQSERVICE_DEBUG_PRINT("value: %d", value);
-    RWsSession ws;
-    int sid = RProcess().SecureId().iId;  // Assumes UID3 == SID !!!
-    XQSERVICE_DEBUG_PRINT("sid: %d", sid);
-    if (ws.Connect() == KErrNone) {
-        XQSERVICE_DEBUG_PRINT("Connected to window server");
-        TApaTaskList tasklist(ws);
-        TApaTask task = tasklist.FindApp(TUid::Uid(sid));
-        XQSERVICE_DEBUG_PRINT("task.Exists(): %x", task.Exists());
-        if (task.Exists()) {
-            if (value) {
-                task.SendToBackground();
-            }
-            else {
-                task.BringToForeground();
-            }
-        }
-
-        ws.Close();
+    
+    if (CEikonEnv::Static()) {
+        CEikonEnv::Static()->RootWin().SetOrdinalPosition(value ? KWinPosBackground : KWinPosForeground);
+        CEikonEnv::Static()->RootWin().EnableReceiptOfFocus(!value);
     }
 }
 

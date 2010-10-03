@@ -68,6 +68,7 @@ void XQAiwUriDriver::setArguments(const QList<QVariant> &arguments)
 
 bool XQAiwUriDriver::send(QVariant& retValue)
 {
+    Q_UNUSED(retValue);
     XQSERVICE_DEBUG_PRINT("XQAiwUriDriver::send %s", qPrintable(mUri.toString()));
 
     mErrorCode = XQService::ENoError;
@@ -196,7 +197,7 @@ bool XQAiwUriDriver::handleApptoUri(const QUrl &uri)
     //
     // Use Qt service framework errors as is (they are in different range than XQ errors)
     //
-    QLatin1String xml("Z:/resource/activity/activityserviceplugin.xml");
+    QLatin1String xml("Z:/resource/activity/afservice.xml");
     mErrorCode = QServiceManager::NoError;
                 
     QtMobility::QServiceManager serviceManager;
@@ -204,7 +205,7 @@ bool XQAiwUriDriver::handleApptoUri(const QUrl &uri)
 
     bool b = serviceManager.addService(xml);
     mErrorCode = serviceManager.error();
-    XQSERVICE_DEBUG_PRINT("\taddService=%d", mErrorCode);
+    XQSERVICE_DEBUG_PRINT("\taddService:xml=%s,status=%d", qPrintable(QString(xml)),mErrorCode);
     switch (mErrorCode)
     {
         case QServiceManager::NoError:

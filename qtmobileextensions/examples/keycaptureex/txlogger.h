@@ -30,7 +30,6 @@
 
 #define XQCONNECT_ASSERT(a, b, c, d) if (!(QObject::connect((a),(b), (c), (d)))) { qFatal("Connection failed: connect(%s, %s, %s, %s)", #a, #b, #c, #d); }
 
-// stolen from qt-music :)
 #ifdef ENABLETRACE
     #include <QString>
     #include <QDebug>

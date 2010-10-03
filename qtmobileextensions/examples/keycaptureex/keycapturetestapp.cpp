@@ -48,6 +48,7 @@
 
 #include "mapping.h"
 #include "capturerequest.h"
+#include "mybutton.h"
 
 KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
 {   
@@ -104,12 +105,17 @@ KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
     
     toggleRemoteCallHandlingEx = remoteMenu->addAction(QString("Call Handl. Ex Remote"));
     toggleRemoteCallHandlingEx->setCheckable(true);
-    
+
+    toggleRemoteSideKeys = remoteMenu->addAction(QString("Side Keys Events"));
+    toggleRemoteSideKeys->setCheckable(true);
+    toggleRemoteSideKeys->setEnabled(false); // not implemented yet
+
     toggleRemoteExtEvents = remoteMenu->addAction(QString("Extended Remote Events"));
     toggleRemoteExtEvents->setCheckable(true);
 
     connect(toggleRemoteBasic, SIGNAL(toggled(bool)), this, SLOT(enableRemBasic(bool)));
     connect(toggleRemoteCallHandlingEx, SIGNAL(toggled(bool)), this, SLOT(enableRemCallHandlingEx(bool)));
+    connect(toggleRemoteSideKeys, SIGNAL(toggled(bool)), this, SLOT(enableRemoteSideKeys(bool)));
     connect(toggleRemoteExtEvents, SIGNAL(toggled(bool)), this, SLOT(enableRemoteExtEvents(bool)));
 
     connect(remoteAllOn, SIGNAL(triggered(bool)), this, SLOT(remoteAll(bool)));
@@ -128,6 +134,8 @@ KeyCaptureTestApp::KeyCaptureTestApp( QWidget *parent) : QMainWindow(parent)
 	QFont font = QFont(mTextArea->font());
 	font.setPixelSize(10);
 	mTextArea->setFont(font);
+	
+	layout->addWidget(new MyButton(mTextArea));
 	
 	layout->addWidget(mTextArea);
 	
@@ -206,70 +214,84 @@ void KeyCaptureTestApp::procesAction(CaptureRequest request)
 
 void KeyCaptureTestApp::addTextLine(QString aText)
 {
+    TX_ENTRY
     TX_LOG_ARGS( QString("aText=%1").arg(aText));
 	if ( !aText.endsWith("\n"))
 		aText = aText + "\n";
 	QString msg = mTextArea->toPlainText();
 	msg = aText + msg;
 	mTextArea->setPlainText(msg);
+	TX_EXIT
 }
 
 bool KeyCaptureTestApp::event(QEvent *ev)
 {
-    processEvent(ev);
-    return QMainWindow::event(ev);
+    TX_ENTRY
+//    processEvent(QString("[E]"), ev);
+    bool ret = QMainWindow::event(ev);
+    TX_EXIT_ARGS("ret=" << ret);
+    return ret; 
 }
 
 bool KeyCaptureTestApp::eventFilter(QObject *o, QEvent *ev)
 {
-    processEvent(ev);
-    return QMainWindow::eventFilter(o, ev);
+    TX_ENTRY
+//    processEvent(QString("[F]"), ev);
+    bool ret=QMainWindow::eventFilter(o, ev); 
+    TX_EXIT_ARGS("ret=" << ret);
+    return ret; 
 }
 
-void KeyCaptureTestApp::processEvent(QEvent *ev)
+void KeyCaptureTestApp::processEvent(const QString &prefix, QEvent *ev)
 {
+    TX_ENTRY_ARGS(reinterpret_cast<int>(ev));
     if (ev){
         if (ev->type() == QEvent::KeyPress){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
            QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key())); 
            
-           addTextLine(QString("KeyPress:%1\n").arg(keyName));
+           addTextLine(prefix + QString("KeyPress:%1\n").arg(keyName));
         } else if (ev->type() == QEvent::KeyRelease){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
            QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
            
-           addTextLine(QString("KeyRelease:%1\n").arg(keyName));
+           addTextLine(prefix + QString("KeyRelease:%1\n").arg(keyName));
         } else if (ev->type() == XQKeyCapture::remoteEventType_KeyPress()){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-                      
            QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
-                      
-           addTextLine(QString("KeyPress:%1\n").arg(keyName));
-           addTextLine(QString("Native virtual key:%1\n").arg((int)keyEvent->nativeVirtualKey()));
+
+           addTextLine(prefix + QString("KeyPress:%1 (native:%2)\n").arg(keyName).arg(static_cast<int>(keyEvent->nativeVirtualKey())));
         } else if (ev->type() == XQKeyCapture::remoteEventType_KeyRelease()){
            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-                      
            QString keyName = mappingPtr->name(static_cast<Qt::Key>(keyEvent->key()));
                       
-           addTextLine(QString("KeyRelease:%1\n").arg(keyName));
-           addTextLine(QString("Native virtual key:%1\n").arg((int)keyEvent->nativeVirtualKey()));
+           addTextLine(prefix + QString("KeyRelease:%1 (native:%2)\n").arg(keyName).arg(static_cast<int>(keyEvent->nativeVirtualKey())));
         }
     }
+    TX_EXIT_ARGS(reinterpret_cast<int>(ev));
 }
 
 void KeyCaptureTestApp::enableRemBasic(bool enable)
 {
     if (enable) {
         addTextLine("Remote Basic enabled");
-        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
-        if (toggleRemoteExtEvents->isChecked())
-            flags = XQKeyCapture::CaptureEnableRemoteExtEvents;
-        if (toggleRemoteCallHandlingEx->isChecked())
-            flags |= XQKeyCapture::CaptureCallHandlingExt;
-        mKeyCapture->captureRemoteKeys(flags |= XQKeyCapture::CaptureBasic);
+        QFlags<XQKeyCapture::CapturingFlag> flags = getFlags() | XQKeyCapture::CaptureBasic;
+        mKeyCapture->captureRemoteKeys(flags);
     } else {
         addTextLine("Remote Basic disabled");
         mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureBasic);
+    }
+}
+
+void KeyCaptureTestApp::enableRemoteSideKeys(bool enable)
+{
+    if (enable) {
+        addTextLine("Side Keys enabled");
+        QFlags<XQKeyCapture::CapturingFlag> flags = getFlags() | XQKeyCapture::CaptureSideKeys;
+        mKeyCapture->captureRemoteKeys(flags);
+    } else {
+        addTextLine("Side Keys disabled");
+        mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureSideKeys);
     }
 }
 
@@ -277,12 +299,8 @@ void KeyCaptureTestApp::enableRemCallHandlingEx(bool enable)
 {
     if (enable) {
         addTextLine("Remote Call Handling Ext. enabled");
-        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
-        if (toggleRemoteExtEvents->isChecked())
-            flags = XQKeyCapture::CaptureEnableRemoteExtEvents;
-        if (toggleRemoteBasic->isChecked())
-            flags |= XQKeyCapture::CaptureBasic;
-        mKeyCapture->captureRemoteKeys(flags | XQKeyCapture::CaptureCallHandlingExt);
+        QFlags<XQKeyCapture::CapturingFlag> flags = getFlags() | XQKeyCapture::CaptureCallHandlingExt;
+        mKeyCapture->captureRemoteKeys(flags);
     } else {
         addTextLine("Remote Call Handling Ext. disabled");
         mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt);
@@ -293,12 +311,8 @@ void KeyCaptureTestApp::enableRemoteExtEvents(bool enable)
 {
     if (enable) {
         addTextLine("Remote Events Ext. enabled");
-        QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone;
-        if (toggleRemoteCallHandlingEx->isChecked())
-            flags = XQKeyCapture::CaptureCallHandlingExt;
-        if (toggleRemoteBasic->isChecked())
-            flags |= XQKeyCapture::CaptureBasic;
-        mKeyCapture->captureRemoteKeys(flags | XQKeyCapture::CaptureEnableRemoteExtEvents);
+        QFlags<XQKeyCapture::CapturingFlag> flags = getFlags() | XQKeyCapture::CaptureEnableRemoteExtEvents;
+        mKeyCapture->captureRemoteKeys(flags);
     } else {
         addTextLine("Remote Events Ext. disabled");
         mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureEnableRemoteExtEvents);
@@ -313,7 +327,7 @@ void KeyCaptureTestApp::remoteAll(bool enable)
     toggleRemoteExtEvents->setChecked(true);
     addTextLine("Remote: enable all");
     mKeyCapture->captureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt |  XQKeyCapture::CaptureBasic | 
-            XQKeyCapture::CaptureEnableRemoteExtEvents);
+            XQKeyCapture::CaptureSideKeys | XQKeyCapture::CaptureEnableRemoteExtEvents);
 }
 
 void KeyCaptureTestApp::remoteNone(bool enable)
@@ -324,5 +338,23 @@ void KeyCaptureTestApp::remoteNone(bool enable)
     toggleRemoteExtEvents->setChecked(false);
     addTextLine("Remote: disable all");
     mKeyCapture->cancelCaptureRemoteKeys(XQKeyCapture::CaptureCallHandlingExt | XQKeyCapture::CaptureBasic | 
-            XQKeyCapture::CaptureEnableRemoteExtEvents);
+            XQKeyCapture::CaptureSideKeys | XQKeyCapture::CaptureEnableRemoteExtEvents);
+}
+
+QFlags<XQKeyCapture::CapturingFlag> KeyCaptureTestApp::getFlags()
+{
+    QFlags<XQKeyCapture::CapturingFlag> flags = XQKeyCapture::CaptureNone
+            // remote call handling extension
+           | (toggleRemoteCallHandlingEx->isChecked() 
+                   ? XQKeyCapture::CaptureCallHandlingExt : XQKeyCapture::CaptureNone)
+            // basic remcon accesory events
+           | (toggleRemoteBasic->isChecked() 
+                   ? XQKeyCapture::CaptureBasic : XQKeyCapture::CaptureNone)
+            // side keys api 
+           | (toggleRemoteSideKeys->isChecked() 
+                   ? XQKeyCapture::CaptureSideKeys : XQKeyCapture::CaptureNone)
+            // generate extevents
+           | (toggleRemoteExtEvents->isChecked() 
+                   ? XQKeyCapture::CaptureEnableRemoteExtEvents : XQKeyCapture::CaptureNone); 
+    return flags;
 }

@@ -35,7 +35,7 @@ CaptureRequest::CaptureRequest(TUint aKey, Qt::KeyboardModifiers aModifiersMask,
 #else
     MyTestWindowGroup* aGroup
 #endif
-	):
+    ):
     mKey(aKey), 
     mModifiersMask(aModifiersMask), 
     mModifier(aModifier), 
@@ -88,18 +88,14 @@ int CaptureRequest::request()
             bool additionalAction = false;
             TUint additionalKey = 0;
             switch(mKey){
-            case EKeyLeftShift:
-                additionalAction = true;
-                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightShift : EKeyRightShift;
-                break;
-            case EKeyLeftCtrl:
-                additionalAction = true;
-                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightCtrl : EKeyRightCtrl;
-                break;
-            case EKeyLeftFunc:
-                additionalAction = true;
-                additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightFunc : EKeyRightFunc;
-                break;
+                case EKeyLeftShift:
+                    additionalAction = true;
+                    additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightShift : EKeyRightShift;
+                    break;
+                case EKeyLeftCtrl:
+                    additionalAction = true;
+                    additionalKey = (mRequestType == CaptureRequestTypeUpAndDown) ? EStdKeyRightCtrl : EKeyRightCtrl;
+                    break;
             }
 
             if (additionalAction && additionalKey != 0) {
@@ -110,8 +106,8 @@ int CaptureRequest::request()
                         translatedModifierMask(), translatedModifier());
                     break;
                 case CaptureRequestTypeLong:
-                    mAdditionalRequestHandle = mGroup->CaptureLongKey(additionalKey,
-                        additionalKey, translatedModifierMask(), translatedModifier(), 0, longKeyFlags);
+                    mAdditionalRequestHandle = mGroup->CaptureLongKey(additionalKey, additionalKey,
+                        translatedModifierMask(), translatedModifier(), 0, longKeyFlags);
                     break;
                 case CaptureRequestTypeUpAndDown:
                     mAdditionalRequestHandle = mGroup->CaptureKeyUpAndDowns(additionalKey,

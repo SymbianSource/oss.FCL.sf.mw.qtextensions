@@ -296,7 +296,7 @@ bool XQKeyCapture::captureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureKey(key, aModifiersMask, aModifier);
+        result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -315,7 +315,7 @@ bool XQKeyCapture::captureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureKey(key, aModifiersMask, aModifier);
+        result = result & captureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -335,7 +335,7 @@ bool XQKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
+        result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -355,7 +355,7 @@ bool XQKeyCapture::captureLongKey(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
+        result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -374,7 +374,7 @@ bool XQKeyCapture::captureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -393,7 +393,7 @@ bool XQKeyCapture::captureKeyUpAndDowns(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -412,7 +412,7 @@ bool XQKeyCapture::cancelCaptureKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
+        result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -431,7 +431,7 @@ bool XQKeyCapture::cancelCaptureKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
+        result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -451,7 +451,7 @@ bool XQKeyCapture::cancelCaptureLongKey(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
+        result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -471,7 +471,7 @@ bool XQKeyCapture::cancelCaptureLongKey(XQKeyCaptureNativeKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
+        result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
     }
     return result;
 }
@@ -490,7 +490,7 @@ bool XQKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     Qt::Key key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
@@ -509,455 +509,9 @@ bool XQKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list,
     TUint key;
     bool result = true;
     foreach (key, list) {
-        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
+        result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
     }
     return result;
 }
 
-/*!
- Constructor.
-*/
-XqKeyCapture::XqKeyCapture() :
-    d(new KeyCapturePrivate())
-{
-
-}
-
-/*!
- Destructor.
-*/
-XqKeyCapture::~XqKeyCapture()
-{
-    delete d;
-}
-
-/*!
- Selects a given key for capturing key pressing. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-/*!
- Selects a given key for capturing key pressing. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKey(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeNormal);
-}
-
-/*!
- Selects a given key for capturing key pressing. Requires a S60 key code (TKeyCode).
- \param aKey A S60 key code (TKeyCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKey(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCapture(aKey, aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeNormal);
-}
-
-/*!
- Selects a given key for capturing long pressing. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureLongKey(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-    XqKeyCapture::LongFlags aLongType)
-{
-    return d->doCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
-}
-
-/*!
- Selects a given key for capturing long pressing. Requires a S60 key code (TKeyCode).
- \param aKey A S60 key code (TKeyCode).
- \param aModifiersMap
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureLongKey(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMap, Qt::KeyboardModifiers aModifier,
-    XqKeyCapture::LongFlags aLongType)
-{
-    return d->doCapture(aKey, aModifiersMap, aModifier,
-        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
-}
-
-/*!
- Selects a given key for capturing pressing up and down. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKeyUpAndDowns(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCapture(d->mMapper->mapQtToS60ScanCodes(aKey), aModifiersMask,
-        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-/*!
- Selects a given key for capturing pressing up and down. Requires a S60 key scan code (TStdScanCode).
- \param aKey A S60 key scan code (TStdScanCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKeyUpAndDowns(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCapture(aKey, aModifiersMask,
-        aModifier, CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-/*!
- Deselects a given key from key capturing. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKey(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey),
-        aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeNormal);
-}
-
-/*!
- Deselects a given key from key capturing. Requires a S60 key code (TKeyCode).
- \param aKey A S60 key code (TKeyCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKey(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeNormal);
-}
-
-/*!
- Deselects a given key from capturing long pressing. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureLongKey(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-    XqKeyCapture::LongFlags aLongType)
-{
-    return d->doCancelCapture(d->mMapper->mapQtToS60Key(aKey), aModifiersMask,
-        aModifier, CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
-}
-
-/*!
- Deselects a given key from capturing long pressing. Requires a S60 key code (TKeyCode).
- \param aKey A S60 key code (TKeyCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureLongKey(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier,
-    XqKeyCapture::LongFlags aLongType)
-{
-    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeLong, (XQKeyCapture::LongFlags)aLongType);
-}
-
-/*!
- Deselects a given key from capturing pressing up and down. Requires a Qt key code.
- \param aKey A Qt key.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKeyUpAndDowns(Qt::Key aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCancelCapture(d->mMapper->mapQtToS60ScanCodes(aKey),
-        aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-/*!
- Deselects a given key from capturing pressing up and down. Requires a S60 key scan code (TStdScanCode).
- \param aKey A S60 key scan code (TStdScanCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKeyUpAndDowns(TUint aKey,
-    Qt::KeyboardModifiers aModifiersMask, Qt::KeyboardModifiers aModifier)
-{
-    return d->doCancelCapture(aKey, aModifiersMask, aModifier,
-        CaptureRequest::CaptureRequestTypeUpAndDown);
-}
-
-/*!
- Returns latest error string.
- \retval Latest error string.
- */
-QString XqKeyCapture::errorString() const
-{
-    return d->errorString();
-}
-
-/*!
- Returns latest error id.
- \retval Latest error id.
- */
-int XqKeyCapture::errorId() const
-{
-    return d->errorId();
-}
-
-/*!
- Selects a given keys for capturing key pressing. Requires a Qt key code.
- \param list A Qt keys list.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKey(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureKey(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Selects a given keys for capturing key pressing. Requires a S60 key code (TKeyCode).
- \param list A S60 list of keys (TKeyCode codes).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKey(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureKey(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Selects a given keys for capturing long pressing. Requires a Qt key code.
- \param aKey A Qt  list of keys.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureLongKey(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
-    }
-    return result;
-}
-
-/*!
- Selects a given keys for capturing long pressing. Requires a S60 key code (TKeyCode).
- \param list A S60 list of keys (TKeyCode codes).
- \param aModifiersMap
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
- bool XqKeyCapture::captureLongKey(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureLongKey(key, aModifiersMask, aModifier, aLongType);
-    }
-    return result;
-}
-
-/*!
- Selects a given keys for capturing pressing up and down. Requires a Qt key code.
- \param list A Qt list of keys.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKeyUpAndDowns(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Selects a given keys for capturing pressing up and down. Requires a S60 key scan code (TStdScanCode).
- \param list A list of S60 key scan codes (TStdScanCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully added to the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::captureKeyUpAndDowns(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & captureKeyUpAndDowns(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Deselects a given list of keys from key capturing. Requires a Qt key code.
- \param list  A Qt list of keys.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKey(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Deselects a given list of keys from key capturing. Requires a S60 key code (TKeyCode).
- \param list  A S60 list of key codes (TKeyCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKey(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureKey(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Deselects a given list of keys from capturing long pressing. Requires a Qt key code.
- \param list A list of Qt keys.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureLongKey(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
-    }
-    return result;
-}
-
-/*!
- Deselects a given key from capturing long pressing. Requires a S60 key code (TKeyCode).
- \paramlist A list of S60 key codes (TKeyCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureLongKey(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier,
-        XqKeyCapture::LongFlags aLongType)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureLongKey(key, aModifiersMask, aModifier, aLongType);
-    }
-    return result;
-}
-
-/*!
- Deselects a list of given keys from capturing pressing up and down. Requires a Qt key codes.
- \param list A list of Qt keys.
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
-bool XqKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    Qt::Key key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
-
-/*!
- Deselects a given list of keys from capturing pressing up and down. Requires a S60 key scan code (TStdScanCode).
- \param aKey A S60 key scan code (TStdScanCode).
- \param aModifiersMask
- \param aModifier 
- \retval Returns true if aKey was succesfully removed from the capturing system, otherwise returns false.
- */
- bool XqKeyCapture::cancelCaptureKeyUpAndDowns(XQKeyCaptureNativeKeyList list, 
-        Qt::KeyboardModifiers aModifiersMask,
-        Qt::KeyboardModifiers aModifier)
-{
-    TUint key;
-    bool result = true;
-    foreach (key, list) {
-        bool result = result & cancelCaptureKeyUpAndDowns(key, aModifiersMask, aModifier);
-    }
-    return result;
-}
+// end of file

@@ -36,7 +36,7 @@
 
 #include <e32base.h>
 
-#include <XqKeyCapture>
+#include <XQKeyCapture>
 
 class QPlainTextEdit;
 class QAction;

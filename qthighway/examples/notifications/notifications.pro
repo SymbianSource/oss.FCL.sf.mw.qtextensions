@@ -18,15 +18,15 @@
 # Description:
 #
 
-TEMPLATE = lib
-TARGET = xqsystemtoneservice
+XQSERVICE_ROOT=../../..
+include(../../xqservicebase.pri)
 
-symbian:defFilePath=..
-symbian:TARGET.UID3=0x2002EA83
-symbian:TARGET.EPOCALLOWDLLDATA=1
+TEMPLATE=subdirs
 
-TARGET.CAPABILITY = CAP_GENERAL_DLL
+CONFIG += ordered
 
-DEFINES += __STS_QT_LIB_BUILD__
-include(systemtoneservice.pri)
-
+SUBDIRS= \
+         client \
+         service \
+         notificationreceiver
+		 

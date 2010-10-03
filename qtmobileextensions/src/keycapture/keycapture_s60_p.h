@@ -84,7 +84,6 @@ private:
     TargetWrapper *tgWrapper;
     
     friend class XQKeyCapture;
-    friend class XqKeyCapture;
     };
 
 #endif /* KEYCAPTUREPRIVATE_S60_H */

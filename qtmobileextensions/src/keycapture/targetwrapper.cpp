@@ -65,6 +65,7 @@ void TargetWrapper::init(XQKeyCapture::CapturingFlags flags)
 
 void TargetWrapper::reset()
 {
+    TX_ENTRY
     try {
         cleanup();
     
@@ -93,19 +94,20 @@ void TargetWrapper::reset()
         handlerEx = 0;
         qDebug() << "TargetWrapper::init - exception: " << e.what();
         throw;
-    }    
+    }
+    TX_EXIT
 }
 
 Qt::Key TargetWrapper::mapKey(TRemConCoreApiOperationId aOperationId)
 {
+    TX_ENTRY
     Qt::Key key = keyMapping.value(aOperationId);
     
-    if (key != Qt::Key())
-        return key;
-    else {
-        return Qt::Key_unknown;
+    if (key == Qt::Key()) {
+        key = Qt::Key_unknown;
     }
-    
+    TX_EXIT
+    return key;
 }
 
 /*
@@ -113,16 +115,19 @@ Qt::Key TargetWrapper::mapKey(TRemConCoreApiOperationId aOperationId)
  */
 void TargetWrapper::cleanup()
 {
+    TX_ENTRY
     delete handler;
     handler = 0;
     delete handlerEx;
     handlerEx = 0;
     delete selector;
     selector = 0;
+    TX_EXIT
 }
 
 void TargetWrapper::MrccatoCommand(TRemConCoreApiOperationId aOperationId, TRemConCoreApiButtonAction aButtonAct)
 {
+    TX_ENTRY
     if (target) {
         Qt::Key key = mapKey(aOperationId); 
         switch (aButtonAct) {
@@ -140,6 +145,7 @@ void TargetWrapper::MrccatoCommand(TRemConCoreApiOperationId aOperationId, TRemC
                 sendKey(QEvent::KeyRelease, key, Qt::NoModifier, aOperationId);
                 break;
             default:
+                TX_EXIT
                 return;
         }
     } else {
@@ -151,10 +157,12 @@ void TargetWrapper::MrccatoCommand(TRemConCoreApiOperationId aOperationId, TRemC
     } else {
         qWarning() << "handler in MrccatoCommand was not initialized";
     }
+    TX_EXIT
 }
 
 void TargetWrapper::AnswerCall()
 {
+    TX_ENTRY
     if (targetEx) {
         sendKey(QEvent::KeyPress, Qt::Key_Call, Qt::NoModifier);
         sendKey(QEvent::KeyRelease, Qt::Key_Call, Qt::NoModifier);
@@ -166,10 +174,12 @@ void TargetWrapper::AnswerCall()
     } else {
         qWarning() << "handlerEx in AnswerCall was not initialized";
     }
+    TX_EXIT
 }
 
 void TargetWrapper::EndCall()
 {
+    TX_ENTRY
     if (targetEx) {
         sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);
         sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier);
@@ -181,10 +191,12 @@ void TargetWrapper::EndCall()
     } else {
         qWarning() << "handlerEx in EndCall was not initialized";
     }
+    TX_EXIT
 }
 
 void TargetWrapper::AnswerEndCall()
 {
+    TX_ENTRY
     if (targetEx) {
         sendKey(QEvent::KeyPress, Qt::Key_Hangup, Qt::NoModifier);  //TODO: Qt::Key_ToggleCallHangup
         sendKey(QEvent::KeyRelease, Qt::Key_Hangup, Qt::NoModifier); 
@@ -196,40 +208,54 @@ void TargetWrapper::AnswerEndCall()
     } else {
         qWarning() << "handlerEx in AnswerEndCall was not initialized";
     }
+    TX_EXIT    
 }
 
 void TargetWrapper::VoiceDial( const TBool aActivate )
 {
+    TX_ENTRY
     Q_UNUSED(aActivate)
+    TX_EXIT
 }
 
 void TargetWrapper::LastNumberRedial()
 {
+    TX_ENTRY
+    TX_EXIT
 }
 
 void TargetWrapper::DialCall( const TDesC8& aTelNumber )
 {
+    TX_ENTRY
     Q_UNUSED(aTelNumber)
+    TX_EXIT
 }
 
 void TargetWrapper::MultipartyCalling( const TDesC8& aData )
 {
+    TX_ENTRY
     Q_UNUSED(aData)
+    TX_EXIT
 }
 
 void TargetWrapper::GenerateDTMF( const TChar aChar )
 {
+    TX_ENTRY
     Q_UNUSED(aChar)
+    TX_EXIT
 }
 
 void TargetWrapper::SpeedDial( const TInt aIndex )    
 {
+    TX_ENTRY
     Q_UNUSED(aIndex)
+    TX_EXIT
 }
 
 void TargetWrapper::sendKey(QEvent::Type eventType, Qt::Key key, Qt::KeyboardModifiers modFlags, 
                     TRemConCoreApiOperationId aOperationId)
 {
+    TX_ENTRY
     QWidget *widget = getTargetWidget();
     if (widget) {
         QKeyEvent *event = NULL;
@@ -245,15 +271,19 @@ void TargetWrapper::sendKey(QEvent::Type eventType, Qt::Key key, Qt::KeyboardMod
             event = new QKeyEvent(eventType, key, modFlags);
         }
         
-        if (event){
+        if (event) {
+            TX_LOG_ARGS("Sending event: " << event->key() << ", " << event->modifiers() << "[" << event->nativeScanCode() << ", " << event->nativeVirtualKey() << ", " << event->nativeModifiers() << "]");
             QApplication::sendEvent(widget, event);
+            TX_LOG_ARGS("Event sent: " << event->key());
             delete event;
         }
     }
+    TX_EXIT
 }
 
 QWidget *TargetWrapper::getTargetWidget()
 {
+    TX_ENTRY
     QWidget *widget;
     widget = QWidget::keyboardGrabber();
     if (!widget) {
@@ -267,6 +297,7 @@ QWidget *TargetWrapper::getTargetWidget()
             }
         }
     }
+    TX_EXIT
     return widget;
 }
 
@@ -274,6 +305,7 @@ QWidget *TargetWrapper::getTargetWidget()
 
 void TargetWrapper::initMapping()
 {
+    TX_ENTRY
     keyMapping.insert(ERemConCoreApiSelect, Qt::Key_Select);
     keyMapping.insert(ERemConCoreApiUp, Qt::Key_Up);
     keyMapping.insert(ERemConCoreApiDown, Qt::Key_Down);
@@ -337,4 +369,5 @@ void TargetWrapper::initMapping()
     keyMapping.insert(ERemConCoreApiF4, Qt::Key_F4);
     keyMapping.insert(ERemConCoreApiF5, Qt::Key_F5);
     keyMapping.insert(ENop, Qt::Key_unknown);
+    TX_EXIT
 }

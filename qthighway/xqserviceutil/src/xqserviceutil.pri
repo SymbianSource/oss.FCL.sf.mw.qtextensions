@@ -19,15 +19,17 @@
 #
 
 HEADERS += \    
-				src/xqserviceutil.h \
-    			src/xqservicemanager.h \
+                src/xqserviceutil.h \
+                src/xqservicemanager.h \
                 src/xqsharablefile.h \
                 src/xqrequestinfo.h \
-                src/xqrequestutil.h
+                src/xqrequestutil.h \
+                src/processinfo.h
 
 SOURCES += \
-    			src/xqserviceutil.cpp \
-    			src/xqservicemanager.cpp \
+                src/xqserviceutil.cpp \
+                src/xqservicemanager.cpp \
                 src/xqsharablefile.cpp \
                 src/xqrequestinfo.cpp \
-                src/xqrequestutil.cpp
+                src/xqrequestutil.cpp \
+                src/processinfo.cpp

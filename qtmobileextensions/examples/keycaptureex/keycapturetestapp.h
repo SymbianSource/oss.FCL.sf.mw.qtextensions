@@ -50,6 +50,7 @@ public slots:
 	
 	void enableRemBasic(bool);
     void enableRemCallHandlingEx(bool);
+    void enableRemoteSideKeys(bool);
     void enableRemoteExtEvents(bool);
 	
     void remoteAll(bool enable);
@@ -57,7 +58,9 @@ public slots:
 
 private:
     void procesAction(CaptureRequest request);
-    void processEvent(QEvent *event);
+    void processEvent(const QString &prefix, QEvent *event);
+    
+    QFlags<XQKeyCapture::CapturingFlag> getFlags();
 private:	
     QPlainTextEdit *mTextArea;
 
@@ -65,6 +68,7 @@ private:
     
     QAction *toggleRemoteBasic;
     QAction *toggleRemoteCallHandlingEx;
+    QAction *toggleRemoteSideKeys;
     QAction *toggleRemoteExtEvents;
     
     QAction *remoteAllOn;

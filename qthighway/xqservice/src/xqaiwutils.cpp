@@ -395,11 +395,11 @@ void XQAiwUtilsPrivate::launchApplicationL(int applicationId, const QString &cmd
         CApaCommandLine* cmdLine = CApaCommandLine::NewLC();
         cmdLine->SetExecutableNameL( aInfo.iFullName );
         RProcess newApp;
+        CleanupClosePushL(newApp);
         User::LeaveIfError(newApp.Create(aInfo.iFullName, cmdArgs));
         cmdLine->SetProcessEnvironmentL(newApp);
         newApp.Resume();
-        newApp.Close(); // Close the handle (not the app)
-        CleanupStack::PopAndDestroy(2);  // cmdLine, wsSession
+        CleanupStack::PopAndDestroy(3);  // newApp, cmdLine, wsSession
     }
 
     XQSERVICE_DEBUG_PRINT("application started");

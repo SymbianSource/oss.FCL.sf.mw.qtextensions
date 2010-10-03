@@ -34,6 +34,7 @@
 
 const int KAllFlagsOn = XQKeyCapture::CaptureBasic | 
                         XQKeyCapture::CaptureCallHandlingExt |
+                        XQKeyCapture::CaptureSideKeys |
                         XQKeyCapture::CaptureEnableRemoteExtEvents;
 const Qt::Key KNotSpecifiedKey = Qt::Key_F35;
 
@@ -59,11 +60,11 @@ private slots:
     void testCaptureKeyList_data();
     void testCaptureKeyList();
 
-	void testCaptureKey_S60_data();
-	void testCaptureKey_S60();
+    void testCaptureKey_S60_data();
+    void testCaptureKey_S60();
 
     void testCaptureKeyList_S60_data();
-	void testCaptureKeyList_S60();
+    void testCaptureKeyList_S60();
 
     void testCaptureKeyUpAndDowns_data();
     void testCaptureKeyUpAndDowns();
@@ -155,13 +156,13 @@ private slots:
 
     void testErrorString();
     void testErrorId();
-	
-	void testKeyMapperFile();
+    
+    void testKeyMapperFile();
 
 private:
-	QString clearString(const QString& line);
-	QString clearString(const QString& line, const QString& prefix, const QString& comment);
-	void setProperKeys(bool extended);
+    QString clearString(const QString& line);
+    QString clearString(const QString& line, const QString& prefix, const QString& comment);
+    void setProperKeys(bool extended);
     
 private:
     XQKeyCapture* keyCapture;
@@ -333,15 +334,24 @@ void TestXQKeyCapture::testCaptureKey_data()
                             << true
                             << static_cast<unsigned int>(EKeyRightCtrl);
                             
-    QTest::newRow("meta_key") << static_cast<unsigned int>(Qt::Key_Super_R) 
+    QTest::newRow("meta_keyR") << static_cast<unsigned int>(Qt::Key_Super_R) 
                             << static_cast<unsigned int>(Qt::NoModifier)
                             << static_cast<unsigned int>(Qt::NoModifier) 
                             << static_cast<unsigned int>(EKeyRightFunc)
                             << static_cast<unsigned int>(0)
                             << static_cast<unsigned int>(0)
                             << static_cast<long int>(12)
-                            << true
-                            << static_cast<unsigned int>(EKeyRightFunc);
+                            << false
+                            << static_cast<unsigned int>(0);
+    QTest::newRow("meta_keyL") << static_cast<unsigned int>(Qt::Key_Super_L) 
+                            << static_cast<unsigned int>(Qt::NoModifier)
+                            << static_cast<unsigned int>(Qt::NoModifier) 
+                            << static_cast<unsigned int>(EKeyLeftFunc)
+                            << static_cast<unsigned int>(0)
+                            << static_cast<unsigned int>(0)
+                            << static_cast<long int>(12)
+                            << false
+                            << static_cast<unsigned int>(0);
 }
 
 void TestXQKeyCapture::testCaptureKey()
@@ -481,19 +491,27 @@ void TestXQKeyCapture::testCaptureKey_S60_data()
                             << static_cast<unsigned int>(0)
                             << static_cast<unsigned int>(0)
                             << static_cast<long int>(12)
-                            << true
-                            << static_cast<unsigned int>(EKeyRightFunc);
+                            << false
+                            << static_cast<unsigned int>(0);
                             
-    QTest::newRow("meta_key") << static_cast<unsigned int>(EKeyLeftCtrl) 
+    QTest::newRow("meta_key") << static_cast<unsigned int>(EKeyRightFunc) 
                             << static_cast<unsigned int>(Qt::NoModifier)
                             << static_cast<unsigned int>(Qt::NoModifier) 
-                            << static_cast<unsigned int>(EKeyLeftCtrl)
+                            << static_cast<unsigned int>(EKeyRightFunc)
                             << static_cast<unsigned int>(0)
                             << static_cast<unsigned int>(0)
                             << static_cast<long int>(12)
-                            << true
-                            << static_cast<unsigned int>(EKeyLeftFunc);
-
+                            << false
+                            << static_cast<unsigned int>(0);
+    QTest::newRow("meta_keyL") << static_cast<unsigned int>(EKeyLeftFunc) 
+                            << static_cast<unsigned int>(Qt::NoModifier)
+                            << static_cast<unsigned int>(Qt::NoModifier) 
+                            << static_cast<unsigned int>(EKeyLeftFunc)
+                            << static_cast<unsigned int>(0)
+                            << static_cast<unsigned int>(0)
+                            << static_cast<long int>(12)
+                            << false
+                            << static_cast<unsigned int>(0);
 
 }
 
@@ -526,6 +544,7 @@ void TestXQKeyCapture::testCaptureKey_S60()
     additionalResults << additionalSymbianKey << symbianMask << symbianModifier;
     
     MyTestWindowGroup::Instance()->setRequestNumber(reqNum);
+    
     keyCapture->captureKey(static_cast<TUint>(s60Key), Qt::KeyboardModifier(qtMask), Qt::KeyboardModifier(qtModifier));
 }
 
@@ -1627,15 +1646,17 @@ void TestXQKeyCapture::testCaptureRemoteKeys_data()
     QTest::addColumn<unsigned int>("flags");
     
     // there are 4 flags: 
-    // XQKeyCapture::CaptureNone = 0x0
-    // XQKeyCapture::CaptureBasic = 0x1
-    // XQKeyCapture::CaptureCallHandlingExt = 0x2
-    // XQKeyCapture::CaptureEnableRemoteExtEvents = 0x4
+    // CaptureNone = 0x0,
+    // CaptureBasic = 0x1,
+    // CaptureCallHandlingExt = 0x2,
+    // CaptureSideKeys = 0x4, // for future use
+    // CaptureEnableRemoteExtEvents = 0x4000
     // so we should iterate through all combinations:
     for(unsigned int i(0); i <= KAllFlagsOn; ++i) {
         QString desc("flag:0x" + QString::number(i,16));
         QTest::newRow(desc.toAscii()) << i ;
-        }    
+        }
+    
     }
 
 void TestXQKeyCapture::testCaptureRemoteKeys()
@@ -1984,10 +2005,11 @@ void TestXQKeyCapture::windowGroupAction(WindowGroupActionType wgat, QList<unsig
         
         for(int i = 0; i < numOfArgs; i++)
             {
-            if(additionalResult)
-                QVERIFY(paramList[i] == additionalResults[i]);
-            else 
-                QVERIFY(paramList[i] == results[i]);
+            if(additionalResult) {
+                QVERIFY2(paramList[i] == additionalResults[i],QString("Unequal [1]: %1 != %2").arg(paramList[i]).arg(additionalResults[i]).toLatin1().data());
+            } else {
+                QVERIFY2(paramList[i] == results[i], QString("Unequal [2]: %1 != %2").arg(paramList[i]).arg(results[i]).toLatin1().data());
+            }
             }
     }
     if(willBeAdditionalRequest){
@@ -2050,8 +2072,10 @@ void TestXQKeyCapture::processEvent(QEvent *ev)
 //main
 ////////////////////////////////////////////////////////////////
 
+#define _XQKEYCAPTURE_UNITTEST_LOG_TO_C_
+
 #ifdef _XQKEYCAPTURE_UNITTEST_LOG_TO_C_
-    main(int argc, char* argv[]) 
+int main(int argc, char* argv[]) 
     {
         QApplication app(argc, argv);
         TestXQKeyCapture tc;

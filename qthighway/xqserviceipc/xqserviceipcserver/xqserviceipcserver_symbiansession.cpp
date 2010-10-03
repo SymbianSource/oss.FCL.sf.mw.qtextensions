@@ -224,12 +224,14 @@ void CServiceSymbianSession::handleRequestL(const RMessage2& aMessage)
     client->setVendorId(aMessage.VendorId().iId);
     RThread clientThread;
     aMessage.ClientL(clientThread);
+    CleanupClosePushL(clientThread);
     RProcess clientProc;
+    CleanupClosePushL(clientProc);
     clientThread.Process(clientProc);
     client->setName(QString::fromUtf16(clientProc.Name().Ptr(), 
                                        clientProc.Name().Length()));
     client->setCapabilities(ClientCapabilities(aMessage));
-    clientThread.Close();
+    CleanupStack::PopAndDestroy(2, &clientThread);
 
     // Set the picked sharable file if any
     if (file != 0)

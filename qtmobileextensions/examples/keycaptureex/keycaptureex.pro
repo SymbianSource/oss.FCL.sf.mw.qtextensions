@@ -26,6 +26,7 @@ QT        += core gui
 SOURCES = \
     main.cpp \
     mapping.cpp \
+    mybutton.cpp \
     keycapturetestapp.cpp \
     capturerequest.cpp
     
@@ -52,7 +53,7 @@ symbian {
 }
 
 # enable for debug traces
-#DEFINES += ENABLETRACE
+DEFINES += ENABLETRACE
 #DEFINES += TRACE_FILE
 
 symbian: {

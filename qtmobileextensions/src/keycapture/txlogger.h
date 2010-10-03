@@ -61,17 +61,18 @@
 #define TX_MAIN(a, b) _TX_INIT \
             int __tx__main(int, char**); int main(int (a), char **(b)) { _TX_INSTALL return __tx__main(a, b); } int __tx__main(int (a), char **(b))
 
+#define TX_PREFIX "[KeyCapture]"
 #define TX_UNUSED(name);
-#define TX_STATIC_ENTRY qDebug() << __PRETTY_FUNCTION__ << "entry";
-#define TX_STATIC_ENTRY_ARGS(args) qDebug() << __PRETTY_FUNCTION__ << "entry," << args;
-#define TX_STATIC_EXIT qDebug() << __PRETTY_FUNCTION__ << "exit";
-#define TX_STATIC_EXIT_ARGS(args) qDebug() << __PRETTY_FUNCTION__ << "exit," << args; 
-#define TX_ENTRY qDebug() << __PRETTY_FUNCTION__ << "this" << (void *)this << "entry";
-#define TX_ENTRY_ARGS(args) qDebug() << __PRETTY_FUNCTION__ << "this" << (void *)this << "entry," << args;
-#define TX_EXIT qDebug() << __PRETTY_FUNCTION__ << "exit";
-#define TX_EXIT_ARGS(args) qDebug() << __PRETTY_FUNCTION__ << "exit," << args;
-#define TX_LOG qDebug() << __PRETTY_FUNCTION__ << "this" << (void *)this;
-#define TX_LOG_ARGS(args) qDebug() << __PRETTY_FUNCTION__ << args;
+#define TX_STATIC_ENTRY qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "entry";
+#define TX_STATIC_ENTRY_ARGS(args) qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "entry," << args;
+#define TX_STATIC_EXIT qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "exit";
+#define TX_STATIC_EXIT_ARGS(args) qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "exit," << args; 
+#define TX_ENTRY qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "this" << (void *)this << "entry";
+#define TX_ENTRY_ARGS(args) qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "this" << (void *)this << "entry," << args;
+#define TX_EXIT qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "exit";
+#define TX_EXIT_ARGS(args) qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "exit," << args;
+#define TX_LOG qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << "this" << (void *)this;
+#define TX_LOG_ARGS(args) qDebug() << TX_PREFIX << __PRETTY_FUNCTION__ << args;
 #else
 #define TX_MAIN(a,b) int main(int (a), char **(b))
 #define TX_UNUSED(name) Q_UNUSED(name);
